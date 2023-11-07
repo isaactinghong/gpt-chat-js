@@ -8,6 +8,7 @@ This application creates the chat interface for users to chat with gpt (gpt-4)
   - the side menu will display the list of chat conversations
   - the bottom of side menu display the followings:
     - input field for user to enter the gpt model name
+      - default is 'gpt-4-vision-preview'
     - input field for user to enter system message
     - settings button for user to click to open the settings window
       - user can input the api key in the settings window and click the save button to save the api key
