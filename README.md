@@ -1,5 +1,7 @@
 # gpt-chat-js
 
+## What is gpt-chat-js
+
 This application creates the chat interface for users to chat with gpt (gpt-4)
 
 - the interface consists of a side menu and a chat window
@@ -34,3 +36,8 @@ This application creates the chat interface for users to chat with gpt (gpt-4)
       - user can click on the `X` icon button to remove the image from the chat message
     - multiple images can be added to a single chat message to be sent
   - user can click on the `Send` icon button to send the chat message
+
+## Useful resources
+
+- OpenAI Node API Library [https://github.com/openai/openai-node]
+- OpenAI Guide for Vision API [https://platform.openai.com/docs/guides/vision?lang=node]
