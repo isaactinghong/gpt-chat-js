@@ -1,5 +1,11 @@
 # gpt-chat-js
 
+## How to start gpt-chat-js
+
+- react native
+  - `npm install`
+  - `npx expo start`
+
 ## What is gpt-chat-js
 
 This application creates the chat interface for users to chat with gpt (gpt-4)
