@@ -13,7 +13,6 @@ import {
   selectConversation,
 } from "../state/actions/chatActions";
 import { useDispatch } from "react-redux";
-import Swipeable from "react-native-gesture-handler/Swipeable";
 
 const SideMenu = ({ navigation }) => {
   // load conversations from store
@@ -44,27 +43,19 @@ const SideMenu = ({ navigation }) => {
         <ScrollView style={styles.conversationList}>
           {/* list the conversations */}
           {conversationList.map((conversation) => (
-            <Swipeable
-              // slide to the left to delete the conversation
-              onSwipeableOpen={() => {
-                // delete the conversation
-                dispatch(deleteConversation(conversation.id));
+            <Text
+              key={conversation.id}
+              style={styles.conversationTitle}
+              onPress={() => {
+                // select the conversation
+                dispatch(selectConversation(conversation.id));
+
+                /* Navigate to conversation screen */
+                navigation.navigate("Chat");
               }}
             >
-              <Text
-                key={conversation.id}
-                style={styles.conversationTitle}
-                onPress={() => {
-                  // select the conversation
-                  dispatch(selectConversation(conversation.id));
-
-                  /* Navigate to conversation screen */
-                  navigation.navigate("Chat");
-                }}
-              >
-                {conversation.title}
-              </Text>
-            </Swipeable>
+              {conversation.title}
+            </Text>
           ))}
         </ScrollView>
 
