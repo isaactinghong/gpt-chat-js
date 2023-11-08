@@ -4,6 +4,7 @@ import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import GlobalStyles from "../theme/GlobalStyles";
+import { version } from "../package.json";
 
 const conversations = [
   {
@@ -213,7 +214,7 @@ const SideMenu = ({ navigation }) => {
             navigation.navigate("Settings");
           }}
         />
-        <Text style={styles.versionText}>Version 1.0.0</Text>
+        <Text style={styles.versionText}>Version {version}</Text>
       </View>
     </SafeAreaView>
   );
