@@ -7,11 +7,12 @@ import ChatHeaderRight from "../components/ChatHeaderRight";
 import SideMenu from "../components/SideMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/types/app-state";
+import { Conversation } from "../state/types/conversation";
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
-  const currentConversation = useSelector(
+  const currentConversation: Conversation = useSelector(
     (state: AppState) =>
       state.chats.conversations[state.chats.currentConversationId]
   );
@@ -31,7 +32,7 @@ const DrawerNavigator = () => {
         component={ChatScreen}
         options={{
           headerShown: true,
-          headerTitle: currentConversation.title,
+          headerTitle: currentConversation?.title ?? "Error",
           headerRight: () => <ChatHeaderRight />,
           // Other options
         }}

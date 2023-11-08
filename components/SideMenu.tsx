@@ -3,16 +3,17 @@ import React from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import GlobalStyles from "../theme/GlobalStyles";
 import { version } from "../package.json";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/types/app-state";
 import { Conversation } from "../state/types/conversation";
 import {
   createConversation,
+  deleteConversation,
   selectConversation,
 } from "../state/actions/chatActions";
 import { useDispatch } from "react-redux";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 
 const SideMenu = ({ navigation }) => {
   // load conversations from store
@@ -43,19 +44,27 @@ const SideMenu = ({ navigation }) => {
         <ScrollView style={styles.conversationList}>
           {/* list the conversations */}
           {conversationList.map((conversation) => (
-            <Text
-              key={conversation.id}
-              style={styles.conversationTitle}
-              onPress={() => {
-                // select the conversation
-                dispatch(selectConversation(conversation.id));
-
-                /* Navigate to conversation screen */
-                navigation.navigate("Chat");
+            <Swipeable
+              // slide to the left to delete the conversation
+              onSwipeableOpen={() => {
+                // delete the conversation
+                dispatch(deleteConversation(conversation.id));
               }}
             >
-              {conversation.title}
-            </Text>
+              <Text
+                key={conversation.id}
+                style={styles.conversationTitle}
+                onPress={() => {
+                  // select the conversation
+                  dispatch(selectConversation(conversation.id));
+
+                  /* Navigate to conversation screen */
+                  navigation.navigate("Chat");
+                }}
+              >
+                {conversation.title}
+              </Text>
+            </Swipeable>
           ))}
         </ScrollView>
 
