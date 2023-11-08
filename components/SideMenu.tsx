@@ -5,152 +5,21 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import GlobalStyles from "../theme/GlobalStyles";
 import { version } from "../package.json";
-
-const conversations = [
-  {
-    id: 1,
-    title:
-      "This is a development-only warning and won't be shown in production.",
-  },
-  {
-    id: 2,
-    title: "Conversation 2",
-  },
-  {
-    id: 3,
-    title: "Conversation 3",
-  },
-  {
-    id: 4,
-    title: "If you're trying to navigate to a screen in a nested navigator",
-  },
-  {
-    id: 5,
-    title: "Conversation 5",
-  },
-  {
-    id: 6,
-    title: "Conversation 6",
-  },
-  {
-    id: 7,
-    title: "Conversation 7",
-  },
-  {
-    id: 8,
-    title: "Conversation 8",
-  },
-  {
-    id: 9,
-    title: "Conversation 9",
-  },
-  {
-    id: 10,
-    title: "Conversation 10",
-  },
-  {
-    id: 11,
-    title: "Conversation 11",
-  },
-  {
-    id: 12,
-    title: "Conversation 12",
-  },
-  {
-    id: 13,
-    title: "Conversation 13",
-  },
-  {
-    id: 14,
-    title: "Conversation 14",
-  },
-  {
-    id: 15,
-    title: "Conversation 15",
-  },
-  {
-    id: 16,
-    title: "Conversation 16",
-  },
-  {
-    id: 17,
-    title: "Conversation 17",
-  },
-  {
-    id: 18,
-    title: "Conversation 18",
-  },
-  {
-    id: 19,
-    title: "Conversation 19",
-  },
-  {
-    id: 20,
-    title: "Conversation 20",
-  },
-  {
-    id: 21,
-    title: "Conversation 21",
-  },
-  {
-    id: 22,
-    title: "Conversation 22",
-  },
-  {
-    id: 23,
-    title: "Conversation 23",
-  },
-  {
-    id: 24,
-    title: "Conversation 24",
-  },
-  {
-    id: 25,
-    title: "Conversation 25",
-  },
-  {
-    id: 26,
-    title: "Conversation 26",
-  },
-  {
-    id: 27,
-    title: "Conversation 27",
-  },
-  {
-    id: 28,
-    title: "Conversation 28",
-  },
-  {
-    id: 29,
-    title: "Conversation 29",
-  },
-  {
-    id: 30,
-    title: "Conversation 30",
-  },
-  {
-    id: 31,
-    title: "Conversation 31",
-  },
-  {
-    id: 32,
-    title: "Conversation 32",
-  },
-  {
-    id: 33,
-    title: "Conversation 33",
-  },
-  {
-    id: 34,
-    title: "Conversation 34",
-  },
-  {
-    id: 35,
-    title: "Conversation 35",
-  },
-];
+import { useSelector } from "react-redux";
+import { AppState } from "../state/types/app-state";
+import { Conversation } from "../state/types/conversation";
+import { createConversation } from "../state/actions/chatActions";
+import { useDispatch } from "react-redux";
 
 const SideMenu = ({ navigation }) => {
+  // load conversations from store
+  const conversationList: Conversation[] = useSelector((state: AppState) =>
+    state.chats.conversations
+      ? Object.values(state.chats.conversations).reverse()
+      : []
+  );
+  const dispatch = useDispatch();
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.containerView}>
@@ -159,7 +28,21 @@ const SideMenu = ({ navigation }) => {
           color={"#000"}
           title="New Conversation"
           onPress={() => {
-            // TODO: create new conversation
+            // title as "New Conversation #1"
+            // #x is the number of conversations + 1
+            const newConversationTitle = `New Conversation #${
+              conversationList.length + 1
+            }`;
+
+            // create new conversation
+            const newConversation: Conversation = {
+              id: Date.now().toString(),
+              title: newConversationTitle,
+              messages: [],
+            };
+
+            // dispatch action to add new conversation
+            dispatch(createConversation(newConversation));
 
             /* Navigate to new conversation screen */
             navigation.navigate("Chat");
@@ -169,7 +52,7 @@ const SideMenu = ({ navigation }) => {
         {/* List of chat conversations, expanded and scrollable */}
         <ScrollView style={styles.conversationList}>
           {/* list the conversations */}
-          {conversations.map((conversation) => (
+          {conversationList.map((conversation) => (
             <Text
               key={conversation.id}
               style={styles.conversationTitle}
@@ -227,7 +110,6 @@ const styles = StyleSheet.create({
   containerView: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "start",
     justifyContent: "center",
     padding: 10,
     gap: 15,
@@ -249,12 +131,9 @@ const styles = StyleSheet.create({
   gptModelInputView: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "start",
   },
   systemMessageInputView: {
     flexDirection: "row",
-    alignItems: "start",
-    justifyContent: "start",
   },
   systemMessageInput: {
     paddingLeft: 15,

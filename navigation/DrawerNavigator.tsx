@@ -14,10 +14,11 @@ const DrawerNavigator = () => {
     <Drawer.Navigator
       initialRouteName="Chat"
       drawerContent={(props) => <SideMenu {...props} />}
-      screenOptions={{
-        activeTintColor: "#e91e63",
-        itemStyle: { marginVertical: 5 },
-      }}
+      screenOptions={
+        {
+          // Other options
+        }
+      }
     >
       <Drawer.Screen
         name="Chat"

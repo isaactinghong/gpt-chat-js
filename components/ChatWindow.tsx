@@ -8,16 +8,44 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "./ChatMessage";
+import { addMessage } from "../state/actions/chatActions";
+import { useDispatch, useSelector } from "react-redux";
+import { Message } from "../state/types/message";
+import { AppState } from "../state/types/app-state";
 
-const ChatWindow = ({ messages }) => {
+const ChatWindow = () => {
   const [inputText, setInputText] = useState("");
+  const dispatch = useDispatch();
+  const conversations = useSelector(
+    (state: AppState) => state.chats.conversations
+  );
+  const currentConversationId = useSelector(
+    (state: any) => state.chats.currentConversationId
+  );
+
+  const currentConversation = conversations[currentConversationId];
+  const messages = currentConversation?.messages ?? [];
+  // Sample data
+  // const messages = [
+  //   {
+  //     text: "Hello!",
+  //     images: [],
+  //   },
+  //   {
+  //     text: "This is a sample image message",
+  //     images: ["https://via.placeholder.com/150"],
+  //   },
+  // ];
 
   const sendMessage = () => {
-    if (inputText.trim()) {
-      // Handle the message sending logic here
-      console.log(inputText);
-      setInputText("");
-    }
+    const newMessage: Message = {
+      id: Date.now().toString(),
+      text: inputText,
+      timestamp: Date.now(),
+      senderId: "currentUserId",
+      // imageUrls can be added if images are attached
+    };
+    dispatch(addMessage(currentConversationId, newMessage));
   };
 
   return (
@@ -33,6 +61,8 @@ const ChatWindow = ({ messages }) => {
           placeholder="Type a message..."
           value={inputText}
           onChangeText={setInputText}
+          // enter to send
+          onSubmitEditing={sendMessage}
         />
         <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
           <Ionicons name="send" size={22} color="black" />

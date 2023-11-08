@@ -6,7 +6,7 @@ const ChatMessage = ({ message, images }) => {
     <View style={styles.container}>
       <Text style={styles.messageText}>{message}</Text>
       <View style={styles.imageContainer}>
-        {images.map((img, index) => (
+        {images?.map((img, index) => (
           <Image
             key={index}
             source={{ uri: img }}

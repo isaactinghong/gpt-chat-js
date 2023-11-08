@@ -11,18 +11,6 @@ import ChatWindow from "../components/ChatWindow";
 import GlobalStyles from "../theme/GlobalStyles";
 
 const ChatScreen = () => {
-  // Sample data
-  const messages = [
-    {
-      text: "Hello!",
-      images: [],
-    },
-    {
-      text: "This is a sample image message",
-      images: ["https://via.placeholder.com/150"],
-    },
-  ];
-
   return (
     // <SafeAreaView style={GlobalStyles.droidSafeArea}>
     //   <View style={styles.topBar}>
@@ -35,7 +23,7 @@ const ChatScreen = () => {
     // </TouchableOpacity>
     //   </View>
     // </SafeAreaView>
-    <ChatWindow messages={messages} />
+    <ChatWindow />
   );
 };
 
