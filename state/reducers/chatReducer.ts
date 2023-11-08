@@ -4,7 +4,14 @@ import { Conversation } from '../types/conversation';
 
 // reducers/chatReducer.js
 const initialState: ChatState = {
-  conversations: {},
+  conversations: {
+    '0': {
+      id: '0',
+      title: 'New Conversation 1',
+      messages: [
+      ],
+    },
+  },
   currentConversationId: null,
 };
 
