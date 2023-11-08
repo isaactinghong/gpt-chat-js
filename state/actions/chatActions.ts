@@ -17,7 +17,6 @@ interface AddMessageAction {
 
 interface CreateConversationAction {
   type: typeof CREATE_CONVERSATION;
-  payload: Conversation;
 }
 
 interface SelectConversationAction {
@@ -39,10 +38,11 @@ export const addMessage = (conversationId: string, message: Message): ChatAction
   payload: { conversationId, message },
 });
 
-export const createConversation = (conversation: Conversation): ChatActionTypes => ({
-  type: CREATE_CONVERSATION,
-  payload: conversation,
-});
+export const createConversation = (): ChatActionTypes => {
+  return {
+    type: CREATE_CONVERSATION,
+  };
+};
 
 export const selectConversation = (conversationId: string): ChatActionTypes => ({
   type: SELECT_CONVERSATION,

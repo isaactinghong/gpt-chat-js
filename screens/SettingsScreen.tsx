@@ -6,7 +6,7 @@ const SettingsScreen = () => {
     <View style={styles.container}>
       <Text style={styles.title}>API Key</Text>
       <TextInput style={styles.input} placeholder="Your API Key here" />
-      <Button title="Save" onPress={() => {}} />
+      <Button title="Save" color={"#000"} onPress={() => {}} />
     </View>
   );
 };

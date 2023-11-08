@@ -31,21 +31,8 @@ const SideMenu = ({ navigation }) => {
           color={"#000"}
           title="New Conversation"
           onPress={() => {
-            // title as "New Conversation #1"
-            // #x is the number of conversations + 1
-            const newConversationTitle = `New Conversation #${
-              conversationList.length + 1
-            }`;
-
-            // create new conversation
-            const newConversation: Conversation = {
-              id: Date.now().toString(),
-              title: newConversationTitle,
-              messages: [],
-            };
-
             // dispatch action to add new conversation
-            dispatch(createConversation(newConversation));
+            dispatch(createConversation());
 
             /* Navigate to new conversation screen */
             navigation.navigate("Chat");
@@ -132,7 +119,9 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   gptModelInput: {
-    paddingLeft: 15,
+    flex: 1,
+    marginLeft: 5,
+    padding: 5,
   },
   gptModelInputView: {
     flexDirection: "row",
@@ -142,7 +131,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   systemMessageInput: {
-    paddingLeft: 15,
+    flex: 1,
+    marginLeft: 5,
+    padding: 5,
   },
   versionText: {
     alignSelf: "center",

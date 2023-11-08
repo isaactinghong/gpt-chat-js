@@ -1,5 +1,6 @@
 import { ADD_MESSAGE, CREATE_CONVERSATION, ChatActionTypes, SELECT_CONVERSATION } from '../actions/chatActions';
 import { ChatState } from '../types/chat-state';
+import { Conversation } from '../types/conversation';
 
 // reducers/chatReducer.js
 const initialState = {
@@ -23,7 +24,12 @@ const chatReducer = (state = initialState, action: ChatActionTypes): ChatState =
       };
     }
     case CREATE_CONVERSATION: {
-      const conversation = action.payload;
+
+      const conversation: Conversation = {
+        id: new Date().getTime().toString(),
+        title: `New Conversation ${Object.keys(state.conversations).length + 1}`,
+        messages: [],
+      };
       return {
         ...state,
         currentConversationId: conversation.id,
