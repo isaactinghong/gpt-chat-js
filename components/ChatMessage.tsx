@@ -1,15 +1,15 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
-const ChatMessage = ({ message, images }) => {
+const ChatMessage = ({ message, imageUrls }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.messageText}>{message}</Text>
       <View style={styles.imageContainer}>
-        {images?.map((img, index) => (
+        {imageUrls?.map((imageUrl, index) => (
           <Image
             key={index}
-            source={{ uri: img }}
+            source={{ uri: imageUrl }}
             style={styles.imageThumbnail}
           />
         ))}
@@ -21,9 +21,8 @@ const ChatMessage = ({ message, images }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 15,
-    margin: 10,
-    marginLeft: 15,
-    marginRight: 15,
+    marginTop: 15,
+    marginHorizontal: 15,
     borderColor: "#000",
     borderWidth: 0.5,
     borderRadius: 10,

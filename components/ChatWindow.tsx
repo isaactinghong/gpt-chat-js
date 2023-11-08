@@ -46,13 +46,20 @@ const ChatWindow = () => {
       // imageUrls can be added if images are attached
     };
     dispatch(addMessage(currentConversationId, newMessage));
+
+    // clear input
+    setInputText("");
   };
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
         {messages.map((msg, index) => (
-          <ChatMessage key={index} message={msg.text} images={msg.images} />
+          <ChatMessage
+            key={index}
+            message={msg.text}
+            imageUrls={msg.imageUrls}
+          />
         ))}
       </ScrollView>
       <View style={styles.inputContainer}>
@@ -79,6 +86,7 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
+    paddingTop: 5,
   },
   inputContainer: {
     flexDirection: "row",

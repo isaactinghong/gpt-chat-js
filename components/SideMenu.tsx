@@ -8,7 +8,10 @@ import { version } from "../package.json";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/types/app-state";
 import { Conversation } from "../state/types/conversation";
-import { createConversation } from "../state/actions/chatActions";
+import {
+  createConversation,
+  selectConversation,
+} from "../state/actions/chatActions";
 import { useDispatch } from "react-redux";
 
 const SideMenu = ({ navigation }) => {
@@ -57,6 +60,9 @@ const SideMenu = ({ navigation }) => {
               key={conversation.id}
               style={styles.conversationTitle}
               onPress={() => {
+                // select the conversation
+                dispatch(selectConversation(conversation.id));
+
                 /* Navigate to conversation screen */
                 navigation.navigate("Chat");
               }}

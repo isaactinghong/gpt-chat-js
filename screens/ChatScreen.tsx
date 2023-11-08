@@ -11,20 +11,7 @@ import ChatWindow from "../components/ChatWindow";
 import GlobalStyles from "../theme/GlobalStyles";
 
 const ChatScreen = () => {
-  return (
-    // <SafeAreaView style={GlobalStyles.droidSafeArea}>
-    //   <View style={styles.topBar}>
-    // <Text style={styles.title}>This is a sample image message </Text>
-    // <TouchableOpacity style={styles.actionButton} onPress={() => {/* handle new conversation */}}>
-    //   <Ionicons name="add" size={24} color="black" />
-    // </TouchableOpacity>
-    // <TouchableOpacity style={styles.actionButton} onPress={() => {/* handle more options */}}>
-    //   <Ionicons name="ellipsis-vertical" size={24} color="black" />
-    // </TouchableOpacity>
-    //   </View>
-    // </SafeAreaView>
-    <ChatWindow />
-  );
+  return <ChatWindow />;
 };
 
 const styles = StyleSheet.create({

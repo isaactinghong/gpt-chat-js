@@ -1,4 +1,4 @@
-import { ADD_MESSAGE, CREATE_CONVERSATION, ChatActionTypes } from '../actions/chatActions';
+import { ADD_MESSAGE, CREATE_CONVERSATION, ChatActionTypes, SELECT_CONVERSATION } from '../actions/chatActions';
 import { ChatState } from '../types/chat-state';
 
 // reducers/chatReducer.js
@@ -7,9 +7,9 @@ const initialState = {
   currentConversationId: null,
 };
 
-const chatReducer = (state = initialState, action: ChatActionTypes): ChatState  => {
+const chatReducer = (state = initialState, action: ChatActionTypes): ChatState => {
   switch (action.type) {
-    case ADD_MESSAGE:
+    case ADD_MESSAGE: {
       const { conversationId, message } = action.payload;
       return {
         ...state,
@@ -21,7 +21,8 @@ const chatReducer = (state = initialState, action: ChatActionTypes): ChatState  
           },
         },
       };
-    case CREATE_CONVERSATION:
+    }
+    case CREATE_CONVERSATION: {
       const conversation = action.payload;
       return {
         ...state,
@@ -31,6 +32,14 @@ const chatReducer = (state = initialState, action: ChatActionTypes): ChatState  
           [conversation.id]: conversation,
         },
       };
+    }
+    case SELECT_CONVERSATION: {
+      const { conversationId } = action.payload;
+      return {
+        ...state,
+        currentConversationId: conversationId,
+      };
+    }
     // ... other actions
     default:
       return state;

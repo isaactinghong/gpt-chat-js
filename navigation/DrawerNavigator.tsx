@@ -5,11 +5,17 @@ import ChatScreen from "../screens/ChatScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import ChatHeaderRight from "../components/ChatHeaderRight";
 import SideMenu from "../components/SideMenu";
-// Import other screens as needed
+import { useSelector } from "react-redux";
+import { AppState } from "../state/types/app-state";
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
+  const currentConversation = useSelector(
+    (state: AppState) =>
+      state.chats.conversations[state.chats.currentConversationId]
+  );
+
   return (
     <Drawer.Navigator
       initialRouteName="Chat"
@@ -24,6 +30,8 @@ const DrawerNavigator = () => {
         name="Chat"
         component={ChatScreen}
         options={{
+          headerShown: true,
+          headerTitle: currentConversation.title,
           headerRight: () => <ChatHeaderRight />,
           // Other options
         }}
