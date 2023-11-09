@@ -72,7 +72,7 @@ const SideMenu = ({ navigation }) => {
             navigation.navigate("Chat");
           }}
         >
-          <Text>New Conversation</Text>
+          <Text style={GlobalStyles.primaryButtonText}>New Conversation</Text>
         </Pressable>
 
         {/* List of chat conversations, expanded and scrollable */}
@@ -130,7 +130,7 @@ const SideMenu = ({ navigation }) => {
             navigation.navigate("Settings");
           }}
         >
-          <Text>Settings</Text>
+          <Text style={GlobalStyles.primaryButtonText}>Settings</Text>
         </Pressable>
         <Text style={styles.versionText}>Version {version}</Text>
       </View>

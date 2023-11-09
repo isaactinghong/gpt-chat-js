@@ -54,11 +54,11 @@ const InputModal = ({
           />
           {closable && (
             <Pressable onPress={onClose} style={GlobalStyles.primaryButton}>
-              <Text>Cancel</Text>
+              <Text style={GlobalStyles.primaryButtonText}>Cancel</Text>
             </Pressable>
           )}
           <Pressable onPress={handleConfirm} style={GlobalStyles.primaryButton}>
-            <Text>Confirm</Text>
+            <Text style={GlobalStyles.primaryButtonText}>Confirm</Text>
           </Pressable>
         </View>
       </View>

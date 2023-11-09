@@ -1,8 +1,12 @@
 import { StyleSheet, Platform } from "react-native";
 export default StyleSheet.create({
   primaryButton: {
-    backgroundColor: "#1498db",
+    backgroundColor: "#000",
     padding: 10,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    alignSelf: "center",
   },
   droidSafeArea: {
     flex: 1,

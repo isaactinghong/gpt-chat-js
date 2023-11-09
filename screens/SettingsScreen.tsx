@@ -49,7 +49,7 @@ const SettingsScreen = () => {
           });
         }}
       >
-        <Text>Save</Text>
+        <Text style={GlobalStyles.primaryButtonText}>Save</Text>
       </Pressable>
     </View>
   );
