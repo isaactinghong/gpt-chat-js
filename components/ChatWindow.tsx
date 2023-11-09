@@ -11,7 +11,7 @@ import ChatMessage from "./ChatMessage";
 import { addMessage } from "../state/actions/chatActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Message } from "../state/types/message";
-import { AppState } from "../state/types/app-state";
+import { AppState } from "../state/states/app-state";
 
 const ChatWindow = () => {
   const [inputText, setInputText] = useState("");

@@ -1,4 +1,4 @@
-import { Conversation } from './conversation';
+import { Conversation } from '../types/conversation';
 
 export interface ChatState {
   conversations: { [key: string]: Conversation };

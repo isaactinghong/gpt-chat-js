@@ -1,5 +1,5 @@
 import { ADD_MESSAGE, CREATE_CONVERSATION, ChatActionTypes, DELETE_CONVERSATION, SELECT_CONVERSATION } from '../actions/chatActions';
-import { ChatState } from '../types/chat-state';
+import { ChatState } from '../states/chat-state';
 import { Conversation } from '../types/conversation';
 
 // reducers/chatReducer.js

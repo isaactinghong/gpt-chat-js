@@ -5,7 +5,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { version } from "../package.json";
 import { useSelector } from "react-redux";
-import { AppState } from "../state/types/app-state";
+import { AppState } from "../state/states/app-state";
 import { Conversation } from "../state/types/conversation";
 import {
   createConversation,

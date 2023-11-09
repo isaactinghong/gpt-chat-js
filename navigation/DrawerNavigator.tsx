@@ -6,7 +6,7 @@ import SettingsScreen from "../screens/SettingsScreen";
 import ChatHeaderRight from "../components/ChatHeaderRight";
 import SideMenu from "../components/SideMenu";
 import { useSelector } from "react-redux";
-import { AppState } from "../state/types/app-state";
+import { AppState } from "../state/states/app-state";
 import { Conversation } from "../state/types/conversation";
 
 const Drawer = createDrawerNavigator();

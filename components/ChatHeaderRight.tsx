@@ -8,7 +8,7 @@ import {
   deleteConversation,
 } from "../state/actions/chatActions";
 import { useSelector } from "react-redux";
-import { AppState } from "../state/types/app-state";
+import { AppState } from "../state/states/app-state";
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
