@@ -5,18 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Android",
+      "name": "Start Expo App",
       "cwd": "${workspaceFolder}",
-      "type": "reactnative",
+      "type": "node",
       "request": "launch",
-      "platform": "android"
-    },
-    {
-      "name": "Debug in Exponent Web - Experimental",
-      "cwd": "${workspaceFolder}",
-      "type": "reactnativedirect",
-      "request": "launch",
-      "platform": "expoweb"
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["expo", "start"],
+      "console": "integratedTerminal"
     }
   ]
 }
