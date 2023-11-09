@@ -1,6 +1,6 @@
 // components/ChatHeaderRight.js
 import React from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch } from "react-redux";
 import {
@@ -19,7 +19,7 @@ const ChatHeaderRight = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      <Pressable
         style={styles.actionButton}
         onPress={() => {
           // create new conversation, using action: createConversation
@@ -27,8 +27,8 @@ const ChatHeaderRight = () => {
         }}
       >
         <Ionicons name="add" size={24} color="black" />
-      </TouchableOpacity>
-      <TouchableOpacity
+      </Pressable>
+      <Pressable
         style={styles.actionButton}
         onPress={() => {
           /* handle trash */
@@ -36,15 +36,15 @@ const ChatHeaderRight = () => {
         }}
       >
         <Ionicons name="trash-outline" size={20} color="black" />
-      </TouchableOpacity>
-      <TouchableOpacity
+      </Pressable>
+      <Pressable
         style={styles.actionButton}
         onPress={() => {
           /* handle more options */
         }}
       >
         <Ionicons name="ellipsis-vertical" size={20} color="black" />
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 };

@@ -3,8 +3,8 @@ import {
   View,
   ScrollView,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
+  Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "./ChatMessage";
@@ -12,15 +12,25 @@ import { addMessage } from "../state/actions/chatActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Message } from "../state/types/message";
 import { AppState } from "../state/states/app-state";
+import { saveSettings } from "../state/actions/settingsActions";
+import Toast from "react-native-toast-message";
+import InputModal from "./InputModel";
 
 const ChatWindow = () => {
-  const [inputText, setInputText] = useState("");
   const dispatch = useDispatch();
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [inputText, setInputText] = useState("");
+
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
   );
   const currentConversationId = useSelector(
     (state: any) => state.chats.currentConversationId
+  );
+
+  const openAiApiKey = useSelector(
+    (state: AppState) => state.settings.openAiApiKey
   );
 
   const currentConversation = conversations[currentConversationId];
@@ -38,6 +48,11 @@ const ChatWindow = () => {
   // ];
 
   const sendMessage = () => {
+    // check if settings store's openAiApiKey is set
+    if (!openAiApiKey) {
+      setModalVisible(true);
+    }
+
     const newMessage: Message = {
       id: Date.now().toString(),
       text: inputText,
@@ -49,6 +64,22 @@ const ChatWindow = () => {
 
     // clear input
     setInputText("");
+  };
+
+  const handleConfirmApiKey = (inputValue) => {
+    console.log("OpenAI API Key", inputValue);
+    // save settings
+    dispatch(
+      saveSettings({
+        openAiApiKey: inputValue,
+      })
+    );
+
+    // show success toast message
+    Toast.show({
+      type: "success",
+      text1: "OpenAI API key saved",
+    });
   };
 
   return (
@@ -71,10 +102,16 @@ const ChatWindow = () => {
           // enter to send
           onSubmitEditing={sendMessage}
         />
-        <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+        <Pressable onPress={sendMessage} style={styles.sendButton}>
           <Ionicons name="send" size={22} color="black" />
-        </TouchableOpacity>
+        </Pressable>
       </View>
+      <InputModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onConfirm={handleConfirmApiKey}
+        title="Enter your OpenAI API Key:"
+      />
     </View>
   );
 };
