@@ -13,6 +13,8 @@ import {
   selectConversation,
 } from "../state/actions/chatActions";
 import { useDispatch } from "react-redux";
+import { saveSettings } from "../state/actions/settingsActions";
+import Toast from "react-native-toast-message";
 
 const SideMenu = ({ navigation }) => {
   // load conversations from store
@@ -22,6 +24,31 @@ const SideMenu = ({ navigation }) => {
       : []
   );
   const dispatch = useDispatch();
+
+  const modelName = useSelector((state: AppState) => state.settings.modelName);
+  const systemMessage = useSelector(
+    (state: AppState) => state.settings.systemMessage
+  );
+
+  const [modelNameLocal, setModelNameLocal] = React.useState(modelName);
+  const [systemMessageLocal, setSystemMessageLocal] =
+    React.useState(systemMessage);
+
+  const handleSave = (fieldName) => {
+    /* handle save, using action: saveSettings */
+    dispatch(
+      saveSettings({
+        modelName: modelNameLocal,
+        systemMessage: systemMessageLocal,
+      })
+    );
+
+    // show success toast message
+    Toast.show({
+      type: "success",
+      text1: `${fieldName} saved`,
+    });
+  };
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -67,7 +94,9 @@ const SideMenu = ({ navigation }) => {
           <TextInput
             style={styles.gptModelInput}
             placeholder="GPT Model Name"
-            defaultValue="gpt-4-vision-preview"
+            value={modelNameLocal}
+            onChangeText={setModelNameLocal}
+            onSubmitEditing={() => handleSave("GPT Model Name")}
           />
         </View>
         <View style={styles.systemMessageInputView}>
@@ -79,7 +108,9 @@ const SideMenu = ({ navigation }) => {
             placeholder="System Message"
             numberOfLines={2}
             multiline={true}
-            defaultValue="Chat with me."
+            value={systemMessageLocal}
+            onChangeText={setSystemMessageLocal}
+            onChange={() => handleSave("System Message")}
           />
         </View>
         <Button

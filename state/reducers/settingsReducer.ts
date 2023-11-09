@@ -5,6 +5,8 @@ import { SettingsState } from '../states/settings-state';
 // initialState
 const initialState: SettingsState = {
   openAiApiKey: '',
+  modelName: 'gpt-4-vision-preview',
+  systemMessage: 'Chat with me.',
 };
 
 // reducer
