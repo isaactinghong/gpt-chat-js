@@ -162,6 +162,8 @@ const ChatWindow = () => {
       </ScrollView>
       <View style={styles.inputContainer}>
         <TextInput
+          focusable={true}
+          autoFocus={true}
           style={styles.input}
           placeholder="Type a message..."
           value={inputText}
@@ -207,11 +209,12 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingLeft: 15,
     paddingRight: 45, // Make room for the send button
+    marginHorizontal: 15,
     marginVertical: 10,
   },
   sendButton: {
     position: "absolute",
-    right: 22,
+    right: 38,
     bottom: 23,
   },
 });
