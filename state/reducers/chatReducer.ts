@@ -12,7 +12,7 @@ const initialState: ChatState = {
       ],
     },
   },
-  currentConversationId: null,
+  currentConversationId: '0',
 };
 
 const chatReducer = (state = initialState, action: ChatActionTypes): ChatState => {
