@@ -26,12 +26,15 @@
       "package": "com.isaactinghong.gptchatjs"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
     },
     "extra": {
       "eas": {
         "projectId": "4470da89-f368-4fb2-98fa-c1aef4f28d28"
       }
-    }
-  }
+    },
+    "sdkVersion": "49.0.0"
+  },
+  "name": "gpt-chat-js"
 }
