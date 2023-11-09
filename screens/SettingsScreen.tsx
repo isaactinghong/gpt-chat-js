@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { saveSettings } from "../state/actions/settingsActions";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
+import Toast from "react-native-toast-message";
 
 const SettingsScreen = () => {
   const dispatch = useDispatch();
@@ -33,6 +34,12 @@ const SettingsScreen = () => {
               openAiApiKey: openAiApiKeyLocal,
             })
           );
+
+          // show success toast message
+          Toast.show({
+            type: "success",
+            text1: "Settings saved",
+          });
         }}
       />
     </View>
