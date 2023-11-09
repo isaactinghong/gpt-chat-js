@@ -5,4 +5,5 @@ export interface Message {
   id: string;
   timestamp: number;
   imageUrls?: string[];
+  isLoading?: boolean;
 }

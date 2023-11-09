@@ -1,9 +1,9 @@
 // actions/chatActions.js
 
-import { Conversation } from '../types/conversation';
 import { Message } from '../types/message';
 
 export const ADD_MESSAGE = 'ADD_MESSAGE';
+export const UPDATE_MESSAGE = 'UPDATE_MESSAGE';
 export const CREATE_CONVERSATION = 'CREATE_CONVERSATION';
 export const SELECT_CONVERSATION = 'SELECT_CONVERSATION';
 export const DELETE_CONVERSATION = 'DELETE_CONVERSATION';
@@ -13,6 +13,15 @@ interface AddMessageAction {
   payload: {
     conversationId: string;
     message: Message;
+  };
+}
+
+interface UpdateMessageAction {
+  type: typeof UPDATE_MESSAGE;
+  payload: {
+    conversationId: string;
+    message: Message;
+    messageIndex: number;
   };
 }
 
@@ -37,6 +46,7 @@ interface DeleteConversationAction {
 // Union type for chat-related actions
 export type ChatActionTypes =
   AddMessageAction |
+  UpdateMessageAction |
   CreateConversationAction |
   SelectConversationAction |
   DeleteConversationAction
@@ -45,6 +55,19 @@ export type ChatActionTypes =
 export const addMessage = (conversationId: string, message: Message): ChatActionTypes => ({
   type: ADD_MESSAGE,
   payload: { conversationId, message },
+});
+
+export const updateMessage = (
+  conversationId: string,
+  message: Message,
+  messageIndex: number,
+): ChatActionTypes => ({
+  type: UPDATE_MESSAGE,
+  payload: {
+    conversationId,
+    message,
+    messageIndex
+  },
 });
 
 export const createConversation = (): ChatActionTypes => {

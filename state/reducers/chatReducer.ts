@@ -1,4 +1,4 @@
-import { ADD_MESSAGE, CREATE_CONVERSATION, ChatActionTypes, DELETE_CONVERSATION, SELECT_CONVERSATION } from '../actions/chatActions';
+import { ADD_MESSAGE, UPDATE_MESSAGE, CREATE_CONVERSATION, ChatActionTypes, DELETE_CONVERSATION, SELECT_CONVERSATION } from '../actions/chatActions';
 import { ChatState } from '../states/chat-state';
 import { Conversation } from '../types/conversation';
 
@@ -26,6 +26,21 @@ const chatReducer = (state = initialState, action: ChatActionTypes): ChatState =
           [conversationId]: {
             ...state.conversations[conversationId],
             messages: [...(state.conversations[conversationId]?.messages ?? []), message],
+          },
+        },
+      };
+    }
+    case UPDATE_MESSAGE: {
+      const { conversationId, message, messageIndex } = action.payload;
+      const messages = [...state.conversations[conversationId].messages];
+      messages[messageIndex] = message;
+      return {
+        ...state,
+        conversations: {
+          ...state.conversations,
+          [conversationId]: {
+            ...state.conversations[conversationId],
+            messages,
           },
         },
       };

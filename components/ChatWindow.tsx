@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "./ChatMessage";
-import { addMessage } from "../state/actions/chatActions";
+import { addMessage, updateMessage } from "../state/actions/chatActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Message } from "../state/types/message";
 import { AppState } from "../state/states/app-state";
@@ -40,8 +40,7 @@ const ChatWindow = () => {
     (state: AppState) => state.settings.openAiApiKey
   );
 
-  const currentConversation = conversations[currentConversationId];
-  const messages = currentConversation?.messages ?? [];
+  const messages = conversations[currentConversationId]?.messages ?? [];
   // Sample data
   // const messages = [
   //   {
@@ -69,7 +68,7 @@ const ChatWindow = () => {
     };
 
     const messages: ChatCompletionMessageParam[] = [
-      ...currentConversation.messages.map((msg) => ({
+      ...conversations[currentConversationId].messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),
@@ -85,20 +84,42 @@ const ChatWindow = () => {
     setInputText("");
 
     try {
-      const chatCompletionResult = await OpenAI.api.chat.completions.create({
-        messages: messages,
-        model,
-      });
+      // const chatCompletionResult = await OpenAI.api.chat.completions.create({
+      //   messages: messages,
+      //   model,
+      // });
+      // const firstChoice = chatCompletionResult.choices[0];
 
-      const firstChoice = chatCompletionResult.choices[0];
+      let messageContent = "";
 
       const newMessageFromAI: Message = {
         id: Date.now().toString(),
-        ...firstChoice.message,
+        role: "assistant",
+        content: messageContent,
         timestamp: Date.now(),
+        isLoading: true,
       };
 
       dispatch(addMessage(currentConversationId, newMessageFromAI));
+
+      const messageIndex = messages.length;
+
+      const stream = await OpenAI.api.chat.completions.create({
+        messages: messages,
+        model,
+        stream: true,
+      });
+      for await (const chunk of stream) {
+        // process.stdout.write(chunk.choices[0]?.delta?.content || '');
+        messageContent += chunk.choices[0]?.delta?.content || "";
+
+        newMessageFromAI.content = messageContent;
+
+        console.log("messageIndex", messageIndex);
+        dispatch(
+          updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+        );
+      }
     } catch (error) {
       console.log("Error", error);
 
