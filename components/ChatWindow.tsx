@@ -15,9 +15,16 @@ import { AppState } from "../state/states/app-state";
 import { saveSettings } from "../state/actions/settingsActions";
 import Toast from "react-native-toast-message";
 import InputModal from "./InputModel";
+import OpenAI from "../services/OpenAIService";
+import {
+  ChatCompletionMessage,
+  ChatCompletionMessageParam,
+} from "openai/resources";
 
 const ChatWindow = () => {
   const dispatch = useDispatch();
+
+  const model = useSelector((state: AppState) => state.settings.modelName);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
@@ -47,7 +54,7 @@ const ChatWindow = () => {
   //   },
   // ];
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     // check if settings store's openAiApiKey is set
     if (!openAiApiKey) {
       setModalVisible(true);
@@ -55,15 +62,42 @@ const ChatWindow = () => {
 
     const newMessage: Message = {
       id: Date.now().toString(),
-      text: inputText,
+      role: "user",
+      content: inputText,
       timestamp: Date.now(),
-      senderId: "currentUserId",
       // imageUrls can be added if images are attached
     };
+
+    const messages: ChatCompletionMessageParam[] = [
+      ...currentConversation.messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+      })),
+      {
+        role: newMessage.role,
+        content: newMessage.content,
+      },
+    ];
+
     dispatch(addMessage(currentConversationId, newMessage));
 
     // clear input
     setInputText("");
+
+    const chatCompletionResult = await OpenAI.api.chat.completions.create({
+      messages: messages,
+      model,
+    });
+
+    const firstChoice = chatCompletionResult.choices[0];
+
+    const newMessageFromAI: Message = {
+      id: Date.now().toString(),
+      ...firstChoice.message,
+      timestamp: Date.now(),
+    };
+
+    dispatch(addMessage(currentConversationId, newMessageFromAI));
   };
 
   const handleConfirmApiKey = (inputValue) => {
@@ -88,7 +122,7 @@ const ChatWindow = () => {
         {messages.map((msg, index) => (
           <ChatMessage
             key={index}
-            message={msg.text}
+            message={msg.content}
             imageUrls={msg.imageUrls}
           />
         ))}

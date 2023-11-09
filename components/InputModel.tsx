@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Modal, View, Text, TextInput, Button, StyleSheet } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Pressable,
+} from "react-native";
+import GlobalStyles from "../theme/GlobalStyles";
 
 const InputModal = ({
   visible,
@@ -44,9 +53,13 @@ const InputModal = ({
             onSubmitEditing={handleConfirm}
           />
           {closable && (
-            <Button title="Cancel" onPress={onClose} color={"#000"} />
+            <Pressable onPress={onClose} style={GlobalStyles.primaryButton}>
+              <Text>Cancel</Text>
+            </Pressable>
           )}
-          <Button title="Confirm" onPress={handleConfirm} color={"#000"} />
+          <Pressable onPress={handleConfirm} style={GlobalStyles.primaryButton}>
+            <Text>Confirm</Text>
+          </Pressable>
         </View>
       </View>
     </Modal>

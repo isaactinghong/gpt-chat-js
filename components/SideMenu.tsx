@@ -1,6 +1,13 @@
 // src/components/SideMenu.js
 import React from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { version } from "../package.json";
@@ -15,6 +22,7 @@ import {
 import { useDispatch } from "react-redux";
 import { saveSettings } from "../state/actions/settingsActions";
 import Toast from "react-native-toast-message";
+import GlobalStyles from "../theme/GlobalStyles";
 
 const SideMenu = ({ navigation }) => {
   // load conversations from store
@@ -54,9 +62,8 @@ const SideMenu = ({ navigation }) => {
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.containerView}>
         {/* Top of the side menu: New Conversation */}
-        <Button
-          color={"#000"}
-          title="New Conversation"
+        <Pressable
+          style={GlobalStyles.primaryButton}
           onPress={() => {
             // dispatch action to add new conversation
             dispatch(createConversation());
@@ -64,7 +71,9 @@ const SideMenu = ({ navigation }) => {
             /* Navigate to new conversation screen */
             navigation.navigate("Chat");
           }}
-        />
+        >
+          <Text>New Conversation</Text>
+        </Pressable>
 
         {/* List of chat conversations, expanded and scrollable */}
         <ScrollView style={styles.conversationList}>
@@ -113,14 +122,16 @@ const SideMenu = ({ navigation }) => {
             onChange={() => handleSave("System Message")}
           />
         </View>
-        <Button
-          color={"#000"}
-          title="Settings"
+        <Pressable
+          // color={"#000"}
+          style={GlobalStyles.primaryButton}
           onPress={() => {
             /* Navigate to settings screen */
             navigation.navigate("Settings");
           }}
-        />
+        >
+          <Text>Settings</Text>
+        </Pressable>
         <Text style={styles.versionText}>Version {version}</Text>
       </View>
     </SafeAreaView>

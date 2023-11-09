@@ -8,10 +8,20 @@ import SideMenu from "../components/SideMenu";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
 import { Conversation } from "../state/types/conversation";
+import OpenAI from "../services/OpenAIService";
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
+  const openAiApiKey = useSelector(
+    (state: AppState) => state.settings.openAiApiKey
+  );
+
+  // whenever openAiApiKey changes, update the OpenAIService
+  React.useEffect(() => {
+    OpenAI.setApiKey(openAiApiKey);
+  }, [openAiApiKey]);
+
   const currentConversation: Conversation = useSelector(
     (state: AppState) =>
       state.chats.conversations[state.chats.currentConversationId]

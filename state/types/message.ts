@@ -1,8 +1,8 @@
 
 export interface Message {
+  role: 'user' | 'system' | 'assistant';
+  content: string;
   id: string;
-  text: string;
   timestamp: number;
-  senderId: string;
   imageUrls?: string[];
 }

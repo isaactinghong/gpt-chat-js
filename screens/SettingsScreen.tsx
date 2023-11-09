@@ -1,10 +1,18 @@
 import React from "react";
-import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { useDispatch } from "react-redux";
 import { saveSettings } from "../state/actions/settingsActions";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
 import Toast from "react-native-toast-message";
+import GlobalStyles from "../theme/GlobalStyles";
 
 const SettingsScreen = () => {
   const dispatch = useDispatch();
@@ -24,9 +32,8 @@ const SettingsScreen = () => {
         value={openAiApiKeyLocal}
         onChangeText={setOpenAiApiKey}
       />
-      <Button
-        title="Save"
-        color={"#000"}
+      <Pressable
+        style={GlobalStyles.primaryButton}
         onPress={() => {
           /* handle save, using action: saveSettings */
           dispatch(
@@ -41,7 +48,9 @@ const SettingsScreen = () => {
             text1: "Settings saved",
           });
         }}
-      />
+      >
+        <Text>Save</Text>
+      </Pressable>
     </View>
   );
 };
