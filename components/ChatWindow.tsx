@@ -84,20 +84,31 @@ const ChatWindow = () => {
     // clear input
     setInputText("");
 
-    const chatCompletionResult = await OpenAI.api.chat.completions.create({
-      messages: messages,
-      model,
-    });
+    try {
+      const chatCompletionResult = await OpenAI.api.chat.completions.create({
+        messages: messages,
+        model,
+      });
 
-    const firstChoice = chatCompletionResult.choices[0];
+      const firstChoice = chatCompletionResult.choices[0];
 
-    const newMessageFromAI: Message = {
-      id: Date.now().toString(),
-      ...firstChoice.message,
-      timestamp: Date.now(),
-    };
+      const newMessageFromAI: Message = {
+        id: Date.now().toString(),
+        ...firstChoice.message,
+        timestamp: Date.now(),
+      };
 
-    dispatch(addMessage(currentConversationId, newMessageFromAI));
+      dispatch(addMessage(currentConversationId, newMessageFromAI));
+    } catch (error) {
+      console.log("Error", error);
+
+      // show error toast message
+      Toast.show({
+        type: "error",
+        text1: "Error calling OpenAI API",
+        text2: error.message,
+      });
+    }
   };
 
   const handleConfirmApiKey = (inputValue) => {
