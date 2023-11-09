@@ -1,12 +1,27 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
+import { Message } from "../state/types/message";
 
-const ChatMessage = ({ message, imageUrls }) => {
+const ChatMessage = ({ message }: { message: Message }) => {
   return (
-    <View style={styles.container}>
-      <Text style={styles.messageText}>{message}</Text>
+    <View
+      style={
+        message.role == "assistant"
+          ? styles.assistantMessageContainer
+          : styles.userMessageContainer
+      }
+    >
+      <Text
+        style={
+          message.role == "assistant"
+            ? styles.assistantMessageText
+            : styles.userMessageText
+        }
+      >
+        {message.content}
+      </Text>
       <View style={styles.imageContainer}>
-        {imageUrls?.map((imageUrl, index) => (
+        {message.imageUrls?.map((imageUrl, index) => (
           <Image
             key={index}
             source={{ uri: imageUrl }}
@@ -19,16 +34,41 @@ const ChatMessage = ({ message, imageUrls }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 15,
+  assistantMessageContainer: {
+    padding: 10,
+    paddingHorizontal: 15,
     marginTop: 15,
     marginHorizontal: 15,
     borderColor: "#000",
     borderWidth: 0.5,
-    borderRadius: 10,
+    borderRadius: 17,
+    flexShrink: 1,
+    maxWidth: "90%", // 90% of parent
+    alignSelf: "flex-start",
+    flexDirection: "row",
   },
-  messageText: {
+  userMessageContainer: {
+    padding: 10,
+    paddingHorizontal: 15,
+    marginTop: 15,
+    marginHorizontal: 15,
+    borderColor: "#000",
+    borderWidth: 0.5,
+    borderRadius: 17,
+    maxWidth: "90%", // 90% of parent
+    flexShrink: 1,
+    alignSelf: "flex-end",
+    flexDirection: "row",
+  },
+  assistantMessageText: {
+    justifyContent: "center",
     fontSize: 16,
+    lineHeight: 16,
+  },
+  userMessageText: {
+    alignContent: "center",
+    fontSize: 16,
+    lineHeight: 16,
   },
   imageContainer: {
     flexDirection: "row",

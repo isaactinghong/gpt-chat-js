@@ -131,11 +131,7 @@ const ChatWindow = () => {
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
         {messages.map((msg, index) => (
-          <ChatMessage
-            key={index}
-            message={msg.content}
-            imageUrls={msg.imageUrls}
-          />
+          <ChatMessage key={index} message={msg} />
         ))}
       </ScrollView>
       <View style={styles.inputContainer}>
