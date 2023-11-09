@@ -120,6 +120,11 @@ const ChatWindow = () => {
           updateMessage(currentConversationId, newMessageFromAI, messageIndex)
         );
       }
+      // set loading to false
+      newMessageFromAI.isLoading = false;
+      dispatch(
+        updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+      );
     } catch (error) {
       console.log("Error", error);
 
