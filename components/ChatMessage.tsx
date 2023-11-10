@@ -63,12 +63,14 @@ const styles = StyleSheet.create({
     // alignItems: "flex-start",
     marginBottom: 10,
     alignSelf: "flex-start",
+    maxWidth: "90%", // 90% of parent
   },
   userMessageRow: {
     flexDirection: "row",
     // alignItems: "flex-start",
     marginBottom: 10,
     alignSelf: "flex-end",
+    maxWidth: "90%", // 90% of parent
   },
   openAIBlackLogo: {
     minWidth: 30,
@@ -92,7 +94,6 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderRadius: 17,
     flexShrink: 1,
-    maxWidth: "90%", // 90% of parent
     alignSelf: "flex-start",
     flexDirection: "row",
   },
@@ -104,7 +105,6 @@ const styles = StyleSheet.create({
     borderColor: "#000",
     borderWidth: 0.5,
     borderRadius: 17,
-    maxWidth: "90%", // 90% of parent
     flexShrink: 1,
     alignSelf: "flex-end",
     flexDirection: "row",
