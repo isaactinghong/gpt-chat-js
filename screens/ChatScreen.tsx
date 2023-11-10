@@ -201,13 +201,15 @@ const ChatScreen = () => {
       </ScrollView>
       <View style={styles.inputContainer}>
         <TextInput
+          // enter to send
+          // shift+enter to new line
           focusable={true}
           autoFocus={true}
           style={styles.input}
           placeholder="Type a message..."
           value={inputText}
+          multiline={true}
           onChangeText={setInputText}
-          // enter to send
           onSubmitEditing={sendMessage}
         />
         <Pressable onPress={sendMessage} style={styles.sendButton}>
@@ -245,10 +247,12 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#000",
     borderRadius: 20,
-    paddingLeft: 15,
+    paddingTop: 13,
+    paddingLeft: 18,
     paddingRight: 45, // Make room for the send button
     marginHorizontal: 15,
     marginVertical: 10,
+    overflow: "hidden",
   },
   sendButton: {
     position: "absolute",
