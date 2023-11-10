@@ -7,6 +7,7 @@ export const UPDATE_MESSAGE = 'UPDATE_MESSAGE';
 export const CREATE_CONVERSATION = 'CREATE_CONVERSATION';
 export const SELECT_CONVERSATION = 'SELECT_CONVERSATION';
 export const DELETE_CONVERSATION = 'DELETE_CONVERSATION';
+export const UPDATE_CONVERSATION = 'UPDATE_CONVERSATION';
 
 interface AddMessageAction {
   type: typeof ADD_MESSAGE;
@@ -43,13 +44,22 @@ interface DeleteConversationAction {
   };
 }
 
+interface UpdateConversationAction {
+  type: typeof UPDATE_CONVERSATION;
+  payload: {
+    conversationId: string;
+    title: string;
+  };
+}
+
 // Union type for chat-related actions
 export type ChatActionTypes =
   AddMessageAction |
   UpdateMessageAction |
   CreateConversationAction |
   SelectConversationAction |
-  DeleteConversationAction
+  DeleteConversationAction |
+  UpdateConversationAction
   ;
 
 export const addMessage = (conversationId: string, message: Message): ChatActionTypes => ({
@@ -84,4 +94,9 @@ export const selectConversation = (conversationId: string): ChatActionTypes => (
 export const deleteConversation = (conversationId: string): ChatActionTypes => ({
   type: DELETE_CONVERSATION,
   payload: { conversationId },
+});
+
+export const updateConversation = (conversationId: string, title: string): ChatActionTypes => ({
+  type: UPDATE_CONVERSATION,
+  payload: { conversationId, title },
 });

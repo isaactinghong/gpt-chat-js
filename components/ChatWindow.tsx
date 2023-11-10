@@ -8,7 +8,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "./ChatMessage";
-import { addMessage, updateMessage } from "../state/actions/chatActions";
+import {
+  addMessage,
+  updateConversation,
+  updateMessage,
+} from "../state/actions/chatActions";
 import { useDispatch, useSelector } from "react-redux";
 import { Message } from "../state/types/message";
 import { AppState } from "../state/states/app-state";
@@ -125,6 +129,33 @@ const ChatWindow = () => {
       dispatch(
         updateMessage(currentConversationId, newMessageFromAI, messageIndex)
       );
+
+      // system message to ask openai to give a title
+      const systemMessage: ChatCompletionMessageParam = {
+        role: "system",
+        content: `
+          Please give a title to this conversation.
+          Keep it short, within 20 words.
+          Do not include any punctuation.
+          Do not include any special characters.
+          Do not need to quote the title.
+          Your result is used directly as the title.
+          `,
+      };
+
+      // title messages
+      const titleMessages = [systemMessage, ...messages];
+
+      // get new conversation title from openai
+      const titleResult = await OpenAI.api.chat.completions.create({
+        messages: titleMessages,
+        model,
+      });
+
+      const title = titleResult.choices[0]?.message?.content || "Untitled";
+
+      // update conversation title
+      dispatch(updateConversation(currentConversationId, title));
     } catch (error) {
       console.log("Error", error);
 
