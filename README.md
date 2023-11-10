@@ -52,6 +52,7 @@ This application creates the chat interface for users to chat with gpt (gpt-4)
 ```
 npx expo export:web
 netlify deploy --dir web-build --prod
+
 ```
 
 ## Useful resources

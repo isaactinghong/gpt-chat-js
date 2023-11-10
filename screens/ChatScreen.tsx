@@ -135,8 +135,9 @@ const ChatScreen = () => {
       const systemMessage: ChatCompletionMessageParam = {
         role: "system",
         content: `
-          Please give a title to this conversation.
+          Please give a short title to this conversation.
           Keep it short, within 20 words.
+          One sentence only.
           Do not include any punctuation.
           Do not include any special characters.
           Do not need to quote the title.
