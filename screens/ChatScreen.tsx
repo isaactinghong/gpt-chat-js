@@ -250,11 +250,12 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#000",
     borderRadius: 20,
-    paddingTop: 13,
+    paddingTop: 14,
     paddingLeft: 18,
     paddingRight: 45, // Make room for the send button
     marginHorizontal: 15,
     marginVertical: 10,
+    fontSize: 14,
     overflow: "hidden",
   },
   sendButton: {
