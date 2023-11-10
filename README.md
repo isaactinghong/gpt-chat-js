@@ -40,6 +40,13 @@ This application creates the chat interface for users to chat with gpt (gpt-4)
     - multiple images can be added to a single chat message to be sent
   - user can click on the `Send` icon button to send the chat message
 
+## Deployment pwa to netlify with webpack export
+
+```
+npx expo export:web
+netlify deploy --dir web-build
+```
+
 ## Useful resources
 
 - OpenAI Node API Library [https://github.com/openai/openai-node]
