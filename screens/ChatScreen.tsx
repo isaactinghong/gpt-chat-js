@@ -162,6 +162,9 @@ const ChatScreen = () => {
         title = title.substring(0, 100);
       }
 
+      // trim any new line in the title
+      title = title.replace(/(\r\n|\n|\r)/gm, "");
+
       // update conversation title
       dispatch(updateConversation(currentConversationId, title));
     } catch (error) {
