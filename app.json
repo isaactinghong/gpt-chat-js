@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "gpt-chat-js",
+    "name": "GPT Chat JS",
     "slug": "gpt-chat-js",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -26,8 +26,7 @@
       "package": "com.isaactinghong.gptchatjs"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
-      "bundler": "metro"
+      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {

@@ -19,7 +19,10 @@
     "@types/react": "^18.2.37",
     "@types/react-dom": "~18.0.10",
     "expo": "~49.0.15",
+    "expo-constants": "~14.4.2",
     "expo-dev-client": "~2.4.12",
+    "expo-linking": "~5.0.2",
+    "expo-router": "^2.0.0",
     "expo-status-bar": "~1.6.0",
     "openai": "^4.17.0",
     "react": "18.2.0",
@@ -36,13 +39,11 @@
     "redux": "^4.2.1",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
-    "typescript": "^5.2.2",
-    "expo-router": "^2.0.0",
-    "expo-linking": "~5.0.2",
-    "expo-constants": "~14.4.2"
+    "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "workbox-cli": "^7.0.0"
   },
   "overrides": {
     "react-refresh": "~0.14.0"
