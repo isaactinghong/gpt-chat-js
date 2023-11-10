@@ -153,7 +153,13 @@ const ChatScreen = () => {
         model,
       });
 
-      const title = titleResult.choices[0]?.message?.content || "Untitled";
+      let title = titleResult.choices[0]?.message?.content || "Untitled";
+
+      // check if title is too long, more than 20 words, so about 100 characters
+      // just trim it
+      if (title.length > 100) {
+        title = title.substring(0, 100);
+      }
 
       // update conversation title
       dispatch(updateConversation(currentConversationId, title));
