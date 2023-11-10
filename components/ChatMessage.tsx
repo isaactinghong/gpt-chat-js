@@ -61,14 +61,12 @@ const styles = StyleSheet.create({
   assistantMessageRow: {
     flexDirection: "row",
     // alignItems: "flex-start",
-    marginBottom: 10,
     alignSelf: "flex-start",
     maxWidth: "90%", // 90% of parent
   },
   userMessageRow: {
     flexDirection: "row",
     // alignItems: "flex-start",
-    marginBottom: 10,
     alignSelf: "flex-end",
     maxWidth: "90%", // 90% of parent
   },

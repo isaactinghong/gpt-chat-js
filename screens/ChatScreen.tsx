@@ -224,7 +224,6 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
-    paddingTop: 5,
   },
   inputContainer: {
     flexDirection: "row",

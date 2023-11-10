@@ -1,5 +1,12 @@
 # gpt-chat-js
 
+## TODO
+
+- [ ] add GPT Vision support
+- [ ] add GPT Dall-E support
+- [ ] add GPT Whisper support
+- [ ] add GPT Text-to-speech support
+
 ## How to start gpt-chat-js
 
 - react native
