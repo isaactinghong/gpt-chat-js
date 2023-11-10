@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     marginRight: 10,
-    gap: 3,
+    gap: 0,
   },
   actionButton: {
     marginLeft: 15,

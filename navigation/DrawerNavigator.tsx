@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
 import { Conversation } from "../state/types/conversation";
 import OpenAI from "../services/OpenAIService";
+import { View, Text, StyleSheet } from "react-native";
 
 const Drawer = createDrawerNavigator();
 
@@ -42,9 +43,21 @@ const DrawerNavigator = () => {
         component={ChatScreen}
         options={{
           headerShown: true,
-          headerTitle: currentConversation?.title ?? "Error",
+          headerTitle: (props) => {
+            return (
+              <View style={styles.headerTitleContainer}>
+                <Text style={styles.headerTitle}>
+                  {currentConversation?.title}
+                </Text>
+              </View>
+            );
+          },
           headerRight: () => <ChatHeaderRight />,
-          // Other options
+          headerTitleContainerStyle: {
+            width: "100%",
+            marginLeft: 0,
+            paddingRight: 20,
+          },
         }}
       />
       <Drawer.Screen name="Settings" component={SettingsScreen} />
@@ -52,5 +65,20 @@ const DrawerNavigator = () => {
     </Drawer.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  headerTitleContainer: {
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "center",
+  },
+  headerTitle: {
+    fontSize: 16,
+  },
+  headerSubtitle: {
+    fontSize: 12,
+    color: "gray",
+  },
+});
 
 export default DrawerNavigator;
