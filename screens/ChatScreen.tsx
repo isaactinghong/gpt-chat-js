@@ -86,7 +86,7 @@ const ChatScreen = () => {
     // if images are present, add them to messages
     let newMessage: Message & ChatCompletionMessageParam;
 
-    if (images.length > 0) {
+    if (images && images.length > 0) {
       const content: Array<ChatCompletionContentPart> = [];
 
       // add text message
@@ -429,38 +429,40 @@ const ChatScreen = () => {
         </View>
       </View>
       {/* Display image thumbnails on top of the bottom input bar if images are attached */}
-      <View style={styles.imageThumbnailsContainer}>
-        {images.map((image, index) => (
-          <Pressable
-            key={index}
-            onHoverIn={() => handleImageHoverIn(index)}
-            onHoverOut={() => handleImageHoverOut(index)}
-            onPress={() => handleImagePress(index)}
-          >
-            <View>
-              <Image
-                key={index}
-                source={{ uri: image.image_url.url }}
-                style={styles.imageThumbnail}
-              />
-              {/* show delete icon if hovered */}
-              {imageIndexsHovered[index] && (
-                <Ionicons
-                  name="close-circle"
-                  size={22}
-                  color="black"
-                  style={{
-                    position: "absolute",
-                    top: 5,
-                    right: 5,
-                    zIndex: 1,
-                  }}
+      {images != null && (
+        <View style={styles.imageThumbnailsContainer}>
+          {images.map((image, index) => (
+            <Pressable
+              key={index}
+              onHoverIn={() => handleImageHoverIn(index)}
+              onHoverOut={() => handleImageHoverOut(index)}
+              onPress={() => handleImagePress(index)}
+            >
+              <View>
+                <Image
+                  key={index}
+                  source={{ uri: image.image_url.url }}
+                  style={styles.imageThumbnail}
                 />
-              )}
-            </View>
-          </Pressable>
-        ))}
-      </View>
+                {/* show delete icon if hovered */}
+                {imageIndexsHovered[index] && (
+                  <Ionicons
+                    name="close-circle"
+                    size={22}
+                    color="black"
+                    style={{
+                      position: "absolute",
+                      top: 5,
+                      right: 5,
+                      zIndex: 1,
+                    }}
+                  />
+                )}
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      )}
       {/* Modal to enter OpenAI API Key */}
       <InputModal
         visible={modalVisible}
