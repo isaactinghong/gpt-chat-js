@@ -329,9 +329,14 @@ const ChatScreen = () => {
             role: "assistant",
             content: msg.content,
           } as ChatCompletionAssistantMessageParam;
+        } else if (msg.role === "system") {
+          return {
+            role: "system",
+            content: msg.content,
+          } as ChatCompletionMessageParam;
         } else {
           // log warn
-          console.warn("Unknown role", msg.role);
+          console.warn("Unknown message role", msg.role);
           return null;
         }
       })
