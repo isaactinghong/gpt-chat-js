@@ -7,6 +7,7 @@ import {
   Pressable,
   Image,
   Modal,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "../components/ChatMessage";
@@ -28,6 +29,7 @@ import OpenAI from "../services/OpenAIService";
 import {
   ChatCompletionAssistantMessageParam,
   ChatCompletionContentPart,
+  ChatCompletionContentPartText,
   ChatCompletionMessage,
   ChatCompletionMessageParam,
   ChatCompletionUserMessageParam,
@@ -152,7 +154,13 @@ const ChatScreen = () => {
       const messageIndex = messages.length;
 
       const stream = await OpenAI.api.chat.completions.create({
-        messages: convertMessagesToOpenAI(messages),
+        messages: messages.map(
+          (msg) =>
+            ({
+              role: msg.role,
+              content: msg.content,
+            } as ChatCompletionMessageParam)
+        ),
         model,
         max_tokens: 4096,
         stream: true,
@@ -196,11 +204,30 @@ const ChatScreen = () => {
       };
 
       // title messages
-      const titleMessages = [systemMessage, ...messages];
+      const titleMessages = [
+        systemMessage,
+        ...messages.map((msg) => {
+          // if content type is array,
+          // set content as the first element of the array
+          if (Array.isArray(msg.content)) {
+            return {
+              ...msg,
+              content: (msg.content[0] as ChatCompletionContentPartText).text,
+            };
+          }
+          return msg;
+        }),
+      ];
 
       // get new conversation title from openai
       const titleResult = await OpenAI.api.chat.completions.create({
-        messages: convertMessagesToOpenAI(titleMessages),
+        messages: titleMessages.map(
+          (msg) =>
+            ({
+              role: msg.role,
+              content: msg.content,
+            } as ChatCompletionMessageParam)
+        ),
         model: "gpt-3.5-turbo",
       });
 
@@ -323,33 +350,6 @@ const ChatScreen = () => {
     dispatch(removeImage(index));
   };
 
-  const convertMessagesToOpenAI = (messages) =>
-    messages
-      .map((msg) => {
-        if (msg.role === "user") {
-          return {
-            role: "user",
-            content: msg.content,
-          } as ChatCompletionUserMessageParam;
-        }
-        if (msg.role === "assistant") {
-          return {
-            role: "assistant",
-            content: msg.content,
-          } as ChatCompletionAssistantMessageParam;
-        } else if (msg.role === "system") {
-          return {
-            role: "system",
-            content: msg.content,
-          } as ChatCompletionMessageParam;
-        } else {
-          // log warn
-          console.warn("Unknown message role", msg.role);
-          return null;
-        }
-      })
-      .filter((msg) => msg !== null);
-
   const openImageViewer = (images: IImageInfo[], selectedIndex: number) => {
     console.log("openImageViewer", images, selectedIndex);
 
@@ -364,6 +364,17 @@ const ChatScreen = () => {
   };
 
   const handleMessageKeyPress = (event) => {
+    // only handle this if it's PC (computer)
+    if (
+      !(
+        Platform.OS === "web" ||
+        Platform.OS === "macos" ||
+        Platform.OS === "windows"
+      )
+    ) {
+      return;
+    }
+
     if (event.nativeEvent.key === "Enter" && !event.nativeEvent.shiftKey) {
       // Enter was pressed without the shift key
       console.log("handleMessageKeyPress enter", inputText);
@@ -380,6 +391,9 @@ const ChatScreen = () => {
 
       // Shift+Enter was pressed
       setInputText(inputText + "\n"); // Add a line break
+
+      // stop event propagation
+      event.preventDefault();
     }
   };
 
