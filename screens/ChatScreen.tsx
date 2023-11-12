@@ -297,7 +297,23 @@ const ChatScreen = () => {
     // for each result.assets
     // add to messages
     result.assets.forEach((asset) => {
-      // add to messages
+      // try {
+      //   // resize image to max height 700
+      //   ImageManipulator.manipulateAsync(
+      //     asset.uri,
+      //     [{ resize: { height: 700 } }],
+      //     { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+      //   ).then((resizedImage) => {
+      //     // add the image
+      //     dispatch(addImage(resizedImage.base64));
+      //   });
+      // } catch (error) {
+      //   console.log("Error resizing the image", error);
+
+      //   // just add the original image
+      //   dispatch(addImage(asset.uri));
+      // }
+      // just add the original image
       dispatch(addImage(asset.uri));
     });
   };
@@ -364,36 +380,35 @@ const ChatScreen = () => {
   };
 
   const handleMessageKeyPress = (event) => {
-    // only handle this if it's PC (computer)
-    if (
-      !(
-        Platform.OS === "web" ||
-        Platform.OS === "macos" ||
-        Platform.OS === "windows"
-      )
-    ) {
-      return;
-    }
+    // Check if we're on a device that traditionally has a hardware keyboard
+    const isHardwareKeyboard = !/iPhone|iPad|iPod|Android/i.test(
+      navigator.userAgent
+    );
 
-    if (event.nativeEvent.key === "Enter" && !event.nativeEvent.shiftKey) {
-      // Enter was pressed without the shift key
-      console.log("handleMessageKeyPress enter", inputText);
-
-      sendMessage();
-
-      // stop event propagation
-      event.preventDefault();
-    } else if (
-      event.nativeEvent.key === "Enter" &&
-      event.nativeEvent.shiftKey
-    ) {
-      console.log("handleMessageKeyPress shift+enter", inputText);
-
-      // Shift+Enter was pressed
-      setInputText(inputText + "\n"); // Add a line break
-
-      // stop event propagation
-      event.preventDefault();
+    if (Platform.OS === "web" && isHardwareKeyboard) {
+      // Traditional desktop handling
+      if (event.nativeEvent.key === "Enter" && !event.nativeEvent.shiftKey) {
+        console.log("handleMessageKeyPress enter", inputText);
+        sendMessage();
+        event.preventDefault(); // stop event propagation
+      } else if (
+        event.nativeEvent.key === "Enter" &&
+        event.nativeEvent.shiftKey
+      ) {
+        console.log("handleMessageKeyPress shift+enter", inputText);
+        setInputText(inputText + "\n"); // Add a line break
+        event.preventDefault(); // stop event propagation
+      }
+    } else if (Platform.OS === "web" && !isHardwareKeyboard) {
+      // Mobile browser handling (where we treat Enter as newline)
+      if (event.nativeEvent.key === "Enter") {
+        console.log(
+          "handleMessageKeyPress return key on mobile browser",
+          inputText
+        );
+        setInputText(inputText + "\n"); // Add a line break
+        event.preventDefault(); // stop event propagation
+      }
     }
   };
 
@@ -421,9 +436,8 @@ const ChatScreen = () => {
             multiline={true}
             onChangeText={setInputText}
             onSubmitEditing={sendMessage}
-            // onKeyPress={handleMessageKeyPress}
+            onKeyPress={handleMessageKeyPress}
             blurOnSubmit
-            returnKeyType="done"
           />
           <Pressable onPress={sendMessage} style={styles.sendButton}>
             <Ionicons name="send" size={22} color="black" />
