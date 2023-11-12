@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   Image,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "../components/ChatMessage";
@@ -33,6 +34,9 @@ import {
 } from "openai/resources";
 import * as ImagePicker from "expo-image-picker";
 import { ImagePickerResult } from "expo-image-picker";
+// react-native-image-zoom-viewer
+import ImageViewer from "react-native-image-zoom-viewer";
+import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
@@ -43,6 +47,10 @@ const ChatScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
   const [imageIndexsHovered, setImageIndexsHovered] = useState({}); // array of image indexes that are hovered
+
+  const [imageViewerVisible, setImageViewerVisible] = useState(false);
+  const [imagesToPreview, setImagesToPreview] = useState([]); // array of images to preview in image viewer
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0); // index of selected image to preview in image viewer
 
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
@@ -146,7 +154,7 @@ const ChatScreen = () => {
       const stream = await OpenAI.api.chat.completions.create({
         messages: convertMessagesToOpenAI(messages),
         model,
-        max_tokens: 8000,
+        max_tokens: 4096,
         stream: true,
       });
       for await (const chunk of stream) {
@@ -193,7 +201,7 @@ const ChatScreen = () => {
       // get new conversation title from openai
       const titleResult = await OpenAI.api.chat.completions.create({
         messages: convertMessagesToOpenAI(titleMessages),
-        model,
+        model: "gpt-3.5-turbo",
       });
 
       let title = titleResult.choices[0]?.message?.content || "Untitled";
@@ -342,11 +350,28 @@ const ChatScreen = () => {
       })
       .filter((msg) => msg !== null);
 
+  const openImageViewer = (images: IImageInfo[], selectedIndex: number) => {
+    console.log("openImageViewer", images, selectedIndex);
+
+    // set selectedImageIndex
+    setSelectedImageIndex(selectedIndex);
+
+    // set imagesToPreview
+    setImagesToPreview(images);
+
+    // open image viewer
+    setImageViewerVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
         {messages.map((msg, index) => (
-          <ChatMessage key={index} message={msg} />
+          <ChatMessage
+            key={index}
+            message={msg}
+            openImageViewer={openImageViewer}
+          />
         ))}
       </ScrollView>
       <View style={styles.bottomInputBarContainer}>
@@ -422,6 +447,20 @@ const ChatScreen = () => {
         onConfirm={handleConfirmApiKey}
         title="Enter your OpenAI API Key:"
       />
+      {/* Modal to show image viewer */}
+      <Modal
+        visible={imageViewerVisible}
+        transparent={true}
+        onRequestClose={() => setImageViewerVisible(false)}
+      >
+        <ImageViewer
+          imageUrls={imagesToPreview}
+          index={selectedImageIndex}
+          onSwipeDown={() => setImageViewerVisible(false)}
+          enableSwipeDown={true}
+          enableImageZoom={true}
+        />
+      </Modal>
     </View>
   );
 };

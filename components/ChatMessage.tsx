@@ -1,17 +1,28 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
 import { Message } from "../state/types/message";
 import OpenAIBlackLogo from "./OpenAIBlackLogo";
 import {
   ChatCompletionContentPart,
+  ChatCompletionContentPartImage,
   ChatCompletionContentPartText,
   ChatCompletionMessageParam,
 } from "openai/resources";
+import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
 
 const ChatMessage = ({
   message,
+  openImageViewer,
 }: {
   message: Message & ChatCompletionMessageParam;
+  openImageViewer: (images: IImageInfo[], selectedIndex: number) => void;
 }) => {
   return (
     <View
@@ -56,13 +67,37 @@ const ChatMessage = ({
             : message.content}
         </Text>
         <View style={styles.imageContainer}>
-          {message.imageUrls?.map((imageUrl, index) => (
-            <Image
-              key={index}
-              source={{ uri: imageUrl }}
-              style={styles.imageThumbnail}
-            />
-          ))}
+          {Array.isArray(message.content) &&
+            message.content
+              .filter((contentPart) => contentPart.type === "image_url")
+              .map((contentPart, index) => {
+                const imageUrl = (contentPart as ChatCompletionContentPartImage)
+                  .image_url.url;
+                return (
+                  <Pressable
+                    onPress={() =>
+                      openImageViewer(
+                        (message.content as ChatCompletionContentPart[])
+                          .filter(
+                            (contentPart) => contentPart.type === "image_url"
+                          )
+                          .map((contentPart) => ({
+                            url: (contentPart as ChatCompletionContentPartImage)
+                              .image_url.url,
+                            props: {},
+                          })),
+                        index
+                      )
+                    }
+                  >
+                    <Image
+                      key={index}
+                      source={{ uri: imageUrl }}
+                      style={styles.imageThumbnail}
+                    />
+                  </Pressable>
+                );
+              })}
         </View>
       </View>
     </View>
@@ -117,7 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     flexShrink: 1,
     alignSelf: "flex-end",
-    flexDirection: "row",
+    flexDirection: "column",
   },
   assistantMessageText: {
     justifyContent: "center",
@@ -128,9 +163,11 @@ const styles = StyleSheet.create({
     alignContent: "center",
     fontSize: 16,
     lineHeight: 20,
+    flex: 1,
   },
   imageContainer: {
     flexDirection: "row",
+    flexWrap: "wrap",
     marginTop: 10,
   },
   imageThumbnail: {
