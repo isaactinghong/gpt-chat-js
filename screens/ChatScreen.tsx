@@ -24,6 +24,11 @@ import {
   ChatCompletionMessage,
   ChatCompletionMessageParam,
 } from "openai/resources";
+import {
+  ImageLibraryOptions,
+  launchCamera,
+  launchImageLibrary,
+} from "react-native-image-picker";
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
@@ -72,7 +77,7 @@ const ChatScreen = () => {
       // imageUrls can be added if images are attached
     };
 
-    const messages: ChatCompletionMessageParam[] = [
+    const messages: any[] = [
       ...conversations[currentConversationId].messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
@@ -195,6 +200,36 @@ const ChatScreen = () => {
     });
   };
 
+  const attachImageGallery = async () => {
+    console.log("attachImageGallery");
+
+    // open image picker by react-native-image-picker, launch image library
+    const options: ImageLibraryOptions = {
+      mediaType: "photo",
+    };
+
+    const result = await launchImageLibrary(options);
+
+    result.assets.forEach((asset) => {
+      console.log("asset", asset);
+    });
+  };
+
+  const attachImageCamera = async () => {
+    console.log("attachImageCamera");
+
+    // open image picker by react-native-image-picker, launch camera
+    const options: ImageLibraryOptions = {
+      mediaType: "photo",
+    };
+
+    const result = await launchCamera(options);
+
+    result.assets.forEach((asset) => {
+      console.log("asset", asset);
+    });
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
@@ -202,22 +237,38 @@ const ChatScreen = () => {
           <ChatMessage key={index} message={msg} />
         ))}
       </ScrollView>
-      <View style={styles.inputContainer}>
-        <TextInput
-          // enter to send
-          // shift+enter to new line
-          focusable={true}
-          autoFocus={true}
-          style={styles.input}
-          placeholder="Type a message..."
-          value={inputText}
-          multiline={true}
-          onChangeText={setInputText}
-          onSubmitEditing={sendMessage}
-        />
-        <Pressable onPress={sendMessage} style={styles.sendButton}>
-          <Ionicons name="send" size={22} color="black" />
-        </Pressable>
+      <View style={styles.bottomInputBarContainer}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            // enter to send
+            // shift+enter to new line
+            focusable={true}
+            autoFocus={true}
+            style={styles.input}
+            placeholder="Type a message..."
+            value={inputText}
+            multiline={true}
+            onChangeText={setInputText}
+            onSubmitEditing={sendMessage}
+          />
+          <Pressable onPress={sendMessage} style={styles.sendButton}>
+            <Ionicons name="send" size={22} color="black" />
+          </Pressable>
+        </View>
+        <View style={styles.attachButtonsContainer}>
+          <Pressable
+            onPress={attachImageGallery}
+            style={styles.attachImageGalleryButton}
+          >
+            <Ionicons name="image" size={22} color="black" />
+          </Pressable>
+          <Pressable
+            onPress={attachImageCamera}
+            style={styles.attachImageCameraButton}
+          >
+            <Ionicons name="camera" size={22} color="black" />
+          </Pressable>
+        </View>
       </View>
       <InputModal
         visible={modalVisible}
@@ -235,17 +286,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", // Make sure to set a background color
   },
   messagesContainer: {
+    display: "flex",
     flex: 1,
   },
+  bottomInputBarContainer: {
+    display: "flex",
+    flexDirection: "row",
+    // justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
   inputContainer: {
+    display: "flex",
+    flexBasis: "auto",
     flexDirection: "row",
     paddingHorizontal: 10,
+    alignSelf: "flex-start",
     alignItems: "center",
+    flexGrow: 1,
     // borderTopWidth: 1,
     // borderColor: "#ddd",
   },
   input: {
-    flex: 1,
+    flexGrow: 1,
     height: 50,
     borderWidth: 0.5,
     borderColor: "#000",
@@ -253,13 +316,31 @@ const styles = StyleSheet.create({
     paddingTop: 13,
     paddingLeft: 18,
     paddingRight: 45, // Make room for the send button
-    marginHorizontal: 15,
+    marginLeft: 15,
+    marginRight: 5,
     marginVertical: 10,
     overflow: "hidden",
   },
   sendButton: {
     position: "absolute",
     right: 38,
+    bottom: 23,
+  },
+  attachButtonsContainer: {
+    flexBasis: 90,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderColor: "#ddd",
+  },
+  attachImageGalleryButton: {
+    position: "absolute",
+    left: 8,
+    bottom: 23,
+  },
+  attachImageCameraButton: {
+    position: "absolute",
+    left: 48,
     bottom: 23,
   },
 });
