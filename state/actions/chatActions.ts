@@ -8,6 +8,9 @@ export const CREATE_CONVERSATION = 'CREATE_CONVERSATION';
 export const SELECT_CONVERSATION = 'SELECT_CONVERSATION';
 export const DELETE_CONVERSATION = 'DELETE_CONVERSATION';
 export const UPDATE_CONVERSATION = 'UPDATE_CONVERSATION';
+export const ADD_IMAGE = 'ADD_IMAGE';
+export const REMOVE_IMAGE = 'REMOVE_IMAGE';
+export const REORDER_IMAGE = 'REORDER_IMAGE';
 
 interface AddMessageAction {
   type: typeof ADD_MESSAGE;
@@ -52,6 +55,28 @@ interface UpdateConversationAction {
   };
 }
 
+interface AddImageAction {
+  type: typeof ADD_IMAGE;
+  payload: {
+    imageBase64: string;
+  };
+}
+
+interface RemoveImageAction {
+  type: typeof REMOVE_IMAGE;
+  payload: {
+    imageIndex: number;
+  };
+}
+
+interface ReorderImageAction {
+  type: typeof REORDER_IMAGE;
+  payload: {
+    imageIndex: number;
+    newIndex: number;
+  };
+}
+
 // Union type for chat-related actions
 export type ChatActionTypes =
   AddMessageAction |
@@ -59,7 +84,10 @@ export type ChatActionTypes =
   CreateConversationAction |
   SelectConversationAction |
   DeleteConversationAction |
-  UpdateConversationAction
+  UpdateConversationAction |
+  AddImageAction |
+  RemoveImageAction |
+  ReorderImageAction
   ;
 
 export const addMessage = (conversationId: string, message: Message): ChatActionTypes => ({
@@ -99,4 +127,19 @@ export const deleteConversation = (conversationId: string): ChatActionTypes => (
 export const updateConversation = (conversationId: string, title: string): ChatActionTypes => ({
   type: UPDATE_CONVERSATION,
   payload: { conversationId, title },
+});
+
+export const addImage = (imageBase64: string): ChatActionTypes => ({
+  type: ADD_IMAGE,
+  payload: { imageBase64 },
+});
+
+export const removeImage = (imageIndex: number): ChatActionTypes => ({
+  type: REMOVE_IMAGE,
+  payload: { imageIndex },
+});
+
+export const reorderImage = (imageIndex: number, newIndex: number): ChatActionTypes => ({
+  type: REORDER_IMAGE,
+  payload: { imageIndex, newIndex },
 });

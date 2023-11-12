@@ -9,6 +9,7 @@ import {
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "../components/ChatMessage";
 import {
+  addImage,
   addMessage,
   updateConversation,
   updateMessage,
@@ -212,6 +213,9 @@ const ChatScreen = () => {
 
     result.assets.forEach((asset) => {
       console.log("asset", asset);
+
+      // add images to chat-store
+      dispatch(addImage(asset.uri));
     });
   };
 
