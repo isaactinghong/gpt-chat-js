@@ -1,16 +1,20 @@
 // settingsReducer.ts
-import { SettingsActionTypes, SAVE_SETTINGS } from '../actions/settingsActions';
-import { SettingsState } from '../states/settings-state';
+import { SettingsActionTypes, SAVE_SETTINGS } from "../actions/settingsActions";
+import { SettingsState } from "../states/settings-state";
 
 // initialState
 const initialState: SettingsState = {
-  openAiApiKey: '',
-  modelName: 'gpt-4-1106-preview',
-  systemMessage: 'Chat with me.',
+  openAiApiKey: "",
+  // modelName: 'gpt-4-1106-preview',
+  modelName: "gpt-4-vision-preview",
+  systemMessage: "Chat with me.",
 };
 
 // reducer
-const settingsReducer = (state = initialState, action: SettingsActionTypes): SettingsState => {
+const settingsReducer = (
+  state = initialState,
+  action: SettingsActionTypes
+): SettingsState => {
   switch (action.type) {
     case SAVE_SETTINGS: {
       const { settings } = action.payload;

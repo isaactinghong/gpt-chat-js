@@ -12,6 +12,8 @@ import ChatMessage from "../components/ChatMessage";
 import {
   addImage,
   addMessage,
+  clearImages,
+  removeImage,
   updateConversation,
   updateMessage,
 } from "../state/actions/chatActions";
@@ -23,8 +25,11 @@ import Toast from "react-native-toast-message";
 import InputModal from "../components/InputModel";
 import OpenAI from "../services/OpenAIService";
 import {
+  ChatCompletionAssistantMessageParam,
+  ChatCompletionContentPart,
   ChatCompletionMessage,
   ChatCompletionMessageParam,
+  ChatCompletionUserMessageParam,
 } from "openai/resources";
 import * as ImagePicker from "expo-image-picker";
 import { ImagePickerResult } from "expo-image-picker";
@@ -37,6 +42,7 @@ const ChatScreen = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
+  const [imageIndexsHovered, setImageIndexsHovered] = useState({}); // array of image indexes that are hovered
 
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
@@ -69,29 +75,53 @@ const ChatScreen = () => {
       return;
     }
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: inputText,
-      timestamp: Date.now(),
-      // imageUrls can be added if images are attached
-    };
+    // if images are present, add them to messages
+    let newMessage: Message & ChatCompletionMessageParam;
 
-    const messages: any[] = [
-      ...conversations[currentConversationId].messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-      {
-        role: newMessage.role,
-        content: newMessage.content,
-      },
+    if (images.length > 0) {
+      const content: Array<ChatCompletionContentPart> = [];
+
+      // add text message
+      content.push({
+        type: "text",
+        text: inputText,
+      });
+
+      for (const image of images) {
+        // add image message
+        content.push({
+          type: "image_url",
+          image_url: image.image_url,
+        });
+      }
+
+      newMessage = {
+        role: "user",
+        content,
+        timestamp: Date.now(),
+      };
+    }
+    // else just add text message
+    else {
+      newMessage = {
+        role: "user",
+        content: inputText,
+        timestamp: Date.now(),
+      };
+    }
+
+    const messages: (Message & ChatCompletionMessageParam)[] = [
+      ...conversations[currentConversationId].messages,
+      newMessage,
     ];
 
     dispatch(addMessage(currentConversationId, newMessage));
 
     // clear input
     setInputText("");
+
+    // clear images
+    dispatch(clearImages());
 
     try {
       // const chatCompletionResult = await OpenAI.api.chat.completions.create({
@@ -102,8 +132,7 @@ const ChatScreen = () => {
 
       let messageContent = "";
 
-      const newMessageFromAI: Message = {
-        id: Date.now().toString(),
+      const newMessageFromAI: Message & ChatCompletionMessageParam = {
         role: "assistant",
         content: messageContent,
         timestamp: Date.now(),
@@ -115,8 +144,9 @@ const ChatScreen = () => {
       const messageIndex = messages.length;
 
       const stream = await OpenAI.api.chat.completions.create({
-        messages: messages,
+        messages: convertMessagesToOpenAI(messages),
         model,
+        max_tokens: 4096,
         stream: true,
       });
       for await (const chunk of stream) {
@@ -135,6 +165,13 @@ const ChatScreen = () => {
       dispatch(
         updateMessage(currentConversationId, newMessageFromAI, messageIndex)
       );
+
+      // add the new message from AI to messages
+      messages.push({
+        role: "assistant",
+        content: messageContent,
+        timestamp: Date.now(),
+      } as ChatCompletionAssistantMessageParam);
 
       // system message to ask openai to give a title
       const systemMessage: ChatCompletionMessageParam = {
@@ -155,7 +192,7 @@ const ChatScreen = () => {
 
       // get new conversation title from openai
       const titleResult = await OpenAI.api.chat.completions.create({
-        messages: titleMessages,
+        messages: convertMessagesToOpenAI(titleMessages),
         model,
       });
 
@@ -207,6 +244,7 @@ const ChatScreen = () => {
     const result: ImagePickerResult = await ImagePicker.launchImageLibraryAsync(
       {
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
         allowsEditing: true,
         // aspect: [4, 3],
         quality: 1,
@@ -256,6 +294,49 @@ const ChatScreen = () => {
     });
   };
 
+  const handleImageHoverIn = (index) => {
+    console.log("handleImageHoverIn", index);
+
+    // set imageIndexsHovered[index] to true
+    setImageIndexsHovered({ ...imageIndexsHovered, [index]: true });
+  };
+
+  const handleImageHoverOut = (index) => {
+    console.log("handleImageHoverOut", index);
+
+    // set imageIndexsHovered[index] to false
+    setImageIndexsHovered({ ...imageIndexsHovered, [index]: false });
+  };
+
+  const handleImagePress = (index) => {
+    console.log("handleImagePress", index);
+
+    // delete from imagesHovered
+    dispatch(removeImage(index));
+  };
+
+  const convertMessagesToOpenAI = (messages) =>
+    messages
+      .map((msg) => {
+        if (msg.role === "user") {
+          return {
+            role: "user",
+            content: msg.content,
+          } as ChatCompletionUserMessageParam;
+        }
+        if (msg.role === "assistant") {
+          return {
+            role: "assistant",
+            content: msg.content,
+          } as ChatCompletionAssistantMessageParam;
+        } else {
+          // log warn
+          console.warn("Unknown role", msg.role);
+          return null;
+        }
+      })
+      .filter((msg) => msg !== null);
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
@@ -299,11 +380,34 @@ const ChatScreen = () => {
       {/* Display image thumbnails on top of the bottom input bar if images are attached */}
       <View style={styles.imageThumbnailsContainer}>
         {images.map((image, index) => (
-          <Image
+          <Pressable
             key={index}
-            source={{ uri: image.image_url.url }}
-            style={styles.imageThumbnail}
-          />
+            onHoverIn={() => handleImageHoverIn(index)}
+            onHoverOut={() => handleImageHoverOut(index)}
+            onPress={() => handleImagePress(index)}
+          >
+            <View>
+              <Image
+                key={index}
+                source={{ uri: image.image_url.url }}
+                style={styles.imageThumbnail}
+              />
+              {/* show delete icon if hovered */}
+              {imageIndexsHovered[index] && (
+                <Ionicons
+                  name="close-circle"
+                  size={22}
+                  color="black"
+                  style={{
+                    position: "absolute",
+                    top: 5,
+                    right: 5,
+                    zIndex: 1,
+                  }}
+                />
+              )}
+            </View>
+          </Pressable>
         ))}
       </View>
       {/* Modal to enter OpenAI API Key */}
@@ -390,11 +494,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "flex-start",
     padding: 5,
+    gap: 5,
   },
   imageThumbnail: {
     width: 100,
     height: 100,
-    margin: 5,
     borderRadius: 5,
   },
 });

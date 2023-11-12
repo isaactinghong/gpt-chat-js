@@ -8,6 +8,7 @@ import {
   UPDATE_CONVERSATION,
   ADD_IMAGE,
   REMOVE_IMAGE,
+  CLEAR_IMAGES,
   REORDER_IMAGE,
 } from "../actions/chatActions";
 import { ChatState } from "../states/chat-state";
@@ -157,6 +158,12 @@ const chatReducer = (
       return {
         ...state,
         images,
+      };
+    }
+    case CLEAR_IMAGES: {
+      return {
+        ...state,
+        images: [],
       };
     }
     case REORDER_IMAGE: {

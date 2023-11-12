@@ -2,8 +2,17 @@ import React from "react";
 import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { Message } from "../state/types/message";
 import OpenAIBlackLogo from "./OpenAIBlackLogo";
+import {
+  ChatCompletionContentPart,
+  ChatCompletionContentPartText,
+  ChatCompletionMessageParam,
+} from "openai/resources";
 
-const ChatMessage = ({ message }: { message: Message }) => {
+const ChatMessage = ({
+  message,
+}: {
+  message: Message & ChatCompletionMessageParam;
+}) => {
   return (
     <View
       style={
@@ -41,7 +50,10 @@ const ChatMessage = ({ message }: { message: Message }) => {
               : styles.userMessageText
           }
         >
-          {message.content}
+          {/* if content is array, display the first element */}
+          {Array.isArray(message.content)
+            ? (message.content[0] as ChatCompletionContentPartText).text
+            : message.content}
         </Text>
         <View style={styles.imageContainer}>
           {message.imageUrls?.map((imageUrl, index) => (
