@@ -146,7 +146,7 @@ const ChatScreen = () => {
       const stream = await OpenAI.api.chat.completions.create({
         messages: convertMessagesToOpenAI(messages),
         model,
-        max_tokens: 4096,
+        max_tokens: 8000,
         stream: true,
       });
       for await (const chunk of stream) {
