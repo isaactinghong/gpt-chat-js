@@ -5,6 +5,7 @@ import {
   TextInput,
   StyleSheet,
   Pressable,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
 import ChatMessage from "../components/ChatMessage";
@@ -25,16 +26,14 @@ import {
   ChatCompletionMessage,
   ChatCompletionMessageParam,
 } from "openai/resources";
-import {
-  ImageLibraryOptions,
-  launchCamera,
-  launchImageLibrary,
-} from "react-native-image-picker";
+import * as ImagePicker from "expo-image-picker";
+import { ImagePickerResult } from "expo-image-picker";
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
 
   const model = useSelector((state: AppState) => state.settings.modelName);
+  const images = useSelector((state: AppState) => state.chats.images);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
@@ -204,17 +203,28 @@ const ChatScreen = () => {
   const attachImageGallery = async () => {
     console.log("attachImageGallery");
 
-    // open image picker by react-native-image-picker, launch image library
-    const options: ImageLibraryOptions = {
-      mediaType: "photo",
-    };
+    // open image picker by expo-image-picker, launch image library
+    const result: ImagePickerResult = await ImagePicker.launchImageLibraryAsync(
+      {
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        // aspect: [4, 3],
+        quality: 1,
+      }
+    );
 
-    const result = await launchImageLibrary(options);
+    // log result
+    console.log("result", result);
 
+    // check if cancelled
+    if (result.canceled) {
+      return;
+    }
+
+    // for each result.assets
+    // add to messages
     result.assets.forEach((asset) => {
-      console.log("asset", asset);
-
-      // add images to chat-store
+      // add to messages
       dispatch(addImage(asset.uri));
     });
   };
@@ -222,15 +232,27 @@ const ChatScreen = () => {
   const attachImageCamera = async () => {
     console.log("attachImageCamera");
 
-    // open image picker by react-native-image-picker, launch camera
-    const options: ImageLibraryOptions = {
-      mediaType: "photo",
-    };
+    // open image picker by expo-image-picker, launch camera
+    const result: ImagePickerResult = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      // aspect: [4, 3],
+      quality: 1,
+    });
 
-    const result = await launchCamera(options);
+    // log result
+    console.log("result", result);
 
+    // check if cancelled
+    if (result.canceled) {
+      return;
+    }
+
+    // for each result.assets
+    // add to messages
     result.assets.forEach((asset) => {
-      console.log("asset", asset);
+      // add to messages
+      dispatch(addImage(asset.uri));
     });
   };
 
@@ -274,6 +296,17 @@ const ChatScreen = () => {
           </Pressable>
         </View>
       </View>
+      {/* Display image thumbnails on top of the bottom input bar if images are attached */}
+      <View style={styles.imageThumbnailsContainer}>
+        {images.map((image, index) => (
+          <Image
+            key={index}
+            source={{ uri: image.image_url.url }}
+            style={styles.imageThumbnail}
+          />
+        ))}
+      </View>
+      {/* Modal to enter OpenAI API Key */}
       <InputModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -347,6 +380,22 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 48,
     bottom: 23,
+  },
+  imageThumbnailsContainer: {
+    position: "absolute",
+    bottom: 70,
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    padding: 5,
+  },
+  imageThumbnail: {
+    width: 100,
+    height: 100,
+    margin: 5,
+    borderRadius: 5,
   },
 });
 

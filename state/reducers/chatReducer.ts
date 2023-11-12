@@ -140,7 +140,7 @@ const chatReducer = (
       return {
         ...state,
         images: [
-          ...state.images,
+          ...(state.images ?? []),
           {
             type: "image_url",
             image_url: {

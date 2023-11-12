@@ -35,7 +35,14 @@
     },
     "sdkVersion": "49.0.0",
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to share images with GPT Vision.",
+          "cameraPermission": "The app accesses your camera to share images with GPT Vision."
+        }
+      ]
     ]
   },
   "name": "gpt-chat-js"
