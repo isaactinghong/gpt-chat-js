@@ -10,8 +10,11 @@
 ## How to start gpt-chat-js
 
 - react native
-  - `npm install`
-  - `npx expo start`
+
+```shell
+npm install # if you have not installed the dependencies
+npx expo start --web
+```
 
 ## What is gpt-chat-js
 
@@ -49,7 +52,7 @@ This application creates the chat interface for users to chat with gpt (gpt-4)
 
 ## Deployment pwa to netlify with webpack export
 
-```
+```shell
 npx expo export:web
 netlify deploy --dir web-build --prod
 

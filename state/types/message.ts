@@ -1,7 +1,8 @@
+import { ChatCompletionUserMessageParam } from 'openai/resources';
 
 export interface Message {
   role: 'user' | 'system' | 'assistant';
-  content: string;
+  content: string | ChatCompletionUserMessageParam;
   id: string;
   timestamp: number;
   imageUrls?: string[];
