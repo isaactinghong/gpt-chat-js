@@ -421,7 +421,9 @@ const ChatScreen = () => {
             multiline={true}
             onChangeText={setInputText}
             onSubmitEditing={sendMessage}
-            onKeyPress={handleMessageKeyPress}
+            // onKeyPress={handleMessageKeyPress}
+            blurOnSubmit
+            returnKeyType="done"
           />
           <Pressable onPress={sendMessage} style={styles.sendButton}>
             <Ionicons name="send" size={22} color="black" />
