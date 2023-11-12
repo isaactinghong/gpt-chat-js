@@ -66,9 +66,9 @@ const ChatMessage = ({
             ? (message.content[0] as ChatCompletionContentPartText).text
             : message.content}
         </Text>
-        <View style={styles.imageContainer}>
-          {Array.isArray(message.content) &&
-            message.content
+        {Array.isArray(message.content) && (
+          <View style={styles.imageContainer}>
+            {message.content
               .filter((contentPart) => contentPart.type === "image_url")
               .map((contentPart, index) => {
                 const imageUrl = (contentPart as ChatCompletionContentPartImage)
@@ -98,7 +98,8 @@ const ChatMessage = ({
                   </Pressable>
                 );
               })}
-        </View>
+          </View>
+        )}
       </View>
     </View>
   );

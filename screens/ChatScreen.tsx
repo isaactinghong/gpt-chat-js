@@ -363,6 +363,26 @@ const ChatScreen = () => {
     setImageViewerVisible(true);
   };
 
+  const handleMessageKeyPress = (event) => {
+    if (event.nativeEvent.key === "Enter" && !event.nativeEvent.shiftKey) {
+      // Enter was pressed without the shift key
+      console.log("handleMessageKeyPress enter", inputText);
+
+      sendMessage();
+
+      // stop event propagation
+      event.preventDefault();
+    } else if (
+      event.nativeEvent.key === "Enter" &&
+      event.nativeEvent.shiftKey
+    ) {
+      console.log("handleMessageKeyPress shift+enter", inputText);
+
+      // Shift+Enter was pressed
+      setInputText(inputText + "\n"); // Add a line break
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
@@ -387,6 +407,7 @@ const ChatScreen = () => {
             multiline={true}
             onChangeText={setInputText}
             onSubmitEditing={sendMessage}
+            onKeyPress={handleMessageKeyPress}
           />
           <Pressable onPress={sendMessage} style={styles.sendButton}>
             <Ionicons name="send" size={22} color="black" />
