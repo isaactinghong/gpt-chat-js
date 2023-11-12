@@ -105,6 +105,7 @@ const SideMenu = ({ navigation }) => {
             placeholder="GPT Model Name"
             value={modelNameLocal}
             onChangeText={setModelNameLocal}
+            onChange={() => handleSave("GPT Model Name")}
             onSubmitEditing={() => handleSave("GPT Model Name")}
           />
         </View>
