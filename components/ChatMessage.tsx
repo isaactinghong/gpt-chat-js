@@ -75,6 +75,7 @@ const ChatMessage = ({
                   .image_url.url;
                 return (
                   <Pressable
+                    key={index}
                     onPress={() =>
                       openImageViewer(
                         (message.content as ChatCompletionContentPart[])
