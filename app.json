@@ -15,10 +15,12 @@
       "**/*"
     ],
     "ios": {
+      "icon": "./assets/icon.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.isaactinghong.gptchatjs"
     },
     "android": {
+      "icon": "./assets/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -26,7 +28,16 @@
       "package": "com.isaactinghong.gptchatjs"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "themeColor": "#000000",
+      "backgroundColor": "#ffffff",
+      "name": "GPT Chat JS",
+      "description": "GPT Chat JS using OpenAI API",
+      "shortName": "GPT Chat JS",
+      "display": "standalone",
+      "orientation": "portrait",
+      "lang": "en-US",
+      "startUrl": "/"
     },
     "extra": {
       "eas": {
