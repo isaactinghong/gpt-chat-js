@@ -50,11 +50,11 @@ This application creates the chat interface for users to chat with gpt (gpt-4)
     - multiple images can be added to a single chat message to be sent
   - user can click on the `Send` icon button to send the chat message
 
-## Workbox CLI to generate a complete service worker
+<!-- ## Workbox CLI to generate a complete service worker
 
 ```shell
 npx workbox-cli generateSW workbox-config.js
-```
+``` -->
 
 ## Deployment pwa to netlify with webpack export
 
