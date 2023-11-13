@@ -37,7 +37,8 @@
       "display": "standalone",
       "orientation": "portrait",
       "lang": "en-US",
-      "startUrl": "/"
+      "startUrl": "/",
+      "scope": "/"
     },
     "extra": {
       "eas": {
