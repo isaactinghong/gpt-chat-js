@@ -5,15 +5,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import thunk from "redux-thunk";
 import chatReducer from "./reducers/chatReducer";
 import { configureStore } from "@reduxjs/toolkit";
-import settingsReducer from './reducers/settingsReducer';
+import settingsReducer from "./reducers/settingsReducer";
 
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: [
-    "settings",
-    "chats",
-  ], // You can choose which reducers to persist
+  whitelist: ["settings", "chats"], // You can choose which reducers to persist
 };
 
 const rootReducer = combineReducers({

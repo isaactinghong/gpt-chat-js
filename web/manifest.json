@@ -46,5 +46,9 @@
       "id": "com.isaactinghong.gptchatjs"
     }
   ],
-  "prefer_related_applications": true
+  "prefer_related_applications": true,
+  "permissions": [
+    "storage",
+    "unlimitedStorage"
+  ]
 }
