@@ -48,6 +48,9 @@ const ChatScreen = () => {
   const openAiApiKey = useSelector(
     (state: AppState) => state.settings.openAiApiKey
   );
+  const systemMessage = useSelector(
+    (state: AppState) => state.settings.systemMessage
+  );
 
   const messages = conversations[currentConversationId]?.messages ?? [];
   // Sample data
@@ -77,6 +80,12 @@ const ChatScreen = () => {
       // imageUrls can be added if images are attached
     };
 
+    // system message to ask openai to give a title
+    const firstChatMessage: ChatCompletionMessageParam = {
+      role: "system",
+      content: systemMessage,
+    };
+
     const messages: any[] = [
       ...conversations[currentConversationId].messages.map((msg) => ({
         role: msg.role,
@@ -87,6 +96,9 @@ const ChatScreen = () => {
         content: newMessage.content,
       },
     ];
+
+    // title messages
+    const chatMessages = [firstChatMessage, ...messages];
 
     dispatch(addMessage(currentConversationId, newMessage));
 
@@ -115,7 +127,7 @@ const ChatScreen = () => {
       const messageIndex = messages.length;
 
       const stream = await OpenAI.api.chat.completions.create({
-        messages: messages,
+        messages: chatMessages,
         model,
         stream: true,
       });
@@ -137,7 +149,7 @@ const ChatScreen = () => {
       );
 
       // system message to ask openai to give a title
-      const systemMessage: ChatCompletionMessageParam = {
+      const firstMessage: ChatCompletionMessageParam = {
         role: "system",
         content: `
           Please give a short title to this conversation.
@@ -151,7 +163,7 @@ const ChatScreen = () => {
       };
 
       // title messages
-      const titleMessages = [systemMessage, ...messages];
+      const titleMessages = [firstMessage, ...messages];
 
       // get new conversation title from openai
       const titleResult = await OpenAI.api.chat.completions.create({
