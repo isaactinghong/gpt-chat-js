@@ -2,7 +2,7 @@
 
 ## TODO
 
-- [ ] add GPT Vision support
+- [o] add GPT Vision support
 - [ ] add GPT Dall-E support
 - [ ] add GPT Whisper support
 - [ ] add GPT Text-to-speech support
