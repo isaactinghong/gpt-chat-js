@@ -15,33 +15,31 @@ import { createConversation } from "../state/actions/chatActions";
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      // Check if 'C' is pressed along with the 'Control' key
-      if (event.key === "c" && event.ctrlKey) {
-        // Prevent the default action to avoid opening a new browser window
-        event.preventDefault();
-        event.stopPropagation();
-        event.nativeEvent.stopImmediatePropagation();
+  // useEffect(() => {
+  //   const handleKeyDown = (event) => {
+  //     if (event.key === "c" && event.ctrlKey && event.shiftKey) {
+  //       // Prevent the default action to avoid opening a new browser window
+  //       event.preventDefault();
+  //       event.stopPropagation();
+  //       event.nativeEvent.stopImmediatePropagation();
 
-        // Here goes your action when 'Control + N' is pressed
-        console.log("Control + C is pressed");
+  //       console.log("Ctrl+Shift+C is pressed");
 
-        // create new conversation
-        dispatch(createConversation());
-      }
-    };
+  //       // create new conversation
+  //       dispatch(createConversation());
+  //     }
+  //   };
 
-    // Add event listener to capture keydown events on the document
-    document.addEventListener("keydown", handleKeyDown);
+  //   // Add event listener to capture keydown events on the document
+  //   document.addEventListener("keydown", handleKeyDown);
 
-    // Clean up the event listener when the component unmounts
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  //   // Clean up the event listener when the component unmounts
+  //   return () => {
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, []);
 
   const openAiApiKey = useSelector(
     (state: AppState) => state.settings.openAiApiKey

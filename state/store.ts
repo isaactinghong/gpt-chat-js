@@ -1,16 +1,19 @@
 // store.js
 import { combineReducers } from "redux";
-import { persistStore, persistReducer } from "redux-persist";
+import { persistStore, persistReducer, createMigrate } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import thunk from "redux-thunk";
 import chatReducer from "./reducers/chatReducer";
 import { configureStore } from "@reduxjs/toolkit";
 import settingsReducer from "./reducers/settingsReducer";
+import { migrations } from "./migrations";
 
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
   whitelist: ["settings", "chats"], // You can choose which reducers to persist
+  version: 4,
+  migrate: createMigrate(migrations, { debug: false }),
 };
 
 const rootReducer = combineReducers({

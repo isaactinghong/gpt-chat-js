@@ -16,6 +16,8 @@ import {
   ChatCompletionMessageParam,
 } from "openai/resources";
 import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
+import { getImage } from "../idb/images-db";
+import { LocalImage } from "../state/types/local-image";
 
 const ChatMessage = ({
   message,
@@ -24,6 +26,40 @@ const ChatMessage = ({
   message: Message & ChatCompletionMessageParam;
   openImageViewer: (images: IImageInfo[], selectedIndex: number) => void;
 }) => {
+  const [localImages, setLocalImages] = React.useState<LocalImage[]>([]);
+
+  React.useEffect(() => {
+    try {
+      // clear local images
+      setLocalImages([]);
+
+      // get all local images from IndexedDB
+      for (const localImage of message?.images || []) {
+        const id = localImage.id;
+
+        // log getImage(id)
+        console.log("getImage(id)", id);
+
+        // get image from IndexedDB
+        getImage(id).then((image) => {
+          //log image
+          console.log("getImage(id).then", image);
+          if (image) {
+            setLocalImages((localImages) => [
+              ...localImages,
+              {
+                id: image.id,
+                base64: image.uri,
+              },
+            ]);
+          }
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }, [message.timestamp]);
+
   return (
     <View
       style={
@@ -66,39 +102,30 @@ const ChatMessage = ({
             ? (message.content[0] as ChatCompletionContentPartText).text
             : message.content}
         </Text>
-        {Array.isArray(message.content) && (
+        {localImages?.length > 0 && (
           <View style={styles.imageContainer}>
-            {message.content
-              .filter((contentPart) => contentPart.type === "image_url")
-              .map((contentPart, index) => {
-                const imageUrl = (contentPart as ChatCompletionContentPartImage)
-                  .image_url.url;
-                return (
-                  <Pressable
+            {localImages.map((localImage, index) => {
+              return (
+                <Pressable
+                  key={index}
+                  onPress={() =>
+                    openImageViewer(
+                      localImages.map((localImage) => ({
+                        url: localImage?.base64,
+                        props: {},
+                      })),
+                      index
+                    )
+                  }
+                >
+                  <Image
                     key={index}
-                    onPress={() =>
-                      openImageViewer(
-                        (message.content as ChatCompletionContentPart[])
-                          .filter(
-                            (contentPart) => contentPart.type === "image_url"
-                          )
-                          .map((contentPart) => ({
-                            url: (contentPart as ChatCompletionContentPartImage)
-                              .image_url.url,
-                            props: {},
-                          })),
-                        index
-                      )
-                    }
-                  >
-                    <Image
-                      key={index}
-                      source={{ uri: imageUrl }}
-                      style={styles.imageThumbnail}
-                    />
-                  </Pressable>
-                );
-              })}
+                    source={{ uri: localImage?.base64 }}
+                    style={styles.imageThumbnail}
+                  />
+                </Pressable>
+              );
+            })}
           </View>
         )}
       </View>

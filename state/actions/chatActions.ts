@@ -2,6 +2,7 @@
 
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { Message } from "../types/message";
+import { LocalImage } from "../types/local-image";
 
 export const ADD_MESSAGE = "ADD_MESSAGE";
 export const UPDATE_MESSAGE = "UPDATE_MESSAGE";
@@ -60,7 +61,7 @@ interface UpdateConversationAction {
 interface AddImageAction {
   type: typeof ADD_IMAGE;
   payload: {
-    imageBase64: string;
+    localImage: LocalImage;
   };
 }
 
@@ -145,9 +146,9 @@ export const updateConversation = (
   payload: { conversationId, title },
 });
 
-export const addImage = (imageBase64: string): ChatActionTypes => ({
+export const addImage = (localImage: LocalImage): ChatActionTypes => ({
   type: ADD_IMAGE,
-  payload: { imageBase64 },
+  payload: { localImage },
 });
 
 export const removeImage = (imageIndex: number): ChatActionTypes => ({

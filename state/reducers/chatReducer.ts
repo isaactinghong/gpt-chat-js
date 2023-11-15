@@ -15,7 +15,7 @@ import { ChatState } from "../states/chat-state";
 import { Conversation } from "../types/conversation";
 
 // reducers/chatReducer.js
-const initialState: ChatState = {
+export const initialChatState: ChatState = {
   conversations: {
     "0": {
       id: "0",
@@ -24,16 +24,17 @@ const initialState: ChatState = {
     },
   },
   currentConversationId: "0",
-  images: [],
+  imagesToUpload: [],
 };
 
 const chatReducer = (
-  state = initialState,
+  state = initialChatState,
   action: ChatActionTypes
 ): ChatState => {
   switch (action.type) {
     case ADD_MESSAGE: {
       const { conversationId, message } = action.payload;
+
       return {
         ...state,
         conversations: {
@@ -137,44 +138,36 @@ const chatReducer = (
       };
     }
     case ADD_IMAGE: {
-      const { imageBase64 } = action.payload;
+      const { localImage } = action.payload;
       return {
         ...state,
-        images: [
-          ...(state.images ?? []),
-          {
-            type: "image_url",
-            image_url: {
-              url: imageBase64,
-            },
-          },
-        ],
+        imagesToUpload: [...(state.imagesToUpload ?? []), localImage],
       };
     }
     case REMOVE_IMAGE: {
       const { imageIndex } = action.payload;
-      const images = [...state.images];
-      images.splice(imageIndex, 1);
+      const imagesToUpload = [...state.imagesToUpload];
+      imagesToUpload.splice(imageIndex, 1);
       return {
         ...state,
-        images,
+        imagesToUpload,
       };
     }
     case CLEAR_IMAGES: {
       return {
         ...state,
-        images: [],
+        imagesToUpload: [],
       };
     }
     case REORDER_IMAGE: {
       const { imageIndex, newIndex } = action.payload;
-      const images = [...state.images];
-      const image = images[imageIndex];
-      images.splice(imageIndex, 1);
-      images.splice(newIndex, 0, image);
+      const imagesToUpload = [...state.imagesToUpload];
+      const imageToUpload = imagesToUpload[imageIndex];
+      imagesToUpload.splice(imageIndex, 1);
+      imagesToUpload.splice(newIndex, 0, imageToUpload);
       return {
         ...state,
-        images,
+        imagesToUpload,
       };
     }
     // ... other actions

@@ -9,8 +9,6 @@ import {
   Modal,
   Platform,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Make sure to install react-native-vector-icons
-import ChatMessage from "../components/ChatMessage";
 import {
   addImage,
   addMessage,
@@ -27,8 +25,10 @@ import Toast from "react-native-toast-message";
 import InputModal from "../components/InputModel";
 import OpenAI from "../services/OpenAIService";
 import {
+  Chat,
   ChatCompletionAssistantMessageParam,
   ChatCompletionContentPart,
+  ChatCompletionContentPartImage,
   ChatCompletionContentPartText,
   ChatCompletionMessage,
   ChatCompletionMessageParam,
@@ -41,12 +41,19 @@ import ImageViewer from "react-native-image-zoom-viewer";
 import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
 // browser-image-compression
 import imageCompression from "browser-image-compression";
+// idb
+import * as idb from "idb";
+import { getImage, storeImage } from "../idb/images-db";
+import ChatMessage from "../components/ChatMessage";
+import { Ionicons } from "@expo/vector-icons";
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
 
   const model = useSelector((state: AppState) => state.settings.modelName);
-  const images = useSelector((state: AppState) => state.chats.images);
+  const imagesToUpload = useSelector(
+    (state: AppState) => state.chats.imagesToUpload
+  );
 
   const [modalVisible, setModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
@@ -85,7 +92,7 @@ const ChatScreen = () => {
 
   const sendMessage = async () => {
     // if inputText is empty and images is empty, do nothing
-    if (!inputText && images.length === 0) {
+    if (!inputText && imagesToUpload?.length === 0) {
       return;
     }
 
@@ -98,7 +105,8 @@ const ChatScreen = () => {
     // if images are present, add them to messages
     let newMessage: Message & ChatCompletionMessageParam;
 
-    if (images && images.length > 0) {
+    let newMessageToStore: Message & ChatCompletionMessageParam;
+    if (imagesToUpload && imagesToUpload.length > 0) {
       const content: Array<ChatCompletionContentPart> = [];
 
       // add text message
@@ -107,11 +115,17 @@ const ChatScreen = () => {
         text: inputText,
       });
 
-      for (const image of images) {
+      for (const localImage of imagesToUpload) {
+        // get the image from IndexedDB
+        const imageFromDB = await getImage(localImage.id);
+
+        const image_url: ChatCompletionContentPartImage.ImageURL = {
+          url: imageFromDB.uri,
+        };
         // add image message
         content.push({
           type: "image_url",
-          image_url: image.image_url,
+          image_url,
         });
       }
 
@@ -119,6 +133,21 @@ const ChatScreen = () => {
         role: "user",
         content,
         timestamp: Date.now(),
+      };
+
+      // newMessageToStore
+      // - move the messages' image content to messages' images (LocalImage[])
+      newMessageToStore = {
+        ...newMessage,
+        content: (
+          content.filter(
+            (contentPart) => contentPart.type === "text"
+          )[0] as ChatCompletionContentPartText
+        )?.text,
+        images: imagesToUpload.map((localImage) => ({
+          id: localImage.id,
+          // base64: localImage.base64, // do not store base64 in redux store
+        })),
       };
     }
     // else just add text message
@@ -128,6 +157,7 @@ const ChatScreen = () => {
         content: inputText,
         timestamp: Date.now(),
       };
+      newMessageToStore = newMessage;
     }
 
     const messages: (Message & ChatCompletionMessageParam)[] = [
@@ -141,10 +171,13 @@ const ChatScreen = () => {
       content: systemMessage,
     };
 
-    // title messages
-    const chatMessages = [firstChatMessage, ...messages];
+    // chat messages for openai to generate response
+    const chatMessages: (Message & ChatCompletionMessageParam)[] = [
+      firstChatMessage,
+      ...messages,
+    ];
 
-    dispatch(addMessage(currentConversationId, newMessage));
+    dispatch(addMessage(currentConversationId, newMessageToStore));
 
     // clear input
     setInputText("");
@@ -173,14 +206,58 @@ const ChatScreen = () => {
       const messageIndex = messages.length;
 
       try {
+        const chatMessagesToOpenAI: ChatCompletionMessageParam[] = [];
+        for (const msg of chatMessages) {
+          let openAIContent = msg.content;
+          if (msg.images?.length > 0) {
+            const indexedDBImages = await Promise.all(
+              msg.images?.map(async (localImage) => {
+                // fetch the base64 image from IndexedDB
+                return await getImage(localImage.id);
+              })
+            );
+            if (msg.images?.length > 0) {
+              openAIContent = [
+                // add text message
+                // check if content is string
+                // if not, get the first element of the array
+                ...(typeof msg.content === "string"
+                  ? [
+                      {
+                        type: "text",
+                        text: msg.content,
+                      },
+                    ]
+                  : [
+                      {
+                        type: "text",
+                        text: (msg.content[0] as ChatCompletionContentPartText)
+                          .text,
+                      },
+                    ]),
+
+                // add image messages
+                ...indexedDBImages.map((indexedDBImage) => {
+                  const image_url: ChatCompletionContentPartImage.ImageURL = {
+                    url: indexedDBImage.uri,
+                  };
+
+                  return {
+                    type: "image_url",
+                    image_url,
+                  };
+                }),
+              ] as ChatCompletionContentPart[];
+            }
+          }
+          chatMessagesToOpenAI.push({
+            role: msg.role,
+            content: openAIContent,
+          } as ChatCompletionMessageParam);
+        }
+
         const stream = await OpenAI.api.chat.completions.create({
-          messages: chatMessages.map(
-            (msg) =>
-              ({
-                role: msg.role,
-                content: msg.content,
-              } as ChatCompletionMessageParam)
-          ),
+          messages: chatMessagesToOpenAI,
           model,
           max_tokens: 4096,
           stream: true,
@@ -260,7 +337,7 @@ const ChatScreen = () => {
                 content: msg.content,
               } as ChatCompletionMessageParam)
           ),
-          model: "gpt-3.5-turbo",
+          model: "gpt-4-1106-preview",
         });
 
         let title = titleResult.choices[0]?.message?.content || "Untitled";
@@ -342,8 +419,16 @@ const ChatScreen = () => {
       // compress the image
       const compressedImage = await compressImage(asset.uri);
 
+      // use IndexedDB to store the compressed image
+      const id = await storeImage(compressedImage);
+
+      const localImage = {
+        id,
+        base64: compressedImage,
+      };
+
       // just add the original image
-      dispatch(addImage(compressedImage));
+      dispatch(addImage(localImage));
     });
   };
 
@@ -401,12 +486,20 @@ const ChatScreen = () => {
 
     // for each result.assets
     // add to messages
-    result.assets.forEach((asset) => {
+    result.assets.forEach(async (asset) => {
       // compress the image
-      const compressedImage = compressImage(asset.uri);
+      const compressedImage = await compressImage(asset.uri);
+
+      // use IndexedDB to store the compressed image
+      const id = await storeImage(compressedImage);
+
+      const localImage = {
+        id,
+        base64: compressedImage,
+      };
 
       // add to messages
-      dispatch(addImage(compressedImage));
+      dispatch(addImage(localImage));
     });
   };
 
@@ -513,14 +606,16 @@ const ChatScreen = () => {
             blurOnSubmit
           />
           <Pressable
-            disabled={!inputText && images.length === 0}
+            disabled={!inputText && imagesToUpload?.length === 0}
             onPress={sendMessage}
             style={styles.sendButton}
           >
             <Ionicons
               name="send"
               size={22}
-              color={!inputText && images.length === 0 ? "grey" : "black"}
+              color={
+                !inputText && imagesToUpload?.length === 0 ? "grey" : "black"
+              }
             />
           </Pressable>
         </View>
@@ -540,9 +635,9 @@ const ChatScreen = () => {
         </View>
       </View>
       {/* Display image thumbnails on top of the bottom input bar if images are attached */}
-      {images != null && (
+      {imagesToUpload != null && (
         <View style={styles.imageThumbnailsContainer}>
-          {images.map((image, index) => (
+          {imagesToUpload.map((image, index) => (
             <Pressable
               key={index}
               onHoverIn={() => handleImageHoverIn(index)}
@@ -552,7 +647,7 @@ const ChatScreen = () => {
               <View>
                 <Image
                   key={index}
-                  source={{ uri: image.image_url.url }}
+                  source={{ uri: image.base64 }}
                   style={styles.imageThumbnail}
                 />
                 {/* show delete icon if hovered */}
