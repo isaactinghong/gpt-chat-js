@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   ScrollView,
@@ -452,6 +452,13 @@ const ChatScreen = () => {
     }
   };
 
+  // catch CREATE_CONVERSATION action event in affect
+  // to focus on the input
+  useEffect(() => {
+    // focus on the input
+    document.getElementById("input")?.focus();
+  }, [currentConversationId]);
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
@@ -468,6 +475,7 @@ const ChatScreen = () => {
           <TextInput
             // enter to send
             // shift+enter to new line
+            id="input"
             focusable={true}
             autoFocus={true}
             style={styles.input}

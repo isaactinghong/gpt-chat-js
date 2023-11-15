@@ -1,5 +1,5 @@
 // App.js
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import DrawerNavigator from "./navigation/DrawerNavigator";
 import { Provider } from "react-redux";
@@ -24,7 +24,6 @@ export default function App() {
     </>
   );
 }
-
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
