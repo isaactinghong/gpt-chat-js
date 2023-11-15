@@ -3,6 +3,7 @@
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 import { Message } from "../types/message";
 import { LocalImage } from "../types/local-image";
+import { deleteConversationImages } from "../../idb/images-db";
 
 export const ADD_MESSAGE = "ADD_MESSAGE";
 export const UPDATE_MESSAGE = "UPDATE_MESSAGE";
@@ -131,12 +132,18 @@ export const selectConversation = (
   payload: { conversationId },
 });
 
-export const deleteConversation = (
-  conversationId: string
-): ChatActionTypes => ({
+const deleteConversationInner = (conversationId: string): ChatActionTypes => ({
   type: DELETE_CONVERSATION,
   payload: { conversationId },
 });
+
+export const deleteConversation = (conversationId: string): ChatActionTypes => {
+  // delete images from IndexedDB
+  deleteConversationImages(conversationId);
+
+  // dispatch the action
+  return deleteConversationInner(conversationId);
+};
 
 export const updateConversation = (
   conversationId: string,

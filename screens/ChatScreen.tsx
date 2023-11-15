@@ -420,7 +420,7 @@ const ChatScreen = () => {
       const compressedImage = await compressImage(asset.uri);
 
       // use IndexedDB to store the compressed image
-      const id = await storeImage(compressedImage);
+      const id = await storeImage(compressedImage, currentConversationId);
 
       const localImage = {
         id,
@@ -491,7 +491,7 @@ const ChatScreen = () => {
       const compressedImage = await compressImage(asset.uri);
 
       // use IndexedDB to store the compressed image
-      const id = await storeImage(compressedImage);
+      const id = await storeImage(compressedImage, currentConversationId);
 
       const localImage = {
         id,
