@@ -45,11 +45,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "workbox-cli": "^7.0.0",
-    "workbox-webpack-plugin": "^6.1.5",
+    "netlify-cli": "^17.3.1",
     "workbox-background-sync": "^6.1.5",
     "workbox-broadcast-update": "^6.1.5",
     "workbox-cacheable-response": "^6.1.5",
+    "workbox-cli": "^7.0.0",
     "workbox-core": "^6.1.5",
     "workbox-expiration": "^6.1.5",
     "workbox-google-analytics": "^6.1.5",
@@ -58,7 +58,8 @@
     "workbox-range-requests": "^6.1.5",
     "workbox-routing": "^6.1.5",
     "workbox-strategies": "^6.1.5",
-    "workbox-streams": "^6.1.5"
+    "workbox-streams": "^6.1.5",
+    "workbox-webpack-plugin": "^6.1.5"
   },
   "overrides": {
     "react-refresh": "~0.14.0"
