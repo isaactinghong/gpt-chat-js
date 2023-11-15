@@ -117,6 +117,7 @@ const chatReducer = (
           conversations: {
             [newConversation.id]: newConversation,
           },
+          imagesToUpload: [],
         };
       }
       // else do nothing

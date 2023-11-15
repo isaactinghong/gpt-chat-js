@@ -4,13 +4,42 @@ import * as idb from "idb";
 export interface IndexedDBImage {
   id?: IDBValidKey;
   conversationId: string;
+  version: number;
   date: Date;
   uri: string;
 }
 
+const VERSION = 8;
+
+// openDB returns a promise that resolves to the database
+const openDB = () =>
+  idb.openDB("chat-images", VERSION, {
+    upgrade(db, oldVersion, newVersion, transaction) {
+      // print the old and new version
+      console.log(`upgrade: ${oldVersion} -> ${newVersion}`);
+
+      // apply changes to version 3: delete all old records
+      if (oldVersion < VERSION) {
+        // delete store if it exists
+        if (db.objectStoreNames.contains("images")) {
+          db.deleteObjectStore("images");
+        }
+      }
+
+      // Only create the store if it doesn't exist
+      if (!db.objectStoreNames.contains("images")) {
+        const store = db.createObjectStore("images", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+        store.createIndex("conversationId", "conversationId");
+      }
+    },
+  });
+
 export const getImage = async (id: IDBValidKey): Promise<IndexedDBImage> => {
   // open database
-  const db = await idb.openDB("chat-images", 1);
+  const db = await openDB();
 
   // get the image from IndexedDB
   const image = await db.get("images", id);
@@ -28,24 +57,13 @@ export const storeImage = async (
   conversationId: string
 ) => {
   // open database
-  const db = await idb.openDB("chat-images", 2, {
-    upgrade(db) {
-      // Create a store of objects
-      const store = db.createObjectStore("images", {
-        // The 'id' property of the object will be the key.
-        keyPath: "id",
-        // If it isn't explicitly set, create a value by auto incrementing.
-        autoIncrement: true,
-      });
-      // Create an index on the 'conversationId' property of the objects.
-      store.createIndex("conversationId", "conversationId");
-    },
-  });
+  const db = await openDB();
 
   const imageToStore: IndexedDBImage = {
     conversationId,
     date: new Date(),
     uri: base64Image,
+    version: VERSION,
   };
 
   // add the image to IndexedDB
@@ -61,7 +79,7 @@ export const storeImage = async (
 // use IndexedDB to delete the compressed image
 export const deleteImage = async (id: IDBValidKey) => {
   // open database
-  const db = await idb.openDB("chat-images", 1);
+  const db = await openDB();
 
   // delete the image from IndexedDB
   await db.delete("images", id);
@@ -73,7 +91,7 @@ export const deleteImage = async (id: IDBValidKey) => {
 // use IndexedDB to get all images for a conversation
 export const getConversationImages = async (conversationId: string) => {
   // open database
-  const db = await idb.openDB("chat-images", 1);
+  const db = await openDB();
 
   // get the images from IndexedDB
   const images = await db.getAllFromIndex(
@@ -92,7 +110,7 @@ export const getConversationImages = async (conversationId: string) => {
 // use IndexedDB to delete all images for a conversation
 export const deleteConversationImages = async (conversationId: string) => {
   // open database
-  const db = await idb.openDB("chat-images", 1);
+  const db = await openDB();
 
   // get the images from IndexedDB first
   const images = await db.getAllFromIndex(
@@ -100,6 +118,9 @@ export const deleteConversationImages = async (conversationId: string) => {
     "conversationId",
     conversationId
   );
+
+  // log the images
+  console.log("deleteConversationImages", images);
 
   // delete the images from IndexedDB
   await Promise.all(images.map((image) => db.delete("images", image.id)));
