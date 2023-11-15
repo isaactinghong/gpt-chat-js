@@ -39,6 +39,8 @@ import { ImagePickerResult } from "expo-image-picker";
 // react-native-image-zoom-viewer
 import ImageViewer from "react-native-image-zoom-viewer";
 import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
+// browser-image-compression
+import imageCompression from "browser-image-compression";
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
@@ -336,26 +338,46 @@ const ChatScreen = () => {
 
     // for each result.assets
     // add to messages
-    result.assets.forEach((asset) => {
-      // try {
-      //   // resize image to max height 700
-      //   ImageManipulator.manipulateAsync(
-      //     asset.uri,
-      //     [{ resize: { height: 700 } }],
-      //     { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
-      //   ).then((resizedImage) => {
-      //     // add the image
-      //     dispatch(addImage(resizedImage.base64));
-      //   });
-      // } catch (error) {
-      //   console.log("Error resizing the image", error);
+    result.assets.forEach(async (asset) => {
+      // compress the image
+      const compressedImage = await compressImage(asset.uri);
 
-      //   // just add the original image
-      //   dispatch(addImage(asset.uri));
-      // }
       // just add the original image
-      dispatch(addImage(asset.uri));
+      dispatch(addImage(compressedImage));
     });
+  };
+
+  const compressImage = async (uri: string) => {
+    // browser-image-compression
+
+    const file = await imageCompression.getFilefromDataUrl(uri, "image");
+
+    const options = {
+      maxWidthOrHeight: 1280,
+      useWebWorker: true,
+      maxIteration: 2,
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      console.log(
+        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
+      ); // smaller than maxSizeMB
+
+      // return the compressed file
+      return imageCompression.getDataUrlFromFile(compressedFile);
+    } catch (error) {
+      // show error toast message
+      Toast.show({
+        type: "error",
+        text1: "Error compressing image",
+        text2: error.message,
+      });
+
+      console.log(error);
+    }
+
+    return uri;
   };
 
   const attachImageCamera = async () => {
@@ -380,8 +402,11 @@ const ChatScreen = () => {
     // for each result.assets
     // add to messages
     result.assets.forEach((asset) => {
+      // compress the image
+      const compressedImage = compressImage(asset.uri);
+
       // add to messages
-      dispatch(addImage(asset.uri));
+      dispatch(addImage(compressedImage));
     });
   };
 
