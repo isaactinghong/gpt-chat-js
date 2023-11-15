@@ -82,6 +82,11 @@ const ChatScreen = () => {
   // ];
 
   const sendMessage = async () => {
+    // if inputText is empty and images is empty, do nothing
+    if (!inputText && images.length === 0) {
+      return;
+    }
+
     // check if settings store's openAiApiKey is set
     if (!openAiApiKey) {
       setModalVisible(true);
@@ -165,34 +170,46 @@ const ChatScreen = () => {
 
       const messageIndex = messages.length;
 
-      const stream = await OpenAI.api.chat.completions.create({
-        messages: chatMessages.map(
-          (msg) =>
-            ({
-              role: msg.role,
-              content: msg.content,
-            } as ChatCompletionMessageParam)
-        ),
-        model,
-        max_tokens: 4096,
-        stream: true,
-      });
-      for await (const chunk of stream) {
-        // process.stdout.write(chunk.choices[0]?.delta?.content || '');
-        messageContent += chunk.choices[0]?.delta?.content || "";
+      try {
+        const stream = await OpenAI.api.chat.completions.create({
+          messages: chatMessages.map(
+            (msg) =>
+              ({
+                role: msg.role,
+                content: msg.content,
+              } as ChatCompletionMessageParam)
+          ),
+          model,
+          max_tokens: 4096,
+          stream: true,
+        });
+        for await (const chunk of stream) {
+          // process.stdout.write(chunk.choices[0]?.delta?.content || '');
+          messageContent += chunk.choices[0]?.delta?.content || "";
 
-        newMessageFromAI.content = messageContent;
+          newMessageFromAI.content = messageContent;
 
-        console.log("messageIndex", messageIndex);
+          console.log("messageIndex", messageIndex);
+          dispatch(
+            updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+          );
+        }
+      } catch (error) {
+        console.log("Error", error);
+
+        // show error toast message
+        Toast.show({
+          type: "error",
+          text1: "Error calling OpenAI API",
+          text2: error.message,
+        });
+      } finally {
+        // set loading to false
+        newMessageFromAI.isLoading = false;
         dispatch(
           updateMessage(currentConversationId, newMessageFromAI, messageIndex)
         );
       }
-      // set loading to false
-      newMessageFromAI.isLoading = false;
-      dispatch(
-        updateMessage(currentConversationId, newMessageFromAI, messageIndex)
-      );
 
       // add the new message from AI to messages
       messages.push({
@@ -232,30 +249,41 @@ const ChatScreen = () => {
       ];
 
       // get new conversation title from openai
-      const titleResult = await OpenAI.api.chat.completions.create({
-        messages: titleMessages.map(
-          (msg) =>
-            ({
-              role: msg.role,
-              content: msg.content,
-            } as ChatCompletionMessageParam)
-        ),
-        model: "gpt-3.5-turbo",
-      });
+      try {
+        const titleResult = await OpenAI.api.chat.completions.create({
+          messages: titleMessages.map(
+            (msg) =>
+              ({
+                role: msg.role,
+                content: msg.content,
+              } as ChatCompletionMessageParam)
+          ),
+          model: "gpt-3.5-turbo",
+        });
 
-      let title = titleResult.choices[0]?.message?.content || "Untitled";
+        let title = titleResult.choices[0]?.message?.content || "Untitled";
 
-      // check if title is too long, more than 20 words, so about 100 characters
-      // just trim it
-      if (title.length > 100) {
-        title = title.substring(0, 100);
+        // check if title is too long, more than 20 words, so about 100 characters
+        // just trim it
+        if (title.length > 100) {
+          title = title.substring(0, 100);
+        }
+
+        // trim any new line in the title
+        title = title.replace(/(\r\n|\n|\r)/gm, "");
+
+        // update conversation title
+        dispatch(updateConversation(currentConversationId, title));
+      } catch (error) {
+        console.log("Error", error);
+
+        // show error toast message
+        Toast.show({
+          type: "error",
+          text1: "Error calling OpenAI API for conversation title",
+          text2: error.message,
+        });
       }
-
-      // trim any new line in the title
-      title = title.replace(/(\r\n|\n|\r)/gm, "");
-
-      // update conversation title
-      dispatch(updateConversation(currentConversationId, title));
     } catch (error) {
       console.log("Error", error);
 
@@ -451,8 +479,16 @@ const ChatScreen = () => {
             onKeyPress={handleMessageKeyPress}
             blurOnSubmit
           />
-          <Pressable onPress={sendMessage} style={styles.sendButton}>
-            <Ionicons name="send" size={22} color="black" />
+          <Pressable
+            disabled={!inputText && images.length === 0}
+            onPress={sendMessage}
+            style={styles.sendButton}
+          >
+            <Ionicons
+              name="send"
+              size={22}
+              color={!inputText && images.length === 0 ? "grey" : "black"}
+            />
           </Pressable>
         </View>
         <View style={styles.attachButtonsContainer}>
