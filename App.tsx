@@ -8,6 +8,8 @@ import { store, persistor } from "./state/store";
 import { Text } from "react-native";
 import Toast from "react-native-toast-message";
 
+import * as serviceWorkerRegistration from "./src/serviceWorkerRegistration";
+
 export default function App() {
   return (
     <>
@@ -22,3 +24,9 @@ export default function App() {
     </>
   );
 }
+
+
+// If you want your app to work offline and load faster, you can change
+// unregister() to register() below. Note this comes with some pitfalls.
+// Learn more about service workers: https://cra.link/PWA
+serviceWorkerRegistration.register();
