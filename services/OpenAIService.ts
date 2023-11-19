@@ -1,8 +1,6 @@
-
-import { OpenAI as OpenAIBase } from 'openai';
+import { OpenAI as OpenAIBase } from "openai";
 
 export default class OpenAI {
-
   private static _instance = null;
 
   _openai;
@@ -23,9 +21,13 @@ export default class OpenAI {
   }
 
   constructor() {
-    this._openai = new OpenAIBase({
+    const proxyUrl = "https://walrus-app-zl2gh.ondigitalocean.app/api";
+    console.log("proxyUrl", proxyUrl);
 
+    this._openai = new OpenAIBase({
       apiKey: "123",
+      // httpAgent: agent,
+      baseURL: proxyUrl,
       dangerouslyAllowBrowser: true,
     });
   }
@@ -36,5 +38,4 @@ export default class OpenAI {
     }
     this.api.apiKey = apiKey;
   }
-
 }
