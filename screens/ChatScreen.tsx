@@ -750,11 +750,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     overflow: "hidden",
   },
-  recordVoiceButton: {
-    position: "absolute",
-    right: 78,
-    bottom: 23,
-  },
+  // recordVoiceButton: {
+  //   position: "absolute",
+  //   right: 78,
+  //   bottom: 23,
+  //   flexDirection: "row",
+  // },
   sendButton: {
     position: "absolute",
     right: 38,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, StyleSheet } from "react-native";
 import { Audio } from "expo-av";
 
 const RecordVoiceButton: React.FC<{
@@ -15,6 +15,10 @@ const RecordVoiceButton: React.FC<{
   // Start recording
   const startRecording = async () => {
     try {
+      // clear recording and duration
+      setRecording(null);
+      setRecordingDuration(0);
+
       const permission = await Audio.requestPermissionsAsync();
       if (permission.status === "granted") {
         await Audio.setAudioModeAsync({
@@ -46,9 +50,13 @@ const RecordVoiceButton: React.FC<{
     setIntervalId(null);
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
+
+    // log uri
+    console.log("recorded uri:", uri);
+
     props.onRecordingComplete(uri, recordingDuration); // Pass the recording URI and duration back
-    setRecording(null);
-    setRecordingDuration(0); // Reset duration
+    // setRecording(null);
+    // setRecordingDuration(0); // Reset duration
   };
 
   // Format the duration as mm:ss
@@ -60,6 +68,20 @@ const RecordVoiceButton: React.FC<{
     }${seconds}`;
   };
 
+  // delete recording, or stop recording if recording is in progress
+  const deleteRecording = () => {
+    if (isRecording) {
+      stopRecording();
+      // log stoppped recording
+      console.log("stopped recording");
+    } else {
+      setRecording(null);
+      setRecordingDuration(0);
+      // log deleted recording
+      console.log("deleted recording");
+    }
+  };
+
   useEffect(() => {
     return () => {
       if (intervalId) {
@@ -69,11 +91,17 @@ const RecordVoiceButton: React.FC<{
   }, [intervalId]);
 
   return (
-    <View style={props.recordContainerStyle}>
-      {recordingDuration > 0 && !isRecording && (
-        <Pressable onPress={() => props.onRecordingComplete(null, 0)}>
-          <Text>
-            Duration: {formatDuration(recordingDuration)} (tap to delete)
+    <View style={props.recordContainerStyle ?? styles.recordVoiceButton}>
+      {recording && (
+        <Pressable onPress={deleteRecording}>
+          <Text
+            style={
+              isRecording
+                ? styles.durationRecording
+                : styles.durationNotRecording
+            }
+          >
+            {formatDuration(recordingDuration)}
           </Text>
         </Pressable>
       )}
@@ -87,5 +115,27 @@ const RecordVoiceButton: React.FC<{
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  recordVoiceButton: {
+    position: "absolute",
+    right: 78,
+    bottom: 23,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  durationRecording: {
+    // dark red
+    color: "red",
+    fontSize: 16,
+    marginRight: 10,
+  },
+  durationNotRecording: {
+    // black
+    color: "black",
+    fontSize: 16,
+    marginRight: 10,
+  },
+});
 
 export default RecordVoiceButton;
