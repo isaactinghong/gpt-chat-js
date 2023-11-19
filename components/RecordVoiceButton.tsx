@@ -6,8 +6,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { toFile } from "openai";
 
 const RecordVoiceButton: React.FC<{
-  onRecordingComplete: (uri: string, duration: number) => void;
-  recordContainerStyle: React.ComponentProps<typeof View>["style"];
+  onRecordingComplete?: (uri: string, duration: number) => void;
+  onWhisperResult?: (result: string) => void;
+  recordContainerStyle?: React.ComponentProps<typeof View>["style"];
 }> = (props) => {
   const [recording, setRecording] = useState<Audio.Recording | undefined>();
   const [isRecording, setIsRecording] = useState(false);
@@ -66,9 +67,11 @@ const RecordVoiceButton: React.FC<{
     // log uri
     console.log("recorded uri:", uri);
 
-    props.onRecordingComplete(uri, recordingDuration); // Pass the recording URI and duration back
+    props?.onRecordingComplete?.(uri, recordingDuration); // Pass the recording URI and duration back
     // setRecording(null);
     // setRecordingDuration(0); // Reset duration
+
+    return uri;
   };
 
   // Format the duration as mm:ss
@@ -88,7 +91,6 @@ const RecordVoiceButton: React.FC<{
       console.log("stopped recording");
     } else {
       setRecording(null);
-      setRecordingUri("");
       setRecordingDuration(0);
       // log deleted recording
       console.log("deleted recording");
@@ -103,22 +105,15 @@ const RecordVoiceButton: React.FC<{
     // and then delete the recording and set the recording duration to 0
     console.log("commit recording");
 
+    let uri = recordingUri;
+
     // stop the recording if it is in progress
     if (isRecording) {
-      stopRecording();
+      uri = await stopRecording();
     }
 
-    // send the recording to the OpenAI Whisper API to get back the transcript
-    /* e.g.
-    audio_file= open("/path/to/file/audio.mp3", "rb")
-    transcript = client.audio.transcriptions.create(
-      model="whisper-1",
-      file=audio_file
-    )
-    */
-
     // read from URI to blob to FileLike
-    const recordingFile = await uriToFile(recordingUri);
+    const recordingFile = await uriToFile(uri);
 
     const whisperResult = await OpenAI.api.audio.transcriptions.create({
       model: "whisper-1",
@@ -127,9 +122,20 @@ const RecordVoiceButton: React.FC<{
 
     console.log("whisperResult:", whisperResult);
 
+    // broadcast the whisper result
+    props.onWhisperResult(whisperResult.text);
+
     // delete recording uri
-    setRecordingUri("");
+    // deleteRecording();
   };
+
+  // useEffect on recordingUri
+  // if recordingUri is removed, then delete the recording
+  useEffect(() => {
+    if (recordingUri == "") {
+      deleteRecording();
+    }
+  }, [recordingUri]);
 
   const uriToFile = async (uri: string) => {
     console.log("uri:", uri);
@@ -198,6 +204,13 @@ const RecordVoiceButton: React.FC<{
     setIsPlaying(false);
   };
 
+  const pressTrashRecording = () => {
+    // clear browser blob storage
+    window.URL.revokeObjectURL(recordingUri);
+
+    setRecordingUri("");
+  };
+
   const saveRecording = () => {
     // log entry
     console.log("save recording");
@@ -215,15 +228,6 @@ const RecordVoiceButton: React.FC<{
     link.click();
     // Clean up and remove the link
     link.parentNode.removeChild(link);
-
-    // Assuming recordingUri is a data URI or a blob URI
-    // fetch(recordingUri)
-    //   .then((response) => response.blob())
-    //   .then((blob) => {
-    //   })
-    //   .catch((error) =>
-    //     console.error("Error downloading the recording:", error)
-    //   );
   };
 
   useEffect(() => {
@@ -238,7 +242,7 @@ const RecordVoiceButton: React.FC<{
     <View style={props.recordContainerStyle ?? styles.recordVoiceButton}>
       {(isRecording || recordingUri != "") && (
         <View>
-          <Pressable onPress={deleteRecording}>
+          <Pressable onPress={pressTrashRecording}>
             <Text
               style={
                 isRecording
@@ -265,7 +269,7 @@ const RecordVoiceButton: React.FC<{
       )}
       {/* a trash icon to delete the recording */}
       {(isRecording || recordingUri != "") && (
-        <Pressable onPress={deleteRecording} style={styles.actionButton}>
+        <Pressable onPress={pressTrashRecording} style={styles.actionButton}>
           <Ionicons name="trash" size={24} color="black" />
         </Pressable>
       )}

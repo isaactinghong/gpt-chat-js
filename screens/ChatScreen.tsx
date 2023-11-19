@@ -64,9 +64,6 @@ const ChatScreen = () => {
   const [imagesToPreview, setImagesToPreview] = useState([]); // array of images to preview in image viewer
   const [selectedImageIndex, setSelectedImageIndex] = useState(0); // index of selected image to preview in image viewer
 
-  const [voiceRecordingUri, setVoiceRecordingUri] = useState(null);
-  const [voiceRecordingDuration, setVoiceRecordingDuration] = useState(0);
-
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
   );
@@ -574,10 +571,14 @@ const ChatScreen = () => {
     }
   };
 
-  // Handle the completion of the recording
-  const handleRecordingComplete = (uri, duration) => {
-    setVoiceRecordingUri(uri);
-    setVoiceRecordingDuration(duration);
+  const processWhisperResult = (result: string) => {
+    console.log("processWhisperResult", result);
+
+    // append to inputText, with newline if inputText is not empty
+    setInputText(inputText + (inputText ? "\n" + result : result));
+
+    // focus on the input
+    document.getElementById("input")?.focus();
   };
 
   // catch CREATE_CONVERSATION action event in affect
@@ -615,10 +616,7 @@ const ChatScreen = () => {
             onKeyPress={handleMessageKeyPress}
             blurOnSubmit
           />
-          <RecordVoiceButton
-            onRecordingComplete={handleRecordingComplete}
-            recordContainerStyle={styles.recordVoiceButton}
-          />
+          <RecordVoiceButton onWhisperResult={processWhisperResult} />
           <Pressable
             disabled={!inputText && imagesToUpload?.length === 0}
             onPress={sendMessage}
