@@ -76,61 +76,51 @@ self.addEventListener("fetch", (event) => {
 
   // Check if this is a share target request
   if (event.request.url.endsWith("/receive-share")) {
-    event.respondWith(
+    event.respondWith(Response.redirect("/"));
+
+    event.waitUntil(
       (async function () {
-        // // Here you can store the files in IndexedDB or another client-side storage
-        // const formData = await event.request.formData();
-        // const mediaFiles = formData.getAll("audio");
+        const formData = await event.request.formData();
+        const mediaFiles = formData.getAll("audio");
 
-        // // set basic data into window.sessionStorage
-        // const data = {
-        //   title: formData.get("title"),
-        //   text: formData.get("text"),
-        // };
-        // window.sessionStorage.setItem("sharedContent", JSON.stringify(data));
+        // set basic data into window.sessionStorage
+        const data = {
+          title: formData.get("title"),
+          text: formData.get("text"),
+        };
+        window.sessionStorage.setItem("sharedContent", JSON.stringify(data));
 
-        // // Do something with the shared audio files,
-        // // like storing them using the Cache API, IndexedDB, or sending them to your server
-        // // put them in cache
-        // const cache = await caches.open("shared-audios");
+        // Do something with the shared audio files,
+        // like storing them using the Cache API, IndexedDB, or sending them to your server
+        // put them in cache
+        const cache = await caches.open("shared-audios");
 
-        // // clear window.sessionStorage sharedAudios
-        // window.sessionStorage.removeItem("sharedAudios");
+        // clear window.sessionStorage sharedAudios
+        window.sessionStorage.removeItem("sharedAudios");
 
-        // await Promise.all(
-        //   mediaFiles.map(async (file) => {
-        //     const response = await fetch(file);
-        //     await cache.put(file.name, response);
+        await Promise.all(
+          mediaFiles.map(async (file) => {
+            const response = await fetch(file);
+            await cache.put(file.name, response);
 
-        //     const sharedAudios = window.sessionStorage.getItem("sharedAudios");
+            const sharedAudios = window.sessionStorage.getItem("sharedAudios");
 
-        //     if (sharedAudios) {
-        //       const sharedAudiosArr = JSON.parse(sharedAudios);
-        //       sharedAudiosArr.push(file.name);
-        //       window.sessionStorage.setItem(
-        //         "sharedAudios",
-        //         JSON.stringify(sharedAudiosArr)
-        //       );
-        //     } else {
-        //       window.sessionStorage.setItem(
-        //         "sharedAudios",
-        //         JSON.stringify([file.name])
-        //       );
-        //     }
-        //   })
-        // );
-
-        // Instead of redirecting, just resolve the fetch with a success response
-        return new Response("", { status: 200 });
+            if (sharedAudios) {
+              const sharedAudiosArr = JSON.parse(sharedAudios);
+              sharedAudiosArr.push(file.name);
+              window.sessionStorage.setItem(
+                "sharedAudios",
+                JSON.stringify(sharedAudiosArr)
+              );
+            } else {
+              window.sessionStorage.setItem(
+                "sharedAudios",
+                JSON.stringify([file.name])
+              );
+            }
+          })
+        );
       })()
     );
-
-    // event.respondWith(Response.redirect("/#/shared-content"));
-
-    // event.waitUntil(
-    //   (async function () {
-
-    //   })()
-    // );
   }
 });
