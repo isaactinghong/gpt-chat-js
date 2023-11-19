@@ -638,12 +638,12 @@ const ChatScreen = () => {
           >
             <Ionicons name="image" size={22} color="black" />
           </Pressable>
-          <Pressable
+          {/* <Pressable
             onPress={attachImageCamera}
             style={styles.attachImageCameraButton}
           >
             <Ionicons name="camera" size={22} color="black" />
-          </Pressable>
+          </Pressable> */}
         </View>
       </View>
       {/* Display image thumbnails on top of the bottom input bar if images are attached */}
@@ -726,7 +726,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexBasis: "auto",
     flexDirection: "row",
-    paddingHorizontal: 10,
+    paddingHorizontal: 0,
     alignSelf: "flex-start",
     alignItems: "center",
     flexGrow: 1,
@@ -741,9 +741,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingTop: 14,
     paddingLeft: 18,
-    paddingRight: 45, // Make room for the send button
-    marginLeft: 15,
-    marginRight: 5,
+    paddingRight: 70, // Make room for the send button
+    marginLeft: 5,
+    marginRight: 0,
     marginVertical: 10,
     fontSize: 14,
     overflow: "hidden",
@@ -756,11 +756,11 @@ const styles = StyleSheet.create({
   // },
   sendButton: {
     position: "absolute",
-    right: 38,
+    right: 18,
     bottom: 23,
   },
   attachButtonsContainer: {
-    flexBasis: 90,
+    flexBasis: 40,
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 1,
@@ -771,11 +771,11 @@ const styles = StyleSheet.create({
     left: 8,
     bottom: 23,
   },
-  attachImageCameraButton: {
-    position: "absolute",
-    left: 48,
-    bottom: 23,
-  },
+  // attachImageCameraButton: {
+  //   position: "absolute",
+  //   left: 48,
+  //   bottom: 23,
+  // },
   imageThumbnailsContainer: {
     position: "absolute",
     bottom: 70,

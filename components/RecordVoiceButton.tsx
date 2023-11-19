@@ -127,6 +127,7 @@ const RecordVoiceButton: React.FC<{
 
     // delete recording uri
     // deleteRecording();
+    pressTrashRecording();
   };
 
   // useEffect on recordingUri
@@ -256,11 +257,11 @@ const RecordVoiceButton: React.FC<{
         </View>
       )}
       {/* a save icon to prompt user to save the recording */}
-      {recordingUri != "" && (
+      {/* {recordingUri != "" && (
         <Pressable onPress={saveRecording} style={styles.actionButton}>
           <Ionicons name="save" size={24} color="black" />
         </Pressable>
-      )}
+      )} */}
       {/* a tick icon to commit the recording */}
       {(isRecording || recordingUri != "") && (
         <Pressable onPress={commitRecording} style={styles.actionButton}>
@@ -268,11 +269,11 @@ const RecordVoiceButton: React.FC<{
         </Pressable>
       )}
       {/* a trash icon to delete the recording */}
-      {(isRecording || recordingUri != "") && (
+      {/* {(isRecording || recordingUri != "") && (
         <Pressable onPress={pressTrashRecording} style={styles.actionButton}>
           <Ionicons name="trash" size={24} color="black" />
         </Pressable>
-      )}
+      )} */}
       {/* if recording is not present, a mic icon to start the recording, or a stop icon to stop the recording */}
       {recordingUri == "" && (
         <Pressable
@@ -310,7 +311,7 @@ const styles = StyleSheet.create({
   },
   recordVoiceButton: {
     position: "absolute",
-    right: 78,
+    right: 48,
     bottom: 23,
     flexDirection: "row",
     alignItems: "center",
@@ -318,14 +319,14 @@ const styles = StyleSheet.create({
   durationRecording: {
     // dark red
     color: "red",
-    fontSize: 16,
-    marginRight: 10,
+    fontSize: 14,
+    marginRight: 0,
   },
   durationNotRecording: {
     // black
     color: "black",
-    fontSize: 16,
-    marginRight: 10,
+    fontSize: 14,
+    marginRight: 0,
   },
 });
 
