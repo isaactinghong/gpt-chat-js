@@ -75,7 +75,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "POST") return;
 
   // Check if this is a share target request
-  if (event.request.url.endsWith("/share-target")) {
+  if (event.request.url.endsWith("/receive-share")) {
     event.respondWith(
       (async function () {
         // // Here you can store the files in IndexedDB or another client-side storage
