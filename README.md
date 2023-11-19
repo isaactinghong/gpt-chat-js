@@ -3,8 +3,8 @@
 ## TODO
 
 - [o] add GPT Vision support
+- [ ] add GPT Whisper support <- working on this now
 - [ ] add GPT Dall-E support
-- [ ] add GPT Whisper support
 - [ ] add GPT Text-to-speech support
 
 ## How to start gpt-chat-js
