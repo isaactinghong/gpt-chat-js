@@ -138,7 +138,9 @@ const RecordVoiceButton: React.FC<{
 
     const response = await fetch(uri);
 
-    const recordingFile = await toFile(response, "recording.webm");
+    const recordingFile = await toFile(response, "recording.webm", {
+      type: "audio/webm",
+    });
 
     return recordingFile;
   };
