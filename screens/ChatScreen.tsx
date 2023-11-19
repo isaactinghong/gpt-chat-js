@@ -616,7 +616,10 @@ const ChatScreen = () => {
             onKeyPress={handleMessageKeyPress}
             blurOnSubmit
           />
-          <RecordVoiceButton onWhisperResult={processWhisperResult} />
+          <RecordVoiceButton
+            recordContainerStyle={styles.recordContainerStyle}
+            onWhisperResult={processWhisperResult}
+          />
           <Pressable
             disabled={!inputText && imagesToUpload?.length === 0}
             onPress={sendMessage}
@@ -727,49 +730,50 @@ const styles = StyleSheet.create({
     flexBasis: "auto",
     flexDirection: "row",
     paddingHorizontal: 0,
-    alignSelf: "flex-start",
+    alignSelf: "flex-end",
     alignItems: "center",
     flexGrow: 1,
+    height: 50,
+    marginVertical: 5,
+    marginHorizontal: 5,
+    borderWidth: 0.5,
+    borderColor: "#000",
+    borderRadius: 20,
     // borderTopWidth: 1,
     // borderColor: "#ddd",
   },
   input: {
-    flexGrow: 1,
+    flex: 1,
     height: 50,
-    borderWidth: 0.5,
-    borderColor: "#000",
-    borderRadius: 20,
     paddingTop: 14,
-    paddingLeft: 18,
-    paddingRight: 70, // Make room for the send button
+    paddingLeft: 15,
+    paddingRight: 10, // Make room for the send button
     marginLeft: 5,
     marginRight: 0,
     marginVertical: 10,
     fontSize: 14,
     overflow: "hidden",
   },
-  // recordVoiceButton: {
-  //   position: "absolute",
-  //   right: 78,
-  //   bottom: 23,
-  //   flexDirection: "row",
-  // },
+  recordContainerStyle: {
+    flexShrink: 1,
+    flexDirection: "row",
+  },
+  recordVoiceButton: {
+    flexBasis: 40,
+  },
   sendButton: {
-    position: "absolute",
-    right: 18,
-    bottom: 23,
+    flexBasis: 40,
   },
   attachButtonsContainer: {
-    flexBasis: 40,
+    flexBasis: 36,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     borderTopWidth: 1,
     borderColor: "#ddd",
   },
   attachImageGalleryButton: {
-    position: "absolute",
-    left: 8,
-    bottom: 23,
+    marginLeft: 5,
   },
   // attachImageCameraButton: {
   //   position: "absolute",

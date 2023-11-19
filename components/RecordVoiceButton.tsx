@@ -240,10 +240,10 @@ const RecordVoiceButton: React.FC<{
   }, [intervalId]);
 
   return (
-    <View style={props.recordContainerStyle ?? styles.recordVoiceButton}>
+    <View style={props.recordContainerStyle}>
       {(isRecording || recordingUri != "") && (
-        <View>
-          <Pressable onPress={pressTrashRecording}>
+        <View style={styles.durationDisplayContainer}>
+          <Pressable style={styles.actionButton} onPress={pressTrashRecording}>
             <Text
               style={
                 isRecording
@@ -306,23 +306,32 @@ const RecordVoiceButton: React.FC<{
 
 const styles = StyleSheet.create({
   actionButton: {
-    marginRight: 3,
-    marginLeft: 6,
-  },
-  recordVoiceButton: {
-    position: "absolute",
-    right: 48,
-    bottom: 23,
-    flexDirection: "row",
+    marginRight: 10,
     alignItems: "center",
   },
+  durationDisplayContainer: {
+    flexDirection: "row",
+    flexShrink: 1,
+    alignContent: "center",
+    alignItems: "center",
+  },
+
+  // recordVoiceButton: {
+  //   position: "absolute",
+  //   right: 48,
+  //   bottom: 23,
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  // },
   durationRecording: {
+    flex: 1,
     // dark red
     color: "red",
     fontSize: 14,
     marginRight: 0,
   },
   durationNotRecording: {
+    flex: 1,
     // black
     color: "black",
     fontSize: 14,
