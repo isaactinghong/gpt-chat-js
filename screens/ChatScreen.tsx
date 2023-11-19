@@ -46,6 +46,7 @@ import * as idb from "idb";
 import { getImage, storeImage } from "../idb/images-db";
 import ChatMessage from "../components/ChatMessage";
 import { Ionicons } from "@expo/vector-icons";
+import RecordVoiceButton from "../components/RecordVoiceButton";
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
@@ -62,6 +63,9 @@ const ChatScreen = () => {
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imagesToPreview, setImagesToPreview] = useState([]); // array of images to preview in image viewer
   const [selectedImageIndex, setSelectedImageIndex] = useState(0); // index of selected image to preview in image viewer
+
+  const [voiceRecordingUri, setVoiceRecordingUri] = useState(null);
+  const [voiceRecordingDuration, setVoiceRecordingDuration] = useState(0);
 
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
@@ -570,6 +574,12 @@ const ChatScreen = () => {
     }
   };
 
+  // Handle the completion of the recording
+  const handleRecordingComplete = (uri, duration) => {
+    setVoiceRecordingUri(uri);
+    setVoiceRecordingDuration(duration);
+  };
+
   // catch CREATE_CONVERSATION action event in affect
   // to focus on the input
   useEffect(() => {
@@ -604,6 +614,10 @@ const ChatScreen = () => {
             onSubmitEditing={sendMessage}
             onKeyPress={handleMessageKeyPress}
             blurOnSubmit
+          />
+          <RecordVoiceButton
+            onRecordingComplete={handleRecordingComplete}
+            recordContainerStyle={styles.recordVoiceButton}
           />
           <Pressable
             disabled={!inputText && imagesToUpload?.length === 0}
@@ -735,6 +749,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 14,
     overflow: "hidden",
+  },
+  recordVoiceButton: {
+    position: "absolute",
+    right: 78,
+    bottom: 23,
   },
   sendButton: {
     position: "absolute",
