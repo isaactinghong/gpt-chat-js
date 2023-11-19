@@ -32,9 +32,10 @@ const RecordVoiceButton: React.FC<{
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
         });
-        const { recording } = await Audio.Recording.createAsync(
-          Audio.RecordingOptionsPresets.HIGH_QUALITY
-        );
+        const { recording } = await Audio.Recording
+          .createAsync
+          // Audio.RecordingOptionsPresets.HIGH_QUALITY
+          ();
         setRecording(recording);
         setIsRecording(true);
 
@@ -137,7 +138,7 @@ const RecordVoiceButton: React.FC<{
 
     const response = await fetch(uri);
 
-    const recordingFile = await toFile(response, "recording.mp3");
+    const recordingFile = await toFile(response, "recording.webm");
 
     return recordingFile;
   };
@@ -201,30 +202,26 @@ const RecordVoiceButton: React.FC<{
 
     if (!recordingUri) return;
 
-    // Assuming recordingUri is a data URI or a blob URI
-    fetch(recordingUri)
-      .then((response) => response.blob())
-      .then((blob) => {
-        // Create a blob link to download
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement("a");
+    // Create a blob link to download
+    const link = document.createElement("a");
 
-        link.href = blobUrl;
-        link.download = "recording.webm"; // or .mp4 or the appropriate extension
-        // Append to the body
-        document.body.appendChild(link);
-        // Force download
-        link.click();
-        // Clean up and remove the link
-        link.parentNode.removeChild(link);
-        // Release the blob URL after some time to reduce memory usage
-        setTimeout(() => {
-          URL.revokeObjectURL(blobUrl);
-        }, 100);
-      })
-      .catch((error) =>
-        console.error("Error downloading the recording:", error)
-      );
+    link.href = recordingUri;
+    link.download = `recording-${recordingDuration}.webm`; // or .mp4 or the appropriate extension
+    // Append to the body
+    document.body.appendChild(link);
+    // Force download
+    link.click();
+    // Clean up and remove the link
+    link.parentNode.removeChild(link);
+
+    // Assuming recordingUri is a data URI or a blob URI
+    // fetch(recordingUri)
+    //   .then((response) => response.blob())
+    //   .then((blob) => {
+    //   })
+    //   .catch((error) =>
+    //     console.error("Error downloading the recording:", error)
+    //   );
   };
 
   useEffect(() => {
