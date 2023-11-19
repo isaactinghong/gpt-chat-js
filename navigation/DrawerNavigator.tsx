@@ -11,6 +11,7 @@ import { Conversation } from "../state/types/conversation";
 import OpenAI from "../services/OpenAIService";
 import { View, Text, StyleSheet } from "react-native";
 import { createConversation } from "../state/actions/chatActions";
+import SharedContentScreen from "../screens/SharedContentScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -89,6 +90,7 @@ const DrawerNavigator = () => {
       />
       <Drawer.Screen name="Settings" component={SettingsScreen} />
       {/* Add other screens here */}
+      <Drawer.Screen name="SharedContent" component={SharedContentScreen} />
     </Drawer.Navigator>
   );
 };

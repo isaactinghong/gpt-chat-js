@@ -11,6 +11,26 @@ import Toast from "react-native-toast-message";
 import * as serviceWorkerRegistration from "./src/serviceWorkerRegistration";
 
 export default function App() {
+  const ref = React.useRef(null);
+
+  useEffect(() => {
+    const handleRedirect = async () => {
+      // Your logic to check for the redirected URL.
+      // This might involve checking sessionStorage or another flag that
+      // you have set in the service worker or before the redirect.
+
+      // Check if there is a shared content indicator
+      // For example, check a flag you've stored:
+      const hasSharedContent = window.sessionStorage.getItem("sharedContent");
+
+      if (hasSharedContent) {
+        // Navigate to the new screen if shared content available
+        ref.current?.navigate("SharedContent");
+      }
+    };
+
+    handleRedirect();
+  }, []);
   return (
     <>
       <Provider store={store}>
