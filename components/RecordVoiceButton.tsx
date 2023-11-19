@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Pressable, View, Text, StyleSheet } from "react-native";
 import { AVPlaybackStatus, AVPlaybackStatusSuccess, Audio } from "expo-av";
 import OpenAI from "../services/OpenAIService";
-import * as FileSystem from "expo-file-system";
 import { Ionicons } from "@expo/vector-icons";
+import { toFile } from "openai";
 
 const RecordVoiceButton: React.FC<{
   onRecordingComplete: (uri: string, duration: number) => void;
@@ -117,36 +117,7 @@ const RecordVoiceButton: React.FC<{
     */
 
     // read from URI to blob to FileLike
-    console.log("recordingUri:", recordingUri);
-
-    // recorded uri: blob:http://localhost:19006/fb13e32d-9cb9-4e07-963d-4425695d43e6
-
-    const response = await fetch(recordingUri);
-
-    // log response
-    console.log("response:", response);
-
-    // convert response to blob
-    const recordingBlob = await response.blob();
-    // console.log("recordingBlob:", recordingBlob);
-
-    // convert blob to File
-    const recordingFile = new File([recordingBlob], "recording.mp3", {
-      type: "audio/mp3",
-    });
-
-    const downloadResumable = FileSystem.createDownloadResumable(
-      recordingUri,
-      FileSystem.documentDirectory + "recording.mp3",
-      {}
-    );
-
-    try {
-      const { uri } = await downloadResumable.downloadAsync();
-      console.log("Finished downloading to ", uri);
-    } catch (e) {
-      console.error(e);
-    }
+    const recordingFile = await uriToFile(recordingUri);
 
     const whisperResult = await OpenAI.api.audio.transcriptions.create({
       model: "whisper-1",
@@ -157,6 +128,18 @@ const RecordVoiceButton: React.FC<{
 
     // delete recording uri
     setRecordingUri("");
+  };
+
+  const uriToFile = async (uri: string) => {
+    console.log("uri:", uri);
+
+    // recorded uri: blob:http://localhost:19006/fb13e32d-9cb9-4e07-963d-4425695d43e6
+
+    const response = await fetch(uri);
+
+    const recordingFile = await toFile(response, "recording.mp3");
+
+    return recordingFile;
   };
 
   const playRecording = async () => {
@@ -212,6 +195,38 @@ const RecordVoiceButton: React.FC<{
     setIsPlaying(false);
   };
 
+  const saveRecording = () => {
+    // log entry
+    console.log("save recording");
+
+    if (!recordingUri) return;
+
+    // Assuming recordingUri is a data URI or a blob URI
+    fetch(recordingUri)
+      .then((response) => response.blob())
+      .then((blob) => {
+        // Create a blob link to download
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+
+        link.href = blobUrl;
+        link.download = "recording.webm"; // or .mp4 or the appropriate extension
+        // Append to the body
+        document.body.appendChild(link);
+        // Force download
+        link.click();
+        // Clean up and remove the link
+        link.parentNode.removeChild(link);
+        // Release the blob URL after some time to reduce memory usage
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+        }, 100);
+      })
+      .catch((error) =>
+        console.error("Error downloading the recording:", error)
+      );
+  };
+
   useEffect(() => {
     return () => {
       if (intervalId) {
@@ -236,6 +251,12 @@ const RecordVoiceButton: React.FC<{
             </Text>
           </Pressable>
         </View>
+      )}
+      {/* a save icon to prompt user to save the recording */}
+      {recordingUri != "" && (
+        <Pressable onPress={saveRecording} style={styles.actionButton}>
+          <Ionicons name="save" size={24} color="black" />
+        </Pressable>
       )}
       {/* a tick icon to commit the recording */}
       {(isRecording || recordingUri != "") && (
