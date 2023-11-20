@@ -24,6 +24,8 @@ export default function App() {
       const hasSharedContent = window.sessionStorage.getItem("sharedContent");
 
       if (hasSharedContent) {
+        alert("hasSharedContent");
+
         // Navigate to the new screen if shared content available
         ref.current?.navigate("SharedContent");
       }

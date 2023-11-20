@@ -97,42 +97,39 @@ self.addEventListener("fetch", (event) => {
       const mediaFiles = formData.getAll("audio");
 
       // set basic data into window.sessionStorage
-      const data = {
-        title: formData.get("title"),
-        text: formData.get("text"),
-      };
-      window.sessionStorage.setItem("sharedContent", JSON.stringify(data));
+      window.sessionStorage.setItem("sharedContent", "123");
 
-      // Do something with the shared audio files,
-      // like storing them using the Cache API, IndexedDB, or sending them to your server
-      // put them in cache
-      const cache = await caches.open("shared-audios");
+      // // Do something with the shared audio files,
+      // // like storing them using the Cache API, IndexedDB, or sending them to your server
+      // // put them in cache
+      // const cache = await caches.open("shared-audios");
 
-      // clear window.sessionStorage sharedAudios
-      window.sessionStorage.removeItem("sharedAudios");
+      // // clear window.sessionStorage sharedAudios
+      // window.sessionStorage.removeItem("sharedAudios");
 
-      await Promise.all(
-        mediaFiles.map(async (file) => {
-          const response = await fetch(file);
-          await cache.put(file.name, response);
+      // await Promise.all(
+      //   mediaFiles.map(async (file) => {
+      //     const response = await fetch(file);
+      //     await cache.put(file.name, response);
 
-          const sharedAudios = window.sessionStorage.getItem("sharedAudios");
+      //     const sharedAudios = window.sessionStorage.getItem("sharedAudios");
 
-          if (sharedAudios) {
-            const sharedAudiosArr = JSON.parse(sharedAudios);
-            sharedAudiosArr.push(file.name);
-            window.sessionStorage.setItem(
-              "sharedAudios",
-              JSON.stringify(sharedAudiosArr)
-            );
-          } else {
-            window.sessionStorage.setItem(
-              "sharedAudios",
-              JSON.stringify([file.name])
-            );
-          }
-        })
-      );
+      //     if (sharedAudios) {
+      //       const sharedAudiosArr = JSON.parse(sharedAudios);
+      //       sharedAudiosArr.push(file.name);
+      //       window.sessionStorage.setItem(
+      //         "sharedAudios",
+      //         JSON.stringify(sharedAudiosArr)
+      //       );
+      //     } else {
+      //       window.sessionStorage.setItem(
+      //         "sharedAudios",
+      //         JSON.stringify([file.name])
+      //       );
+      //     }
+      //   })
+      // );
+
       // Redirect to the home page after handling the share
       return Response.redirect("/", 303);
     })()
