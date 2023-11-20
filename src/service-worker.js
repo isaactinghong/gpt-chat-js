@@ -92,36 +92,44 @@ self.addEventListener("fetch", (event) => {
   // Handle POST request to the receive-share URL
   event.respondWith(
     (async () => {
-      // Assume some custom logic or data processing happens here before redirecting.
-      const formData = await event.request.formData();
-      const mediaFiles = formData.getAll("audio");
+      // // Assume some custom logic or data processing happens here before redirecting.
+      // const formData = await event.request.formData();
+      // const mediaFiles = formData.getAll("audio");
 
-      // Do something with the shared audio files,
-      // like storing them using the Cache API, IndexedDB, or sending them to your server
-      // put them in cache
-      const cache = await caches.open("shared-audios");
+      // // Do something with the shared audio files,
+      // // like storing them using the Cache API, IndexedDB, or sending them to your server
+      // // put them in cache
+      // const cache = await caches.open("shared-audios");
 
-      const serializedFileNames = JSON.stringify(
-        mediaFiles.map((file) => file.name)
-      );
+      // const serializedFileNames = JSON.stringify(
+      //   mediaFiles.map((file) => file.name)
+      // );
 
-      // put a message into cache
-      await cache.put(
-        "fileNames",
-        new Response(serializedFileNames, {
-          headers: { "Content-Type": "application/json" },
-        })
-      );
+      // // put a message into cache
+      // await cache.put(
+      //   "fileNames",
+      //   new Response(serializedFileNames, {
+      //     headers: { "Content-Type": "application/json" },
+      //   })
+      // );
 
-      await Promise.all(
-        mediaFiles.map(async (file) => {
-          const response = await fetch(file);
-          await cache.put(file.name, response);
-        })
-      );
+      // // Store each file in the cache.
+      // await Promise.all(
+      //   mediaFiles.map((file) => {
+      //     // Create a new Request object from the File object
+      //     const fileRequest = new Request(file.name, {
+      //       method: "POST",
+      //       body: file,
+      //       headers: new Headers({
+      //         "Content-Type": file.type,
+      //       }),
+      //     });
+      //     return cache.put(fileRequest, new Response(file));
+      //   })
+      // );
 
       // Redirect to the home page after handling the share
-      return Response.redirect("/", 303);
+      return new Response.redirect("/", 303);
     })()
   );
 });
