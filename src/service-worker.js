@@ -96,39 +96,29 @@ self.addEventListener("fetch", (event) => {
       const formData = await event.request.formData();
       const mediaFiles = formData.getAll("audio");
 
-      // set basic data into window.sessionStorage
-      window.sessionStorage.setItem("sharedContent", "123");
+      // Do something with the shared audio files,
+      // like storing them using the Cache API, IndexedDB, or sending them to your server
+      // put them in cache
+      const cache = await caches.open("shared-audios");
 
-      // // Do something with the shared audio files,
-      // // like storing them using the Cache API, IndexedDB, or sending them to your server
-      // // put them in cache
-      // const cache = await caches.open("shared-audios");
+      const serializedFileNames = JSON.stringify(
+        mediaFiles.map((file) => file.name)
+      );
 
-      // // clear window.sessionStorage sharedAudios
-      // window.sessionStorage.removeItem("sharedAudios");
+      // put a message into cache
+      await cache.put(
+        "fileNames",
+        new Response(serializedFileNames, {
+          headers: { "Content-Type": "application/json" },
+        })
+      );
 
-      // await Promise.all(
-      //   mediaFiles.map(async (file) => {
-      //     const response = await fetch(file);
-      //     await cache.put(file.name, response);
-
-      //     const sharedAudios = window.sessionStorage.getItem("sharedAudios");
-
-      //     if (sharedAudios) {
-      //       const sharedAudiosArr = JSON.parse(sharedAudios);
-      //       sharedAudiosArr.push(file.name);
-      //       window.sessionStorage.setItem(
-      //         "sharedAudios",
-      //         JSON.stringify(sharedAudiosArr)
-      //       );
-      //     } else {
-      //       window.sessionStorage.setItem(
-      //         "sharedAudios",
-      //         JSON.stringify([file.name])
-      //       );
-      //     }
-      //   })
-      // );
+      await Promise.all(
+        mediaFiles.map(async (file) => {
+          const response = await fetch(file);
+          await cache.put(file.name, response);
+        })
+      );
 
       // Redirect to the home page after handling the share
       return Response.redirect("/", 303);
