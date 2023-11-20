@@ -187,6 +187,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     fontSize: 16,
     lineHeight: 20,
+    flex: 1,
   },
   userMessageText: {
     alignContent: "center",
