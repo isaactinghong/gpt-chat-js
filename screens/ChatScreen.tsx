@@ -625,7 +625,7 @@ const ChatScreen = () => {
 
             const response = await fetch(fileURL);
 
-            const recordingFile = await toFile(response);
+            const recordingFile = await toFile(response, fileName);
 
             const whisperResult = await OpenAI.api.audio.transcriptions.create({
               model: "whisper-1",
