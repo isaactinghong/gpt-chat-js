@@ -16,7 +16,7 @@ import { StaleWhileRevalidate } from "workbox-strategies";
 // log that service worker is being installed
 console.log("service worker installing");
 
-let HOST = "https://gpt-chat-js.netlify.app/";
+let HOST = "https://gpt-chat-js.netlify.app";
 if (process.env.PUBLIC_URL !== undefined) {
   HOST = process.env.PUBLIC_URL;
 }
