@@ -24,7 +24,7 @@ export function register(config) {
   // const isEnvProduction = process.env.NODE_ENV === "production";
   const isEnvProduction = true;
 
-  let HOST = "https://gpt-chat-js.netlify.app";
+  let HOST = "https://gpt-chat-js.netlify.app/";
   if (process.env.PUBLIC_URL !== undefined) {
     HOST = process.env.PUBLIC_URL;
   }
@@ -47,7 +47,7 @@ export function register(config) {
     console.log("about to register service worker load event");
 
     window.addEventListener("load", () => {
-      const swUrl = `${HOST}/service-worker.js`;
+      const swUrl = `${HOST}service-worker.js`;
 
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
