@@ -606,7 +606,7 @@ const ChatScreen = () => {
       await Promise.all(
         audioFileNames.map(async (fileName) => {
           try {
-            alert("fileName: " + fileName);
+            // alert("fileName: " + fileName);
 
             const recordingFileResponse = await cache.match(fileName);
 
@@ -621,7 +621,7 @@ const ChatScreen = () => {
             // For example, create a URL and set it to an <img> or <a> element for download
             const fileURL = URL.createObjectURL(fileBlob);
             console.log("Retrieved file URL:", fileURL);
-            alert("Retrieved file URL: " + fileURL);
+            // alert("Retrieved file URL: " + fileURL);
 
             const response = await fetch(fileURL);
 
@@ -633,7 +633,7 @@ const ChatScreen = () => {
             });
 
             console.log("whisperResult:", whisperResult);
-            alert("whisperResult: " + whisperResult.text);
+            // alert("whisperResult: " + whisperResult.text);
 
             // processWhisperResult
             processWhisperResult(whisperResult.text);
