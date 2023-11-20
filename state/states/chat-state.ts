@@ -9,4 +9,6 @@ export interface ChatState {
   // temporary state for attachment upload
   // images: ChatCompletionContentPartImage[];
   imagesToUpload: LocalImage[];
+
+  audioFileNames: string[];
 }

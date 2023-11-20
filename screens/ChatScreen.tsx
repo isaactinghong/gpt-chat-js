@@ -13,6 +13,7 @@ import {
   addImage,
   addMessage,
   clearImages,
+  removeAudioFiles,
   removeImage,
   updateConversation,
   updateMessage,
@@ -54,6 +55,9 @@ const ChatScreen = () => {
   const model = useSelector((state: AppState) => state.settings.modelName);
   const imagesToUpload = useSelector(
     (state: AppState) => state.chats.imagesToUpload
+  );
+  const audioFileNames = useSelector(
+    (state: AppState) => state.chats.audioFileNames
   );
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -585,6 +589,48 @@ const ChatScreen = () => {
     // focus on the input
     document.getElementById("input")?.focus();
   }, [currentConversationId]);
+
+  // useEffect on audioFileNames
+  useEffect(() => {
+    console.log("audioFileNames", audioFileNames);
+
+    if (audioFileNames == null || audioFileNames.length === 0) {
+      return;
+    }
+    alert("audioFileNames: " + audioFileNames);
+
+    // fetch the files from caches
+    const fetchAudioFiles = async () => {
+      const cache = await caches.open("shared-audios");
+
+      await Promise.all(
+        audioFileNames.map(async (fileName) => {
+          const recordingFileResponse = await cache.match(fileName);
+
+          const whisperResult = await OpenAI.api.audio.transcriptions.create({
+            model: "whisper-1",
+            file: recordingFileResponse,
+          });
+
+          console.log("whisperResult:", whisperResult);
+
+          // processWhisperResult
+          processWhisperResult(whisperResult.text);
+
+          // remove the file from cache
+          await cache.delete(fileName);
+        })
+      );
+
+      // remove fileNames from cache('fileNames')
+      await cache.delete("fileNames");
+
+      // remove audioFileNames from redux store
+      dispatch(removeAudioFiles());
+    };
+
+    fetchAudioFiles();
+  }, [audioFileNames]);
 
   return (
     <View style={styles.container}>

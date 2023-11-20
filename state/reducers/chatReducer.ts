@@ -10,6 +10,8 @@ import {
   REMOVE_IMAGE,
   CLEAR_IMAGES,
   REORDER_IMAGE,
+  ADD_AUDIO_FILES,
+  REMOVE_AUDIO_FILES,
 } from "../actions/chatActions";
 import { ChatState } from "../states/chat-state";
 import { Conversation } from "../types/conversation";
@@ -25,6 +27,7 @@ export const initialChatState: ChatState = {
   },
   currentConversationId: "0",
   imagesToUpload: [],
+  audioFileNames: [],
 };
 
 const chatReducer = (
@@ -169,6 +172,19 @@ const chatReducer = (
       return {
         ...state,
         imagesToUpload,
+      };
+    }
+    case ADD_AUDIO_FILES: {
+      const { audioFileNames } = action.payload;
+      return {
+        ...state,
+        audioFileNames: [...(state.audioFileNames ?? []), ...audioFileNames],
+      };
+    }
+    case REMOVE_AUDIO_FILES: {
+      return {
+        ...state,
+        audioFileNames: [],
       };
     }
     // ... other actions

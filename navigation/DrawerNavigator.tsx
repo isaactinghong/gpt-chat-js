@@ -10,7 +10,10 @@ import { AppState } from "../state/states/app-state";
 import { Conversation } from "../state/types/conversation";
 import OpenAI from "../services/OpenAIService";
 import { View, Text, StyleSheet } from "react-native";
-import { createConversation } from "../state/actions/chatActions";
+import {
+  addAudioFiles,
+  createConversation,
+} from "../state/actions/chatActions";
 import SharedContentScreen from "../screens/SharedContentScreen";
 
 const Drawer = createDrawerNavigator();
@@ -41,6 +44,45 @@ const DrawerNavigator = () => {
   //     document.removeEventListener("keydown", handleKeyDown);
   //   };
   // }, []);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const handleRedirectAudios = async () => {
+      try {
+        // Your logic to check for the redirected URL.
+        // This might involve checking caches
+
+        // Check if there is a shared content indicator
+        // For example, check a flag you've stored:
+
+        const cache = await caches.open("shared-audios");
+
+        const serializedFileNames = await cache.match("fileNames");
+
+        if (!serializedFileNames) {
+          // No shared content available
+          return;
+        }
+
+        const fileNames = await serializedFileNames.json();
+
+        if (fileNames) {
+          console.log("fileNames", fileNames);
+
+          // alert("Shared content available: " + fileNames);
+
+          // dispatch addAudioFiles
+          dispatch(addAudioFiles(fileNames));
+        }
+      } catch (e) {
+        console.log(e);
+
+        alert("handleRedirectAudios Error: " + e);
+      }
+    };
+    handleRedirectAudios();
+  }, []);
 
   const openAiApiKey = useSelector(
     (state: AppState) => state.settings.openAiApiKey

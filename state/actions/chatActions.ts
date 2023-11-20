@@ -15,6 +15,8 @@ export const ADD_IMAGE = "ADD_IMAGE";
 export const REMOVE_IMAGE = "REMOVE_IMAGE";
 export const CLEAR_IMAGES = "CLEAR_IMAGES";
 export const REORDER_IMAGE = "REORDER_IMAGE";
+export const ADD_AUDIO_FILES = "ADD_AUDIO_FILES";
+export const REMOVE_AUDIO_FILES = "REMOVE_AUDIO_FILES";
 
 interface AddMessageAction {
   type: typeof ADD_MESSAGE;
@@ -85,6 +87,17 @@ interface ReorderImageAction {
   };
 }
 
+interface AddAudioFilesAction {
+  type: typeof ADD_AUDIO_FILES;
+  payload: {
+    audioFileNames: string[];
+  };
+}
+
+interface RemoveAudioFilesAction {
+  type: typeof REMOVE_AUDIO_FILES;
+}
+
 // Union type for chat-related actions
 export type ChatActionTypes =
   | AddMessageAction
@@ -96,7 +109,9 @@ export type ChatActionTypes =
   | AddImageAction
   | RemoveImageAction
   | ClearImagesAction
-  | ReorderImageAction;
+  | ReorderImageAction
+  | AddAudioFilesAction
+  | RemoveAudioFilesAction;
 
 export const addMessage = (
   conversationId: string,
@@ -173,4 +188,13 @@ export const reorderImage = (
 ): ChatActionTypes => ({
   type: REORDER_IMAGE,
   payload: { imageIndex, newIndex },
+});
+
+export const addAudioFiles = (audioFileNames: string[]): ChatActionTypes => ({
+  type: ADD_AUDIO_FILES,
+  payload: { audioFileNames },
+});
+
+export const removeAudioFiles = (): ChatActionTypes => ({
+  type: REMOVE_AUDIO_FILES,
 });

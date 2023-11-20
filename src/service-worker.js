@@ -80,6 +80,60 @@ self.addEventListener("message", (event) => {
 });
 
 // Any other custom service worker logic can go here.
+// self.addEventListener("fetch", (event) => {
+//   if (
+//     event.request.method !== "POST" ||
+//     !event.request.url.endsWith("/receive-share")
+//   ) {
+//     // Fetch event is not for a POST request to the receive-share URL, so do nothing special.
+//     return;
+//   }
+
+//   // Handle POST request to the receive-share URL
+//   event.respondWith(
+//     (async () => {
+//       // Assume some custom logic or data processing happens here before redirecting.
+//       const formData = await event.request.formData();
+//       const mediaFiles = formData.getAll("audio");
+
+//       // Do something with the shared audio files,
+//       // like storing them using the Cache API, IndexedDB, or sending them to your server
+//       // put them in cache
+//       const cache = await caches.open("shared-audios");
+
+//       const serializedFileNames = JSON.stringify(
+//         mediaFiles.map((file) => file.name)
+//       );
+
+//       // put a message into cache
+//       await cache.put(
+//         "fileNames",
+//         new Response(serializedFileNames, {
+//           headers: { "Content-Type": "application/json" },
+//         })
+//       );
+
+//       // Store each file in the cache.
+//       await Promise.all(
+//         mediaFiles.map((file) => {
+//           // Create a new Request object from the File object
+//           const fileRequest = new Request(file.name, {
+//             method: "POST",
+//             body: file,
+//             headers: new Headers({
+//               "Content-Type": file.type,
+//             }),
+//           });
+//           return cache.put(fileRequest, new Response(file));
+//         })
+//       );
+
+//       // Redirect to the home page after handling the share
+//       return new Response.redirect("/", 303);
+//     })()
+//   );
+// });
+
 self.addEventListener("fetch", (event) => {
   if (
     event.request.method !== "POST" ||
@@ -89,47 +143,55 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Handle POST request to the receive-share URL
-  event.respondWith(
+  // Send back a response immediately to redirect the user
+  event.respondWith(Response.redirect("/", 303));
+
+  // Process the form data in the background
+  event.waitUntil(
     (async () => {
-      // // Assume some custom logic or data processing happens here before redirecting.
-      // const formData = await event.request.formData();
-      // const mediaFiles = formData.getAll("audio");
+      try {
+        const formData = await event.request.formData();
+        const mediaFiles = formData.getAll("audio");
 
-      // // Do something with the shared audio files,
-      // // like storing them using the Cache API, IndexedDB, or sending them to your server
-      // // put them in cache
-      // const cache = await caches.open("shared-audios");
+        // Do something with the shared audio files,
+        // like storing them using the Cache API, IndexedDB, or sending them to your server
+        // put them in cache
+        const cache = await caches.open("shared-audios");
 
-      // const serializedFileNames = JSON.stringify(
-      //   mediaFiles.map((file) => file.name)
-      // );
+        const serializedFileNames = JSON.stringify(
+          mediaFiles.map((file) => file.name)
+        );
 
-      // // put a message into cache
-      // await cache.put(
-      //   "fileNames",
-      //   new Response(serializedFileNames, {
-      //     headers: { "Content-Type": "application/json" },
-      //   })
-      // );
+        // put a message into cache
+        await cache.put(
+          "fileNames",
+          new Response(serializedFileNames, {
+            headers: { "Content-Type": "application/json" },
+          })
+        );
 
-      // // Store each file in the cache.
-      // await Promise.all(
-      //   mediaFiles.map((file) => {
-      //     // Create a new Request object from the File object
-      //     const fileRequest = new Request(file.name, {
-      //       method: "POST",
-      //       body: file,
-      //       headers: new Headers({
-      //         "Content-Type": file.type,
-      //       }),
-      //     });
-      //     return cache.put(fileRequest, new Response(file));
-      //   })
-      // );
+        // Store each file in the cache.
+        await Promise.all(
+          mediaFiles.map((file) => {
+            // Create a new Request object from the File object
+            const fileRequest = new Request(file.name, {
+              method: "POST",
+              body: file,
+              headers: new Headers({
+                "Content-Type": file.type,
+              }),
+            });
+            return cache.put(fileRequest, new Response(file));
+          })
+        );
+      } catch (error) {
+        // Handle any errors that occur during the fetch or processing here.
+        // Depending on your use case, you might want to report this error to a server or log it to the console.
+        console.error("Failed to handle POST request:", error);
 
-      // Redirect to the home page after handling the share
-      return new Response.redirect("/", 303);
+        // Optionally, you could use `self.registration.showNotification`
+        // to provide a notification to the user (if notifications are permitted).
+      }
     })()
   );
 });
