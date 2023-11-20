@@ -29,6 +29,10 @@ module.exports = async function (env, argv) {
         dontCacheBustURLsMatching: /\.[0-9a-f]{8}\./,
         exclude: [
           /\.map$/,
+          // _redirects
+          /_redirects/,
+          // .1feff74faaf0efc6a044
+          /\.1feff74faaf0efc6a044$/,
           /asset-manifest\.json$/,
           /LICENSE/,
           /\.js\.gz$/,

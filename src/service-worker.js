@@ -93,66 +93,51 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     (async () => {
       // Assume some custom logic or data processing happens here before redirecting.
+      const formData = await event.request.formData();
+      const mediaFiles = formData.getAll("audio");
 
+      // set basic data into window.sessionStorage
+      const data = {
+        title: formData.get("title"),
+        text: formData.get("text"),
+      };
+      window.sessionStorage.setItem("sharedContent", JSON.stringify(data));
+
+      // Do something with the shared audio files,
+      // like storing them using the Cache API, IndexedDB, or sending them to your server
+      // put them in cache
+      const cache = await caches.open("shared-audios");
+
+      // clear window.sessionStorage sharedAudios
+      window.sessionStorage.removeItem("sharedAudios");
+
+      await Promise.all(
+        mediaFiles.map(async (file) => {
+          const response = await fetch(file);
+          await cache.put(file.name, response);
+
+          const sharedAudios = window.sessionStorage.getItem("sharedAudios");
+
+          if (sharedAudios) {
+            const sharedAudiosArr = JSON.parse(sharedAudios);
+            sharedAudiosArr.push(file.name);
+            window.sessionStorage.setItem(
+              "sharedAudios",
+              JSON.stringify(sharedAudiosArr)
+            );
+          } else {
+            window.sessionStorage.setItem(
+              "sharedAudios",
+              JSON.stringify([file.name])
+            );
+          }
+        })
+      );
       // Redirect to the home page after handling the share
       return Response.redirect("/", 303);
     })()
   );
 });
-
-// self.addEventListener("fetch", (event) => {
-//   if (event.request.method !== "POST") return;
-
-//   // Check if this is a share target request
-//   if (event.request.url.endsWith("/receive-share")) {
-//     event.respondWith(Response.redirect("/"));
-
-//     // event.waitUntil(
-//     //   (async function () {
-//     //     const formData = await event.request.formData();
-//     //     const mediaFiles = formData.getAll("audio");
-
-//     //     // set basic data into window.sessionStorage
-//     //     const data = {
-//     //       title: formData.get("title"),
-//     //       text: formData.get("text"),
-//     //     };
-//     //     window.sessionStorage.setItem("sharedContent", JSON.stringify(data));
-
-//     //     // Do something with the shared audio files,
-//     //     // like storing them using the Cache API, IndexedDB, or sending them to your server
-//     //     // put them in cache
-//     //     const cache = await caches.open("shared-audios");
-
-//     //     // clear window.sessionStorage sharedAudios
-//     //     window.sessionStorage.removeItem("sharedAudios");
-
-//     //     await Promise.all(
-//     //       mediaFiles.map(async (file) => {
-//     //         const response = await fetch(file);
-//     //         await cache.put(file.name, response);
-
-//     //         const sharedAudios = window.sessionStorage.getItem("sharedAudios");
-
-//     //         if (sharedAudios) {
-//     //           const sharedAudiosArr = JSON.parse(sharedAudios);
-//     //           sharedAudiosArr.push(file.name);
-//     //           window.sessionStorage.setItem(
-//     //             "sharedAudios",
-//     //             JSON.stringify(sharedAudiosArr)
-//     //           );
-//     //         } else {
-//     //           window.sessionStorage.setItem(
-//     //             "sharedAudios",
-//     //             JSON.stringify([file.name])
-//     //           );
-//     //         }
-//     //       })
-//     //     );
-//     //   })()
-//     // );
-//   }
-// });
 
 // log that service worker is installed
 console.log("service worker installed");
