@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontSize: 16,
+    fontSize: 15,
   },
   headerSubtitle: {
     fontSize: 12,
