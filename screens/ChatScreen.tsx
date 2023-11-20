@@ -616,9 +616,20 @@ const ChatScreen = () => {
               return;
             }
 
+            const fileBlob = await recordingFileResponse.blob();
+            // You can now do something with the file
+            // For example, create a URL and set it to an <img> or <a> element for download
+            const fileURL = URL.createObjectURL(fileBlob);
+            console.log("Retrieved file URL:", fileURL);
+            alert("Retrieved file URL: " + fileURL);
+
+            const response = await fetch(fileURL);
+
+            const recordingFile = await toFile(response);
+
             const whisperResult = await OpenAI.api.audio.transcriptions.create({
               model: "whisper-1",
-              file: await toFile(recordingFileResponse),
+              file: recordingFile,
             });
 
             console.log("whisperResult:", whisperResult);
