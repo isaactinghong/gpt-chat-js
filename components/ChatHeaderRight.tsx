@@ -37,14 +37,9 @@ const ChatHeaderRight = () => {
       >
         <Ionicons name="trash-outline" size={20} color="black" />
       </Pressable>
-      <Pressable
-        style={styles.actionButton}
-        onPress={() => {
-          /* handle more options */
-        }}
-      >
+      {/* <Pressable style={styles.actionButton} onPress={() => {}}>
         <Ionicons name="ellipsis-vertical" size={20} color="black" />
-      </Pressable>
+      </Pressable> */}
     </View>
   );
 };
@@ -56,7 +51,8 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   actionButton: {
-    marginLeft: 15,
+    marginLeft: 10,
+    marginRight: 5,
   },
 });
 
