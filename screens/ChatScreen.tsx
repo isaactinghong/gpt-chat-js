@@ -298,18 +298,17 @@ const ChatScreen = () => {
         timestamp: Date.now(),
       } as ChatCompletionAssistantMessageParam);
 
+      const titleLength = 40;
+      const titleInstruction = `Please give a short title to the following conversation.
+      Treat it like you are giving a title for a book.
+      The title should be short, around 3-8 words, must be within ${titleLength} characters.
+      No quotation marks are needed.
+      `;
+
       // system message to ask openai to give a title
       const firstMessage: ChatCompletionMessageParam = {
         role: "system",
-        content: `
-          Please give a short title to this conversation.
-          Keep it short, within 20 words.
-          One sentence only.
-          Do not include any punctuation.
-          Do not include any special characters.
-          Do not need to quote the title.
-          Your result is used directly as the title.
-          `,
+        content: titleInstruction,
       };
 
       // title messages
@@ -343,10 +342,9 @@ const ChatScreen = () => {
 
         let title = titleResult.choices[0]?.message?.content || "Untitled";
 
-        // check if title is too long, more than 20 words, so about 100 characters
         // just trim it
-        if (title.length > 100) {
-          title = title.substring(0, 100);
+        if (title.length > titleLength) {
+          title = title.substring(0, titleLength + 15);
         }
 
         // trim any new line in the title

@@ -97,9 +97,9 @@ const DrawerNavigator = () => {
 
 const styles = StyleSheet.create({
   headerTitleContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
   },
   headerTitle: {
     fontSize: 16,
