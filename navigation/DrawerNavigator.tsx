@@ -58,12 +58,15 @@ const DrawerNavigator = () => {
 
         const cache = await caches.open("shared-audios");
 
-        const serializedFileNames = await cache.match("fileNames");
+        const serializedFileNames: Response = await cache.match("fileNames");
 
         if (!serializedFileNames) {
           // No shared content available
           return;
         }
+
+        // delete cache fileNames
+        await cache.delete("fileNames");
 
         const fileNames = await serializedFileNames.json();
 

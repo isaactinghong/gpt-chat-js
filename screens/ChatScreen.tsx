@@ -607,12 +607,19 @@ const ChatScreen = () => {
         audioFileNames.map(async (fileName) => {
           const recordingFileResponse = await cache.match(fileName);
 
+          // alert if recordingFileResponse is null
+          if (!recordingFileResponse) {
+            alert("recordingFileResponse is null");
+            return;
+          }
+
           const whisperResult = await OpenAI.api.audio.transcriptions.create({
             model: "whisper-1",
             file: recordingFileResponse,
           });
 
           console.log("whisperResult:", whisperResult);
+          alert("whisperResult: " + whisperResult.text);
 
           // processWhisperResult
           processWhisperResult(whisperResult.text);
