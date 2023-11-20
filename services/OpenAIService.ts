@@ -21,6 +21,7 @@ export default class OpenAI {
   }
 
   constructor() {
+    // const proxyUrl = process.env.PROXY_URL;
     const proxyUrl = "https://walrus-app-zl2gh.ondigitalocean.app/api";
     console.log("proxyUrl", proxyUrl);
 

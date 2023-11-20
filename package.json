@@ -19,7 +19,9 @@
     "@types/react": "^18.2.37",
     "@types/react-dom": "~18.0.10",
     "browser-image-compression": "^2.0.2",
+    "dotenv-webpack": "^8.0.1",
     "expo": "~49.0.15",
+    "expo-av": "~13.4.1",
     "expo-constants": "~14.4.2",
     "expo-dev-client": "~2.4.12",
     "expo-image-picker": "~14.3.2",
@@ -43,11 +45,11 @@
     "redux": "^4.2.1",
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.4.2",
-    "typescript": "^5.2.2",
-    "expo-av": "~13.4.1"
+    "typescript": "^5.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "babel-plugin-transform-inline-environment-variables": "^0.4.4",
     "netlify-cli": "^17.3.1",
     "workbox-background-sync": "^6.1.5",
     "workbox-broadcast-update": "^6.1.5",

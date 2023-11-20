@@ -21,9 +21,14 @@ const isLocalhost = Boolean(
 );
 
 export function register(config) {
-  const isEnvProduction = process.env.NODE_ENV === "production";
+  // const isEnvProduction = process.env.NODE_ENV === "production";
+  const isEnvProduction = true;
 
-  const HOST = process.env.PUBLIC_URL || "http://localhost:3000";
+  const HOST = process.env.PUBLIC_URL || "https://gpt-chat-js.netlify.app/";
+  // const HOST = "https://gpt-chat-js.netlify.app/";
+
+  // log HOST
+  console.log("serviceWorkerRegistration HOST: ", HOST);
 
   if (isEnvProduction && "serviceWorker" in navigator) {
     // The URL constructor is available in all browsers that support SW.
@@ -34,6 +39,9 @@ export function register(config) {
       // serve assets; see https://github.com/facebook/create-react-app/issues/2374
       return;
     }
+
+    // log about to register service worker load event
+    console.log("about to register service worker load event");
 
     window.addEventListener("load", () => {
       const swUrl = `${HOST}/service-worker.js`;
