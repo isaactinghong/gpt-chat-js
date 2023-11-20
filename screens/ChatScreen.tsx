@@ -715,6 +715,7 @@ const styles = StyleSheet.create({
   messagesContainer: {
     display: "flex",
     flex: 1,
+    paddingBottom: 5,
   },
   bottomInputBarContainer: {
     display: "flex",
