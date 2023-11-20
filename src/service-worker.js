@@ -174,14 +174,10 @@ self.addEventListener("fetch", (event) => {
         await Promise.all(
           mediaFiles.map((file) => {
             // Create a new Request object from the File object
-            const fileRequest = new Request(file.name, {
-              method: "POST",
-              body: file,
-              headers: new Headers({
-                "Content-Type": file.type,
-              }),
-            });
-            return cache.put(fileRequest, new Response(file));
+            return cache.put(
+              file.name,
+              new Response(file, { headers: { "Content-Type": file.type } })
+            );
           })
         );
       } catch (error) {

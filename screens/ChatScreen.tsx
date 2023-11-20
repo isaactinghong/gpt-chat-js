@@ -48,6 +48,7 @@ import { getImage, storeImage } from "../idb/images-db";
 import ChatMessage from "../components/ChatMessage";
 import { Ionicons } from "@expo/vector-icons";
 import RecordVoiceButton from "../components/RecordVoiceButton";
+import { toFile } from "openai/uploads";
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
@@ -605,38 +606,42 @@ const ChatScreen = () => {
 
       await Promise.all(
         audioFileNames.map(async (fileName) => {
-          const recordingFileResponse = await cache.match(fileName);
+          try {
+            alert("fileName: " + fileName);
 
-          // alert if recordingFileResponse is null
-          if (!recordingFileResponse) {
-            alert("recordingFileResponse is null");
-            return;
+            const recordingFileResponse = await cache.match(fileName);
+
+            // alert if recordingFileResponse is null
+            if (!recordingFileResponse) {
+              alert("recordingFileResponse is null");
+              return;
+            }
+
+            const whisperResult = await OpenAI.api.audio.transcriptions.create({
+              model: "whisper-1",
+              file: await toFile(recordingFileResponse),
+            });
+
+            console.log("whisperResult:", whisperResult);
+            alert("whisperResult: " + whisperResult.text);
+
+            // processWhisperResult
+            processWhisperResult(whisperResult.text);
+
+            // remove the file from cache
+            await cache.delete(fileName);
+          } catch (e) {
+            console.log(e);
+            alert("Error processing audio: " + e);
           }
-
-          const whisperResult = await OpenAI.api.audio.transcriptions.create({
-            model: "whisper-1",
-            file: recordingFileResponse,
-          });
-
-          console.log("whisperResult:", whisperResult);
-          alert("whisperResult: " + whisperResult.text);
-
-          // processWhisperResult
-          processWhisperResult(whisperResult.text);
-
-          // remove the file from cache
-          await cache.delete(fileName);
         })
       );
-
-      // remove fileNames from cache('fileNames')
-      await cache.delete("fileNames");
-
-      // remove audioFileNames from redux store
-      dispatch(removeAudioFiles());
     };
 
     fetchAudioFiles();
+
+    // remove audioFileNames from redux store
+    dispatch(removeAudioFiles());
   }, [audioFileNames]);
 
   return (
