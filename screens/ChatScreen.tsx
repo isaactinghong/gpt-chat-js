@@ -598,7 +598,6 @@ const ChatScreen = () => {
     if (audioFileNames == null || audioFileNames.length === 0) {
       return;
     }
-    alert("audioFileNames: " + audioFileNames);
 
     // fetch the files from caches
     const fetchAudioFiles = async () => {
