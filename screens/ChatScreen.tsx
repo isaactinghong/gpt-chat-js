@@ -620,6 +620,20 @@ const ChatScreen = () => {
             recordContainerStyle={styles.recordContainerStyle}
             onWhisperResult={processWhisperResult}
           />
+          <View style={styles.attachButtonsContainer}>
+            <Pressable
+              onPress={attachImageGallery}
+              style={styles.attachImageGalleryButton}
+            >
+              <Ionicons name="image" size={22} color="black" />
+            </Pressable>
+            {/* <Pressable
+            onPress={attachImageCamera}
+            style={styles.attachImageCameraButton}
+          >
+            <Ionicons name="camera" size={22} color="black" />
+          </Pressable> */}
+          </View>
           <Pressable
             disabled={!inputText && imagesToUpload?.length === 0}
             onPress={sendMessage}
@@ -633,20 +647,6 @@ const ChatScreen = () => {
               }
             />
           </Pressable>
-        </View>
-        <View style={styles.attachButtonsContainer}>
-          <Pressable
-            onPress={attachImageGallery}
-            style={styles.attachImageGalleryButton}
-          >
-            <Ionicons name="image" size={22} color="black" />
-          </Pressable>
-          {/* <Pressable
-            onPress={attachImageCamera}
-            style={styles.attachImageCameraButton}
-          >
-            <Ionicons name="camera" size={22} color="black" />
-          </Pressable> */}
         </View>
       </View>
       {/* Display image thumbnails on top of the bottom input bar if images are attached */}
@@ -736,6 +736,7 @@ const styles = StyleSheet.create({
     height: 50,
     marginVertical: 5,
     marginHorizontal: 5,
+    marginRight: 0,
     // borderWidth: 0.5,
     // borderColor: "#000",
     // borderRadius: 20,
@@ -749,7 +750,7 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 10, // Make room for the send button
     marginLeft: 5,
-    marginRight: 0,
+    marginRight: 10,
     marginVertical: 10,
     fontSize: 14,
     overflow: "hidden",
@@ -763,17 +764,16 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     flexBasis: 40,
+    marginLeft: 5,
   },
   attachButtonsContainer: {
     flexBasis: 36,
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    borderTopWidth: 1,
     borderColor: "#ddd",
   },
   attachImageGalleryButton: {
-    marginLeft: 5,
+    // marginLeft: 5,
   },
   // attachImageCameraButton: {
   //   position: "absolute",
