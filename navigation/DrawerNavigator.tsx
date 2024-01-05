@@ -49,6 +49,12 @@ const DrawerNavigator = () => {
 
   const dispatch = useDispatch();
 
+  // currentConversationId
+  const currentConversationId = useSelector(
+    (state: AppState) => state.chats.currentConversationId
+  );
+
+
   useEffect(() => {
     const handleRedirectAudios = async () => {
       try {
@@ -114,29 +120,45 @@ const DrawerNavigator = () => {
         if (fileNames) {
           console.log("fileNames", fileNames);
 
+          for (const fileName of fileNames) {
+            const cachedImageResponse = await cache.match(fileName);
+            if (cachedImageResponse) {
+              const blob = await cachedImageResponse.blob();
+              // Now 'blob' contains the image data, and you can use it as needed.
+              // For example, creating a local URL to display the image:
+              // const localUrl = URL.createObjectURL(blob);
+              // Do something with the localUrl, like adding it to an <img> element's src.
 
-          // for each result.assets
-          // add to messages
-          fileNames.forEach(async (fileName) => {
-            // compress the image
-            const compressedImage = await compressImage(fileName);
+              // alert("localUrl: " + localUrl);
 
-            // get the current conversation id
-            const currentConversationId = useSelector(
-              (state: AppState) => state.chats.currentConversationId
-            );
+              // compress the image
+              // const compressedImage = await compressImage(localUrl);
 
-            // use IndexedDB to store the compressed image
-            const id = await storeImage(compressedImage, currentConversationId);
 
-            const localImage = {
-              id,
-              base64: compressedImage,
-            };
+              // convert the image to base64
+              const base64image = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onerror = reject;
+                reader.onload = () => {
+                  resolve(reader.result as string);
+                };
+                reader.readAsDataURL(blob);
+              });
 
-            // just add the original image
-            dispatch(addImage(localImage));
-          });
+              // use IndexedDB to store the compressed image
+              const id = await storeImage(base64image, currentConversationId);
+
+              const localImage = {
+                id,
+                base64: base64image,
+              };
+
+              // just add the original image
+              dispatch(addImage(localImage));
+
+            }
+        }
+
         }
         // log exit
         console.log("handleRedirectImages exit");
