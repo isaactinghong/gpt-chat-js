@@ -117,9 +117,9 @@ const DrawerNavigator = () => {
 
           // for each result.assets
           // add to messages
-          fileNames.forEach(async (asset) => {
+          fileNames.forEach(async (fileName) => {
             // compress the image
-            const compressedImage = await compressImage(asset.uri);
+            const compressedImage = await compressImage(fileName);
 
             // get the current conversation id
             const currentConversationId = useSelector(
