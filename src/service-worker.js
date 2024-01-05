@@ -151,34 +151,75 @@ self.addEventListener("fetch", (event) => {
     (async () => {
       try {
         const formData = await event.request.formData();
-        const mediaFiles = formData.getAll("audio");
 
-        // Do something with the shared audio files,
-        // like storing them using the Cache API, IndexedDB, or sending them to your server
-        // put them in cache
-        const cache = await caches.open("shared-audios");
+        // extract audio files
+        const audioMediaFiles = formData.getAll("audio");
 
-        const serializedFileNames = JSON.stringify(
-          mediaFiles.map((file) => file.name)
-        );
+        // if there are audio files
+        if (audioMediaFiles.length !== 0) {
 
-        // put a message into cache
-        await cache.put(
-          "fileNames",
-          new Response(serializedFileNames, {
-            headers: { "Content-Type": "application/json" },
-          })
-        );
+          // Do something with the shared audio files,
+          // like storing them using the Cache API, IndexedDB, or sending them to your server
+          // put them in cache
+          const cache = await caches.open("shared-audios");
 
-        // Store each file in the cache.
-        await Promise.all(
-          mediaFiles.map((file) => {
-            const response = new Response(file);
+          const serializedFileNames = JSON.stringify(
+            audioMediaFiles.map((file) => file.name)
+          );
 
-            // Create a new Request object from the File object
-            return cache.put(file.name, response);
-          })
-        );
+          // put a message into cache
+          await cache.put(
+            "fileNames",
+            new Response(serializedFileNames, {
+              headers: { "Content-Type": "application/json" },
+            })
+          );
+
+          // Store each file in the cache.
+          await Promise.all(
+            audioMediaFiles.map((file) => {
+              const response = new Response(file);
+
+              // Create a new Request object from the File object
+              return cache.put(file.name, response);
+            })
+          );
+        }
+
+        // extract image files
+        const imageMediaFiles = formData.getAll("image");
+
+        // if there are image files
+        if (imageMediaFiles.length !== 0) {
+
+          // Do something with the shared image files,
+          // like storing them using the Cache API, IndexedDB, or sending them to your server
+          // put them in cache
+          const cache = await caches.open("shared-images");
+
+          const serializedFileNames = JSON.stringify(
+            imageMediaFiles.map((file) => file.name)
+          );
+
+          // put a message into cache
+          await cache.put(
+            "fileNames",
+            new Response(serializedFileNames, {
+              headers: { "Content-Type": "application/json" },
+            })
+          );
+
+          // Store each file in the cache.
+          await Promise.all(
+            imageMediaFiles.map((file) => {
+              const response = new Response(file);
+
+              // Create a new Request object from the File object
+              return cache.put(file.name, response);
+            })
+          );
+        }
+
       } catch (error) {
         // Handle any errors that occur during the fetch or processing here.
         // Depending on your use case, you might want to report this error to a server or log it to the console.

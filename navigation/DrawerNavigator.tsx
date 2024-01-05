@@ -12,9 +12,11 @@ import OpenAI from "../services/OpenAIService";
 import { View, Text, StyleSheet } from "react-native";
 import {
   addAudioFiles,
-  createConversation,
+  addImage,
 } from "../state/actions/chatActions";
 import SharedContentScreen from "../screens/SharedContentScreen";
+import { storeImage } from '../idb/images-db';
+import { compressImage } from '../helpers/image-utils';
 
 const Drawer = createDrawerNavigator();
 
@@ -78,13 +80,75 @@ const DrawerNavigator = () => {
           // dispatch addAudioFiles
           dispatch(addAudioFiles(fileNames));
         }
+        // log exit
+        console.log("handleRedirectAudios exit");
       } catch (e) {
         console.log(e);
 
         alert("handleRedirectAudios Error: " + e);
       }
     };
+
+    const handleRedirectImages = async () => {
+      try {
+        // Your logic to check for the redirected URL.
+        // This might involve checking caches
+
+        // Check if there is a shared content indicator
+        // For example, check a flag you've stored:
+
+        const cache = await caches.open("shared-images");
+
+        const serializedFileNames: Response = await cache.match("fileNames");
+
+        if (!serializedFileNames) {
+          // No shared content available
+          return;
+        }
+
+        // delete cache fileNames
+        await cache.delete("fileNames");
+
+        const fileNames = await serializedFileNames.json();
+
+        if (fileNames) {
+          console.log("fileNames", fileNames);
+
+
+          // for each result.assets
+          // add to messages
+          fileNames.forEach(async (asset) => {
+            // compress the image
+            const compressedImage = await compressImage(asset.uri);
+
+            // get the current conversation id
+            const currentConversationId = useSelector(
+              (state: AppState) => state.chats.currentConversationId
+            );
+
+            // use IndexedDB to store the compressed image
+            const id = await storeImage(compressedImage, currentConversationId);
+
+            const localImage = {
+              id,
+              base64: compressedImage,
+            };
+
+            // just add the original image
+            dispatch(addImage(localImage));
+          });
+        }
+        // log exit
+        console.log("handleRedirectImages exit");
+      } catch (e) {
+        console.log(e);
+
+        alert("handleRedirectImages Error: " + e);
+      }
+    };
+
     handleRedirectAudios();
+    handleRedirectImages();
   }, []);
 
   const openAiApiKey = useSelector(

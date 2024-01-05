@@ -111,7 +111,8 @@ export type ChatActionTypes =
   | ClearImagesAction
   | ReorderImageAction
   | AddAudioFilesAction
-  | RemoveAudioFilesAction;
+  | RemoveAudioFilesAction
+  ;
 
 export const addMessage = (
   conversationId: string,

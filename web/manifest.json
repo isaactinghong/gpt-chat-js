@@ -62,6 +62,12 @@
           "accept": [
             "audio/*"
           ]
+        },
+        {
+          "name": "image",
+          "accept": [
+            "image/*"
+          ]
         }
       ]
     }

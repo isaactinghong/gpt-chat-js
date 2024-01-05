@@ -40,8 +40,6 @@ import { ImagePickerResult } from "expo-image-picker";
 // react-native-image-zoom-viewer
 import ImageViewer from "react-native-image-zoom-viewer";
 import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
-// browser-image-compression
-import imageCompression from "browser-image-compression";
 // idb
 import * as idb from "idb";
 import { getImage, storeImage } from "../idb/images-db";
@@ -49,6 +47,7 @@ import ChatMessage from "../components/ChatMessage";
 import { Ionicons } from "@expo/vector-icons";
 import RecordVoiceButton from "../components/RecordVoiceButton";
 import { toFile } from "openai/uploads";
+import { compressImage } from '../helpers/image-utils';
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
@@ -434,39 +433,6 @@ const ChatScreen = () => {
       // just add the original image
       dispatch(addImage(localImage));
     });
-  };
-
-  const compressImage = async (uri: string) => {
-    // browser-image-compression
-
-    const file = await imageCompression.getFilefromDataUrl(uri, "image");
-
-    const options = {
-      maxWidthOrHeight: 1280,
-      useWebWorker: true,
-      maxIteration: 2,
-    };
-
-    try {
-      const compressedFile = await imageCompression(file, options);
-      console.log(
-        `compressedFile size ${compressedFile.size / 1024 / 1024} MB`
-      ); // smaller than maxSizeMB
-
-      // return the compressed file
-      return imageCompression.getDataUrlFromFile(compressedFile);
-    } catch (error) {
-      // show error toast message
-      Toast.show({
-        type: "error",
-        text1: "Error compressing image",
-        text2: error.message,
-      });
-
-      console.log(error);
-    }
-
-    return uri;
   };
 
   const attachImageCamera = async () => {
