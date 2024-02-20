@@ -1,6 +1,7 @@
 [1.1.3]
 
 - support multiline input field in chat window, and shrinkable
+- added reset model name to "gpt-4-vision-preview" when user erase the model name input field
 
 [1.1.2]
 
