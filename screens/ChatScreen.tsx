@@ -645,16 +645,31 @@ const ChatScreen = () => {
 
   const handleInputContentSizeChange = (event) => {
     // Extract contentSize from event nativeEvent
-    const { contentSize } = event.nativeEvent;
+    // find number of lines in the input
+    const contentSize = event.nativeEvent.contentSize;
 
-    // // Calculate the number of lines
-    // const numLines = Math.floor(contentSize.height / BASE_LINE_HEIGHT); // lineHeight depends on your TextInput style
+    // Calculate the number of lines
+    const numberOfLines = Math.round(
+      contentSize.height / BASE_LINE_HEIGHT
+    );
 
-    // // Ensure the number of lines doesn't exceed the maximum
-    // setNumberOfLines(numLines > MAX_INPUT_LINES ? MAX_INPUT_LINES : numLines);
-  // Set the input height, but make sure it's between the height of one line and the height of MAX_INPUT_LINES lines
-    setInputHeight(Math.min(Math.max(contentSize.height, BASE_LINE_HEIGHT), BASE_LINE_HEIGHT * MAX_INPUT_LINES));
+    // Set the state
+    setNumberOfLines(numberOfLines);
+
+    // Set the input height
+    setInputHeight(contentSize.height);
+
+
   };
+
+  // useEffect on inputText, if inputText is empty, set num of lines to 1
+  useEffect(() => {
+    // if there is no input, set the number of lines to 1
+    if (inputText === "") {
+      setNumberOfLines(1);
+      setInputHeight(BASE_LINE_HEIGHT);
+    }
+  }, [inputText]);
 
   return (
     <View style={styles.container}>
@@ -682,15 +697,11 @@ const ChatScreen = () => {
             placeholder="Type a message..."
             value={inputText}
             multiline
-            onChangeText={setInputText}
             onSubmitEditing={sendMessage}
             onKeyPress={handleMessageKeyPress}
             blurOnSubmit
             onContentSizeChange={handleInputContentSizeChange}
-
-            onChange={(event) => {
-              setInputText(event.nativeEvent.text);
-            }}
+            onChangeText={setInputText}
             numberOfLines={numberOfLines}
           />
           <RecordVoiceButton

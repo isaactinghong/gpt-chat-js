@@ -1,3 +1,7 @@
+[1.1.3]
+
+- support multiline input field in chat window, and shrinkable
+
 [1.1.2]
 
 - fixed shift+enter behavior in chat input field
