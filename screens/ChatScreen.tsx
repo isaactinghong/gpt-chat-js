@@ -62,6 +62,7 @@ const ChatScreen = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
+  const inputRef = React.useRef(null);
   const [imageIndexsHovered, setImageIndexsHovered] = useState({}); // array of image indexes that are hovered
 
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
@@ -524,7 +525,23 @@ const ChatScreen = () => {
         event.nativeEvent.shiftKey
       ) {
         console.log("handleMessageKeyPress shift+enter", inputText);
-        setInputText(inputText + "\n"); // Add a line break
+        // setInputText(inputText + "\n"); // Add a line break
+        // revised: Add a line break at the cursor position
+        const cursorPosition = event.target.selectionStart;
+        setInputText(
+          inputText.substring(0, cursorPosition) +
+            "\n" +
+            inputText.substring(cursorPosition)
+        );
+
+        // Use setTimeout to ensure the cursor moves to the new line
+        setTimeout(() => {
+          if (inputRef.current) {
+            inputRef.current.selectionStart = cursorPosition + 1;
+            inputRef.current.selectionEnd = cursorPosition + 1;
+          }
+        }, 0)
+
         event.preventDefault(); // stop event propagation
       }
     } else if (Platform.OS === "web" && !isHardwareKeyboard) {
@@ -636,6 +653,8 @@ const ChatScreen = () => {
           <TextInput
             // enter to send
             // shift+enter to new line
+
+            ref={inputRef}
             id="input"
             focusable={true}
             autoFocus={true}
