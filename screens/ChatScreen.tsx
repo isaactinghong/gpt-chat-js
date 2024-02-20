@@ -49,6 +49,10 @@ import RecordVoiceButton from "../components/RecordVoiceButton";
 import { toFile } from "openai/uploads";
 import { compressImage } from '../helpers/image-utils';
 
+
+const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
+const MAX_INPUT_LINES = 15; // Maximum number of lines the input can have
+
 const ChatScreen = () => {
   const dispatch = useDispatch();
 
@@ -64,6 +68,8 @@ const ChatScreen = () => {
   const [inputText, setInputText] = useState("");
   const inputRef = React.useRef(null);
   const [imageIndexsHovered, setImageIndexsHovered] = useState({}); // array of image indexes that are hovered
+  const [numberOfLines, setNumberOfLines] = useState(1);
+  const [inputHeight, setInputHeight] = useState(BASE_LINE_HEIGHT);
 
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
   const [imagesToPreview, setImagesToPreview] = useState([]); // array of images to preview in image viewer
@@ -342,7 +348,7 @@ const ChatScreen = () => {
                 content: msg.content,
               } as ChatCompletionMessageParam)
           ),
-          model: "gpt-4-1106-preview",
+          model: "gpt-4",
         });
 
         let title = titleResult.choices[0]?.message?.content || "Untitled";
@@ -637,6 +643,19 @@ const ChatScreen = () => {
     dispatch(removeAudioFiles());
   }, [audioFileNames]);
 
+  const handleInputContentSizeChange = (event) => {
+    // Extract contentSize from event nativeEvent
+    const { contentSize } = event.nativeEvent;
+
+    // // Calculate the number of lines
+    // const numLines = Math.floor(contentSize.height / BASE_LINE_HEIGHT); // lineHeight depends on your TextInput style
+
+    // // Ensure the number of lines doesn't exceed the maximum
+    // setNumberOfLines(numLines > MAX_INPUT_LINES ? MAX_INPUT_LINES : numLines);
+  // Set the input height, but make sure it's between the height of one line and the height of MAX_INPUT_LINES lines
+    setInputHeight(Math.min(Math.max(contentSize.height, BASE_LINE_HEIGHT), BASE_LINE_HEIGHT * MAX_INPUT_LINES));
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>
@@ -658,14 +677,21 @@ const ChatScreen = () => {
             id="input"
             focusable={true}
             autoFocus={true}
-            style={styles.input}
+            // style={styles.input}
+            style={[styles.input, { height: inputHeight }]}
             placeholder="Type a message..."
             value={inputText}
-            multiline={true}
+            multiline
             onChangeText={setInputText}
             onSubmitEditing={sendMessage}
             onKeyPress={handleMessageKeyPress}
             blurOnSubmit
+            onContentSizeChange={handleInputContentSizeChange}
+
+            onChange={(event) => {
+              setInputText(event.nativeEvent.text);
+            }}
+            numberOfLines={numberOfLines}
           />
           <RecordVoiceButton
             recordContainerStyle={styles.recordContainerStyle}
@@ -762,16 +788,21 @@ const ChatScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
+    display: "flex",
+    flexDirection: "column",
     flex: 1,
     backgroundColor: "#fff", // Make sure to set a background color
   },
   messagesContainer: {
     display: "flex",
     flex: 1,
+    flexGrow: 1,
     paddingBottom: 5,
   },
   bottomInputBarContainer: {
     display: "flex",
+
+    flexShrink: 1,
     flexDirection: "row",
     // justifyContent: "space-between",
     borderTopWidth: 1,
@@ -785,7 +816,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     alignItems: "center",
     flexGrow: 1,
-    height: 50,
+    // height: 50,
     marginVertical: 5,
     marginHorizontal: 5,
     marginRight: 0,
@@ -796,8 +827,9 @@ const styles = StyleSheet.create({
     // borderColor: "#ddd",
   },
   input: {
+    lineHeight: BASE_LINE_HEIGHT, // Make sure this line height matches your text's readability.
     flex: 1,
-    height: 50,
+    // height: 50,
     paddingTop: 14,
     paddingLeft: 15,
     paddingRight: 10, // Make room for the send button
@@ -806,6 +838,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     fontSize: 14,
     overflow: "hidden",
+    minHeight: BASE_LINE_HEIGHT + 30,
+    // maxHeight: BASE_LINE_HEIGHT * 10, // BASE_LINE_HEIGHT multiplied by 10 for the maximum 10 lines.
   },
   recordContainerStyle: {
     flexShrink: 1,
