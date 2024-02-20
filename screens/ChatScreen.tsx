@@ -653,6 +653,11 @@ const ChatScreen = () => {
       contentSize.height / BASE_LINE_HEIGHT
     );
 
+    // max number of lines is 15
+    if (numberOfLines > MAX_INPUT_LINES) {
+      return;
+    }
+
     // Set the state
     setNumberOfLines(numberOfLines);
 
