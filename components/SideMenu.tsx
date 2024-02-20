@@ -58,6 +58,14 @@ const SideMenu = ({ navigation }) => {
     });
   };
 
+  // effect, if modelName becomes "", set it back to "gpt-4-vision-preview"
+  React.useEffect(() => {
+    if (modelNameLocal === "") {
+      setModelNameLocal("gpt-4-vision-preview");
+      handleSave("GPT Model Name");
+    }
+  }, [modelNameLocal]);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.containerView}>
