@@ -1,3 +1,7 @@
+[1.1.5]
+
+- fixed that if pasting lines more than 15, the input field will not expand
+
 [1.1.4]
 
 - fixed max number of lines in input field to 15

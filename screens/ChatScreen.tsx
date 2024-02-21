@@ -649,12 +649,19 @@ const ChatScreen = () => {
     const contentSize = event.nativeEvent.contentSize;
 
     // Calculate the number of lines
-    const numberOfLines = Math.round(
+    let numberOfLines = Math.round(
       contentSize.height / BASE_LINE_HEIGHT
     );
 
     // max number of lines is 15
     if (numberOfLines > MAX_INPUT_LINES) {
+
+      // Set the number of lines to the max
+      numberOfLines = MAX_INPUT_LINES;
+
+      // Set the input height to the max
+      setInputHeight(BASE_LINE_HEIGHT * MAX_INPUT_LINES);
+
       return;
     }
 
