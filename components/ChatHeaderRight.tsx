@@ -1,5 +1,5 @@
 // components/ChatHeaderRight.js
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch } from "react-redux";
@@ -11,12 +11,23 @@ import {
 } from "../state/actions/chatActions";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
-import OpenAI from '../services/OpenAIService';
-import { Message } from '../state/types/message';
-import { ChatCompletionMessageParam } from 'openai/resources';
+import OpenAI from "../services/OpenAIService";
+import { Message } from "../state/types/message";
+import { ChatCompletionMessageParam } from "openai/resources";
+import Dialog from "react-native-dialog";
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
+
+  const [dialogVisible, setDialogVisible] = useState(false);
+  /*
+  prompt: string,
+  size: "1024x1024" | "1792x1024" | "1024x1792",
+  numOfImages: number
+  */
+  const [prompt, setPrompt] = useState("");
+  const [size, setSize] = useState("1024x1024");
+  const [numOfImages, setNumOfImages] = useState(1);
 
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
@@ -25,11 +36,45 @@ const ChatHeaderRight = () => {
     (state: any) => state.chats.currentConversationId
   );
 
-  // test generate Dall-e-3 image
-  const handleGenerateDalle3Image = async () => {
+  // test generate image
+  const onPressGenerateImage = async () => {
     // log entry
-    console.log("handleGenerateDalle3Image start");
+    console.log("onPressGenerateImage start");
 
+    // show dialog
+    setDialogVisible(true);
+  };
+
+  // handle image generation confirm
+  const handleImageGenerationConfirm = () => {
+    // log entry
+    console.log("handleImageGenerationConfirm start");
+
+    // hide dialog
+    setDialogVisible(false);
+
+    // call API to generate Dall-e-3 image
+    callAPIToGenerateDalle3Image(
+      prompt,
+      size as "1024x1024" | "1792x1024" | "1024x1792",
+      numOfImages
+    );
+  };
+
+  // handle image generation cancel
+  const handleImageGenerationCancel = () => {
+    // log entry
+    console.log("handleImageGenerationCancel start");
+
+    // hide dialog
+    setDialogVisible(false);
+  };
+
+  const callAPIToGenerateDalle3Image = async (
+    prompt: string,
+    size: "1024x1024" | "1792x1024" | "1024x1792",
+    numOfImages: number
+  ) => {
     // prepare the Message containing the url of the generated image
     const newMessageFromAI: Message & ChatCompletionMessageParam = {
       role: "assistant",
@@ -41,20 +86,19 @@ const ChatHeaderRight = () => {
     // add the message to the current conversation
     dispatch(addMessage(currentConversationId, newMessageFromAI));
 
-
     const messages: (Message & ChatCompletionMessageParam)[] = [
       ...conversations[currentConversationId].messages,
     ];
 
     const response = await OpenAI.api.images.generate({
       model: "dall-e-3",
-      prompt: "a white siamese cat",
-      n: 1,
-      size: "1024x1024", // Must be one of 1024x1024, 1792x1024, or 1024x1792 for dall-e-3 models.
+      prompt,
+      n: numOfImages,
+      size,
     });
 
     // log response
-    console.log("handleGenerateDalle3Image response", response);
+    console.log("onPressGenerateImage response", response);
 
     /*
       response:
@@ -88,19 +132,35 @@ const ChatHeaderRight = () => {
 
     // update the message to the current conversation
     const messageIndex = messages.length;
-    dispatch(updateMessage(currentConversationId, newMessageFromAI, messageIndex));
-
-  }
-
+    dispatch(
+      updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+    );
+  };
 
   return (
     <View style={styles.container}>
+      <Dialog.Container visible={dialogVisible}>
+        <Dialog.Title>Generate Dall-e-3 Image</Dialog.Title>
+        <Dialog.Description>
+          Please enter the prompt, size, and number of images.
+        </Dialog.Description>
+        <Dialog.Input label="Prompt" onChangeText={setPrompt} value={prompt} />
+        <Dialog.Input label="Size" onChangeText={setSize} value={size} />
+        <Dialog.Input
+          label="Number of Images"
+          onChangeText={(value) => setNumOfImages(parseInt(value))}
+          value={numOfImages.toString()}
+        />
+        <Dialog.Button label="Confirm" onPress={handleImageGenerationConfirm} />
+        <Dialog.Button label="Cancel" onPress={handleImageGenerationCancel} />
+      </Dialog.Container>
+
       {/* add a pressable button to test generate Dall-e-3 image, if environment is development */}
       {__DEV__ && (
         <Pressable
           style={styles.actionButton}
           onPress={() => {
-            handleGenerateDalle3Image();
+            onPressGenerateImage();
           }}
         >
           <Ionicons name="aperture" size={24} color="black" />
