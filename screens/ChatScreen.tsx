@@ -47,8 +47,8 @@ import ChatMessage from "../components/ChatMessage";
 import { Ionicons } from "@expo/vector-icons";
 import RecordVoiceButton from "../components/RecordVoiceButton";
 import { toFile } from "openai/uploads";
-import { compressImage } from '../helpers/image-utils';
-
+import { compressImage } from "../helpers/image-utils";
+import { LocalImage } from "../state/types/local-image";
 
 const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
 const MAX_INPUT_LINES = 15; // Maximum number of lines the input can have
@@ -221,7 +221,21 @@ const ChatScreen = () => {
         const chatMessagesToOpenAI: ChatCompletionMessageParam[] = [];
         for (const msg of chatMessages) {
           let openAIContent = msg.content;
-          if (msg.images?.length > 0) {
+
+          // if msg.type === "image", then add it as image messsage
+          if (msg.type === "image") {
+            // construct the openAIContent
+            // using msg.images
+            openAIContent = [
+              ...msg.images.map((image: LocalImage) => {
+                // fetch the base64 image from IndexedDB
+                return {
+                  type: "image_url" as const, // Fix: Assign type "image_url" explicitly
+                  image_url: { url: image.url },
+                };
+              }),
+            ];
+          } else if (msg.images?.length > 0) {
             const indexedDBImages = await Promise.all(
               msg.images?.map(async (localImage) => {
                 // fetch the base64 image from IndexedDB
@@ -255,7 +269,7 @@ const ChatScreen = () => {
                   };
 
                   return {
-                    type: "image_url",
+                    type: "image_url" as const, // Fix: Assign type "image_url" explicitly
                     image_url,
                   };
                 }),
@@ -325,17 +339,19 @@ const ChatScreen = () => {
       // title messages
       const titleMessages = [
         firstMessage,
-        ...messages.map((msg) => {
-          // if content type is array,
-          // set content as the first element of the array
-          if (Array.isArray(msg.content)) {
-            return {
-              ...msg,
-              content: (msg.content[0] as ChatCompletionContentPartText).text,
-            };
-          }
-          return msg;
-        }),
+        ...messages
+          .filter((msg) => msg.type !== "image")
+          .map((msg) => {
+            // if content type is array,
+            // set content as the first element of the array
+            if (Array.isArray(msg.content)) {
+              return {
+                ...msg,
+                content: (msg.content[0] as ChatCompletionContentPartText).text,
+              };
+            }
+            return msg;
+          }),
       ];
 
       // get new conversation title from openai
@@ -546,7 +562,7 @@ const ChatScreen = () => {
             inputRef.current.selectionStart = cursorPosition + 1;
             inputRef.current.selectionEnd = cursorPosition + 1;
           }
-        }, 0)
+        }, 0);
 
         event.preventDefault(); // stop event propagation
       }
@@ -649,13 +665,10 @@ const ChatScreen = () => {
     const contentSize = event.nativeEvent.contentSize;
 
     // Calculate the number of lines
-    let numberOfLines = Math.round(
-      contentSize.height / BASE_LINE_HEIGHT
-    );
+    let numberOfLines = Math.round(contentSize.height / BASE_LINE_HEIGHT);
 
     // max number of lines is 15
     if (numberOfLines > MAX_INPUT_LINES) {
-
       // Set the number of lines to the max
       numberOfLines = MAX_INPUT_LINES;
 
@@ -670,8 +683,6 @@ const ChatScreen = () => {
 
     // Set the input height
     setInputHeight(contentSize.height);
-
-
   };
 
   // useEffect on inputText, if inputText is empty, set num of lines to 1

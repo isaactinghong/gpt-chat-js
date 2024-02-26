@@ -118,7 +118,7 @@ const ChatMessage = ({
                     style={{ width: 200, height: 200 }}
                   />
                 </Pressable>
-              )) ?? "Generating image(s)..."
+              )) ?? "Generating image..."
             : message.content}
         </Text>
         {localImages?.length > 0 && (
