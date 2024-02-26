@@ -302,18 +302,16 @@ const ChatHeaderRight = () => {
       </Modal>
 
       <View style={styles.actionButtons}>
-        {/* add a pressable button to test generate Dall-e-3 image, if environment is development */}
-        {__DEV__ && (
-          <Pressable
-            style={styles.actionButton}
-            onPress={(event) => {
-              onPressGenerateImage(event);
-            }}
-          >
-            {/* <Ionicons name="aperture" size={24} color="black" /> */}
-            <FontAwesomeIcon icon="brush" size={18} color="black" />
-          </Pressable>
-        )}
+        {/* add a pressable button to test generate Dall-e-3 image */}
+        <Pressable
+          style={styles.actionButton}
+          onPress={(event) => {
+            onPressGenerateImage(event);
+          }}
+        >
+          {/* <Ionicons name="aperture" size={24} color="black" /> */}
+          <FontAwesomeIcon icon="brush" size={18} color="black" />
+        </Pressable>
 
         <Pressable
           style={styles.actionButton}
