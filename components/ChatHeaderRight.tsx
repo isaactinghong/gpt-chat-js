@@ -52,9 +52,17 @@ const ChatHeaderRight = () => {
   );
 
   // test generate image
-  const onPressGenerateImage = async () => {
+  const onPressGenerateImage = async (event) => {
     // log entry
     console.log("onPressGenerateImage start");
+
+    // fill the prompt with any cursor selected text
+    const prompt = window.getSelection().toString();
+
+    console.log("prefill prompt:", prompt);
+
+    // set prompt
+    setPrompt(prompt);
 
     // show dialog
     setDialogVisible(true);
@@ -216,30 +224,28 @@ const ChatHeaderRight = () => {
               </View>
               <View style={[styles.inputContainer, styles.inputContainerSize]}>
                 <Text style={styles.inputContainerLabel}>Size:</Text>
-                <Text style={styles.inputContainerValue}>
-                  <View
-                    style={{
-                      ...styles.inputSizeView,
-                      elevation: active === 1 ? 99 : 1,
-                      zIndex: active === 1 ? 99 : 1,
-                    }}
-                  >
-                    {/* dropdown to select size */}
-                    <DropDownPicker
-                      style={styles.inputSize}
-                      disabled={active === 3 || active === 2}
-                      onOpen={() => setActive(1)}
-                      onClose={() => setActive(0)}
-                      open={sizeOpen}
-                      value={size}
-                      items={sizes}
-                      setOpen={setSizeOpen}
-                      setValue={setSize}
-                      setItems={setSizes}
-                      placeholder={"Select an image size"}
-                    />
-                  </View>
-                </Text>
+                <View
+                  style={{
+                    ...styles.inputSizeView,
+                    elevation: active === 1 ? 99 : 1,
+                    zIndex: active === 1 ? 99 : 1,
+                  }}
+                >
+                  {/* dropdown to select size */}
+                  <DropDownPicker
+                    style={styles.inputSize}
+                    disabled={active === 3 || active === 2}
+                    onOpen={() => setActive(1)}
+                    onClose={() => setActive(0)}
+                    open={sizeOpen}
+                    value={size}
+                    items={sizes}
+                    setOpen={setSizeOpen}
+                    setValue={setSize}
+                    setItems={setSizes}
+                    placeholder={"Select an image size"}
+                  />
+                </View>
               </View>
               <View
                 style={[
@@ -296,8 +302,8 @@ const ChatHeaderRight = () => {
       {__DEV__ && (
         <Pressable
           style={styles.actionButton}
-          onPress={() => {
-            onPressGenerateImage();
+          onPress={(event) => {
+            onPressGenerateImage(event);
           }}
         >
           <Ionicons name="aperture" size={24} color="black" />
@@ -385,6 +391,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     flexDirection: "row",
     gap: 10,
+    zIndex: -1,
   },
   inputsContainer: {
     width: "100%",
@@ -402,9 +409,6 @@ const styles = StyleSheet.create({
   },
   inputContainerPrompt: {
     flexGrow: 1,
-  },
-  inputContainerSize: {
-    zIndex: 5000,
   },
   inputContainerLabel: {
     flex: 1,
@@ -430,15 +434,15 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   inputSizeView: {
+    zIndex: 5000,
     flex: 1,
-    zIndex: 1000,
   },
   inputSize: {
+    zIndex: 5000,
     flex: 1,
     padding: 5,
     borderWidth: 1,
     borderRadius: 5,
-    zIndex: 1000,
   },
   inputNumOfImages: {
     // flex: 1,
