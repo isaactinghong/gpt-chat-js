@@ -1,3 +1,7 @@
+[1.2.1]
+
+- fix that prompt is not removed after generating image.
+
 [1.2.0]
 
 - Added GPT Dall-E-3 support

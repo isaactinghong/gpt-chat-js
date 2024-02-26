@@ -64,8 +64,10 @@ const ChatHeaderRight = () => {
 
     console.log("prefill prompt:", prompt);
 
-    // set prompt
-    setPrompt(prompt);
+    // if prompt is not empty, set it
+    if (prompt) {
+      setPrompt(prompt);
+    }
 
     // show dialog
     setDialogVisible(true);
