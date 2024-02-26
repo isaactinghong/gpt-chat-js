@@ -100,15 +100,26 @@ const ChatMessage = ({
           {/* if content is array, display the first element */}
           {Array.isArray(message.content)
             ? (message.content[0] as ChatCompletionContentPartText).text
-            :
-            (
-              message.type == "image" ?
-              <Image source={{ uri: message.content }} style={{ width: 200, height: 200 }} />
-                 :
-              message.content
-            )
-
-          }
+            : message.type == "image"
+            ? message.images?.map((image, index) => (
+                <Pressable
+                  onPress={() =>
+                    openImageViewer(
+                      message.images.map((image) => ({
+                        url: image?.url,
+                        props: {},
+                      })),
+                      index
+                    )
+                  }
+                >
+                  <Image
+                    source={{ uri: image.url }}
+                    style={{ width: 200, height: 200 }}
+                  />
+                </Pressable>
+              )) ?? "Generating image(s)..."
+            : message.content}
         </Text>
         {localImages?.length > 0 && (
           <View style={styles.imageContainer}>

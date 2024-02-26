@@ -90,6 +90,10 @@ const ChatHeaderRight = () => {
     size: "1024x1024" | "1792x1024" | "1024x1792",
     numOfImages: number
   ) => {
+    const messages: (Message & ChatCompletionMessageParam)[] = [
+      ...conversations[currentConversationId].messages,
+    ];
+
     // prepare the Message containing the url of the generated image
     const newMessageFromAI: Message & ChatCompletionMessageParam = {
       role: "assistant",
@@ -102,21 +106,18 @@ const ChatHeaderRight = () => {
     // add the message to the current conversation
     dispatch(addMessage(currentConversationId, newMessageFromAI));
 
-    const messages: (Message & ChatCompletionMessageParam)[] = [
-      ...conversations[currentConversationId].messages,
-    ];
+    try {
+      const response = await OpenAI.api.images.generate({
+        model: "dall-e-3",
+        prompt,
+        n: numOfImages,
+        size,
+      });
 
-    const response = await OpenAI.api.images.generate({
-      model: "dall-e-3",
-      prompt,
-      n: numOfImages,
-      size,
-    });
+      // log response
+      console.log("onPressGenerateImage response", response);
 
-    // log response
-    console.log("onPressGenerateImage response", response);
-
-    /*
+      /*
       response:
       {
           "created": 1708920525,
@@ -129,7 +130,7 @@ const ChatHeaderRight = () => {
       }
     */
 
-    /*
+      /*
       export const addMessage = (
         conversationId: string,
         message: Message & ChatCompletionMessageParam
@@ -142,34 +143,49 @@ const ChatHeaderRight = () => {
 
     */
 
-    // update the message with the generated image
-    newMessageFromAI.isLoading = false;
-    newMessageFromAI.content = response.data[0].url;
+      // update the message with the generated image
+      newMessageFromAI.isLoading = false;
+      newMessageFromAI.images = response.data?.map((image, index) => {
+        return {
+          id: index.toString(),
+          url: image.url,
+        };
+      });
 
-    // update the message to the current conversation
-    const messageIndex = messages.length;
-    dispatch(
-      updateMessage(currentConversationId, newMessageFromAI, messageIndex)
-    );
+      // update the message to the current conversation
+      const messageIndex = messages.length;
+      dispatch(
+        updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+      );
+    } catch (e) {
+      console.log(e);
+
+      // update the message with the error
+      newMessageFromAI.isLoading = false;
+      newMessageFromAI.content = `Error: ${e}`;
+      newMessageFromAI.type = "text";
+
+      // update the message to the current conversation
+      const messageIndex = messages.length;
+      dispatch(
+        updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+      );
+    }
   };
+
+  // effect to handle number of images. 1-3.
+  React.useEffect(() => {
+    if (numOfImages < 1) {
+      setNumOfImages(1);
+    } else if (numOfImages > 3) {
+      setNumOfImages(3);
+    } else {
+      // do nothing
+    }
+  }, [numOfImages]);
 
   return (
     <View style={styles.container}>
-      {/* <Dialog.Container visible={dialogVisible}>
-        <Dialog.Title>Generate Dall-e-3 Image</Dialog.Title>
-        <Dialog.Description>
-          Please enter the prompt, size, and number of images.
-        </Dialog.Description>
-        <Dialog.Input label="Prompt" onChangeText={setPrompt} value={prompt} />
-        <Dialog.Input label="Size" onChangeText={setSize} value={size} />
-        <Dialog.Input
-          label="Number of Images"
-          onChangeText={(value) => setNumOfImages(parseInt(value))}
-          value={numOfImages.toString()}
-        />
-        <Dialog.Button label="Confirm" onPress={handleImageGenerationConfirm} />
-        <Dialog.Button label="Cancel" onPress={handleImageGenerationCancel} />
-      </Dialog.Container> */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -225,18 +241,35 @@ const ChatHeaderRight = () => {
                   </View>
                 </Text>
               </View>
-              <View style={styles.inputContainer}>
+              <View
+                style={[
+                  styles.inputContainer,
+                  styles.inputContainerNumOfImages,
+                ]}
+              >
                 <Text style={styles.inputContainerLabel}>
                   Number of Images:
                 </Text>
-                <Text style={styles.inputContainerValue}>
+                <View
+                  style={
+                    (styles.inputContainerValue,
+                    styles.inputContainerValueNumOfImages)
+                  }
+                >
                   <TextInput
                     style={styles.inputNumOfImages}
                     keyboardType="numeric"
                     value={numOfImages.toString()}
-                    onChangeText={(value) => setNumOfImages(parseInt(value))}
+                    editable={false}
                   />
-                </Text>
+                  {/* add and subtract buttons */}
+                  <Pressable onPress={() => setNumOfImages(numOfImages + 1)}>
+                    <Ionicons name="add" size={24} color="black" />
+                  </Pressable>
+                  <Pressable onPress={() => setNumOfImages(numOfImages - 1)}>
+                    <Ionicons name="remove" size={24} color="black" />
+                  </Pressable>
+                </View>
               </View>
             </View>
             {/* row of buttons */
@@ -363,6 +396,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     gap: 0,
   },
+  inputContainerNumOfImages: {
+    display: "none",
+    flexDirection: "row",
+  },
   inputContainerPrompt: {
     flexGrow: 1,
   },
@@ -378,7 +415,11 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     padding: 5,
     flexGrow: 1,
-    width: "100%",
+    // width: "100%",
+  },
+  inputContainerValueNumOfImages: {
+    flexDirection: "row",
+    gap: 10,
   },
   inputPrompt: {
     flex: 1,
@@ -400,7 +441,8 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   inputNumOfImages: {
-    flex: 1,
+    // flex: 1,
+    width: 50,
     padding: 5,
     borderWidth: 1,
     borderRadius: 5,
