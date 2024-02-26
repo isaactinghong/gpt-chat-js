@@ -43,21 +43,18 @@ const SideMenu = ({ navigation }) => {
     React.useState(systemMessage);
 
   const handleSave = (fieldName, newInput) => {
-
     // log
     console.log("handleSave", fieldName, newInput?.target.value);
 
     const updateSettings = {
       [fieldName]: newInput.target.value,
-    }
+    };
 
     // log updateSettings
     console.log("updateSettings", updateSettings);
 
     /* handle save, using action: saveSettings */
-    dispatch(
-      saveSettings(updateSettings)
-    );
+    dispatch(saveSettings(updateSettings));
 
     // show success toast message
     Toast.show({

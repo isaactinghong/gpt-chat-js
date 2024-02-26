@@ -12,7 +12,7 @@ const persistConfig = {
   key: "root",
   storage: AsyncStorage,
   whitelist: ["settings", "chats"], // You can choose which reducers to persist
-  version: 4,
+  version: 5,
   migrate: createMigrate(migrations, { debug: false }),
 };
 

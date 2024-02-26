@@ -139,22 +139,6 @@ const ChatHeaderRight = () => {
 
   return (
     <View style={styles.container}>
-      <Dialog.Container visible={dialogVisible}>
-        <Dialog.Title>Generate Dall-e-3 Image</Dialog.Title>
-        <Dialog.Description>
-          Please enter the prompt, size, and number of images.
-        </Dialog.Description>
-        <Dialog.Input label="Prompt" onChangeText={setPrompt} value={prompt} />
-        <Dialog.Input label="Size" onChangeText={setSize} value={size} />
-        <Dialog.Input
-          label="Number of Images"
-          onChangeText={(value) => setNumOfImages(parseInt(value))}
-          value={numOfImages.toString()}
-        />
-        <Dialog.Button label="Confirm" onPress={handleImageGenerationConfirm} />
-        <Dialog.Button label="Cancel" onPress={handleImageGenerationCancel} />
-      </Dialog.Container>
-
       {/* add a pressable button to test generate Dall-e-3 image, if environment is development */}
       {__DEV__ && (
         <Pressable
