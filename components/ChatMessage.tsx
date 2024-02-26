@@ -102,22 +102,25 @@ const ChatMessage = ({
             ? (message.content[0] as ChatCompletionContentPartText).text
             : message.type == "image"
             ? message.images?.map((image, index) => (
-                <Pressable
-                  onPress={() =>
-                    openImageViewer(
-                      message.images.map((image) => ({
-                        url: image?.url,
-                        props: {},
-                      })),
-                      index
-                    )
-                  }
-                >
-                  <Image
-                    source={{ uri: image.url }}
-                    style={{ width: 200, height: 200 }}
-                  />
-                </Pressable>
+                <View>
+                  <Pressable
+                    onPress={() =>
+                      openImageViewer(
+                        message.images.map((image) => ({
+                          url: image?.url,
+                          props: {},
+                        })),
+                        index
+                      )
+                    }
+                  >
+                    <Image
+                      source={{ uri: image.url }}
+                      style={{ width: 200, height: 200 }}
+                    />
+                  </Pressable>
+                  <Text>{message.content as string}</Text>
+                </View>
               )) ?? "Generating image..."
             : message.content}
         </Text>

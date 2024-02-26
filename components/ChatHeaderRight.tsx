@@ -111,6 +111,7 @@ const ChatHeaderRight = () => {
     const newMessageFromAI: Message & ChatCompletionMessageParam = {
       role: "assistant",
       type: "image",
+      content: prompt,
       imageSize: size,
       timestamp: Date.now(),
       isLoading: true,
@@ -164,6 +165,8 @@ const ChatHeaderRight = () => {
           url: image.url,
         };
       });
+      // add revised_prompt to the message.content
+      newMessageFromAI.content += `\n\nRevised Prompt: ${response.data[0].revised_prompt}`;
 
       // update the message to the current conversation
       const messageIndex = messages.length;

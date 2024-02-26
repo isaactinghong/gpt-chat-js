@@ -1,3 +1,7 @@
+[1.2.2]
+
+- Show prompt under generated image
+
 [1.2.1]
 
 - fix that prompt is not removed after generating image.
