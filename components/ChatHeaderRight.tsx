@@ -22,9 +22,12 @@ import OpenAI from "../services/OpenAIService";
 import { Message } from "../state/types/message";
 import { ChatCompletionMessageParam } from "openai/resources";
 import DropDownPicker from "react-native-dropdown-picker";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
+
+  // add brush to awesome font
 
   const [dialogVisible, setDialogVisible] = useState(false);
   /*
@@ -207,7 +210,7 @@ const ChatHeaderRight = () => {
           <View style={styles.modalView}>
             <Text style={styles.textStyle}>Generate Dall-e-3 Image</Text>
             <Text style={styles.modalText}>
-              Please enter the prompt, size, and number of images.
+              Generate an image using Dall-e-3 model
             </Text>
             <View style={styles.inputsContainer}>
               <View
@@ -298,39 +301,42 @@ const ChatHeaderRight = () => {
         </View>
       </Modal>
 
-      {/* add a pressable button to test generate Dall-e-3 image, if environment is development */}
-      {__DEV__ && (
+      <View style={styles.actionButtons}>
+        {/* add a pressable button to test generate Dall-e-3 image, if environment is development */}
+        {__DEV__ && (
+          <Pressable
+            style={styles.actionButton}
+            onPress={(event) => {
+              onPressGenerateImage(event);
+            }}
+          >
+            {/* <Ionicons name="aperture" size={24} color="black" /> */}
+            <FontAwesomeIcon icon="brush" size={18} color="black" />
+          </Pressable>
+        )}
+
         <Pressable
           style={styles.actionButton}
-          onPress={(event) => {
-            onPressGenerateImage(event);
+          onPress={() => {
+            // create new conversation, using action: createConversation
+            dispatch(createConversation());
           }}
         >
-          <Ionicons name="aperture" size={24} color="black" />
+          <Ionicons name="add" size={24} color="black" />
         </Pressable>
-      )}
-
-      <Pressable
-        style={styles.actionButton}
-        onPress={() => {
-          // create new conversation, using action: createConversation
-          dispatch(createConversation());
-        }}
-      >
-        <Ionicons name="add" size={24} color="black" />
-      </Pressable>
-      <Pressable
-        style={styles.actionButton}
-        onPress={() => {
-          /* handle trash */
-          dispatch(deleteConversation(currentConversationId));
-        }}
-      >
-        <Ionicons name="trash-outline" size={20} color="black" />
-      </Pressable>
-      {/* <Pressable style={styles.actionButton} onPress={() => {}}>
+        <Pressable
+          style={styles.actionButton}
+          onPress={() => {
+            /* handle trash */
+            dispatch(deleteConversation(currentConversationId));
+          }}
+        >
+          <Ionicons name="trash-outline" size={20} color="black" />
+        </Pressable>
+        {/* <Pressable style={styles.actionButton} onPress={() => {}}>
         <Ionicons name="ellipsis-vertical" size={20} color="black" />
       </Pressable> */}
+      </View>
     </View>
   );
 };
@@ -342,8 +348,14 @@ const styles = StyleSheet.create({
     gap: 0,
   },
   actionButton: {
-    marginLeft: 10,
+    // marginLeft: 10,
+    // marginRight: 5,
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 15,
     marginRight: 5,
+    alignItems: "center",
   },
   centeredView: {
     flex: 1,
