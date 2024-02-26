@@ -348,7 +348,7 @@ const ChatScreen = () => {
                 content: msg.content,
               } as ChatCompletionMessageParam)
           ),
-          model: "gpt-4",
+          model: "gpt-4-vision-preview",
         });
 
         let title = titleResult.choices[0]?.message?.content || "Untitled";
