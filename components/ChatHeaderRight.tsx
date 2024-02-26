@@ -1,6 +1,13 @@
 // components/ChatHeaderRight.js
 import React, { useState } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  Modal,
+  Text,
+  TextInput,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch } from "react-redux";
 import {
@@ -14,7 +21,7 @@ import { AppState } from "../state/states/app-state";
 import OpenAI from "../services/OpenAIService";
 import { Message } from "../state/types/message";
 import { ChatCompletionMessageParam } from "openai/resources";
-import Dialog from "react-native-dialog";
+import DropDownPicker from "react-native-dropdown-picker";
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
@@ -26,7 +33,15 @@ const ChatHeaderRight = () => {
   numOfImages: number
   */
   const [prompt, setPrompt] = useState("");
+
+  const [sizeOpen, setSizeOpen] = useState(false);
+  const [active, setActive] = useState(0);
   const [size, setSize] = useState("1024x1024");
+  const [sizes, setSizes] = useState([
+    { label: "1024x1024", value: "1024x1024" },
+    { label: "1792x1024", value: "1792x1024" },
+    { label: "1024x1792", value: "1024x1792" },
+  ]);
   const [numOfImages, setNumOfImages] = useState(1);
 
   const conversations = useSelector(
@@ -79,6 +94,7 @@ const ChatHeaderRight = () => {
     const newMessageFromAI: Message & ChatCompletionMessageParam = {
       role: "assistant",
       type: "image",
+      imageSize: size,
       timestamp: Date.now(),
       isLoading: true,
     };
@@ -139,6 +155,110 @@ const ChatHeaderRight = () => {
 
   return (
     <View style={styles.container}>
+      {/* <Dialog.Container visible={dialogVisible}>
+        <Dialog.Title>Generate Dall-e-3 Image</Dialog.Title>
+        <Dialog.Description>
+          Please enter the prompt, size, and number of images.
+        </Dialog.Description>
+        <Dialog.Input label="Prompt" onChangeText={setPrompt} value={prompt} />
+        <Dialog.Input label="Size" onChangeText={setSize} value={size} />
+        <Dialog.Input
+          label="Number of Images"
+          onChangeText={(value) => setNumOfImages(parseInt(value))}
+          value={numOfImages.toString()}
+        />
+        <Dialog.Button label="Confirm" onPress={handleImageGenerationConfirm} />
+        <Dialog.Button label="Cancel" onPress={handleImageGenerationCancel} />
+      </Dialog.Container> */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={dialogVisible}
+        onRequestClose={() => {
+          console.log("Modal has been closed.");
+          handleImageGenerationCancel();
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.textStyle}>Generate Dall-e-3 Image</Text>
+            <Text style={styles.modalText}>
+              Please enter the prompt, size, and number of images.
+            </Text>
+            <View style={styles.inputsContainer}>
+              <View
+                style={[styles.inputContainer, styles.inputContainerPrompt]}
+              >
+                <Text style={styles.inputContainerLabel}>Prompt:</Text>
+                <TextInput
+                  style={styles.inputPrompt}
+                  value={prompt}
+                  onChangeText={setPrompt}
+                  multiline
+                  numberOfLines={5}
+                />
+              </View>
+              <View style={[styles.inputContainer, styles.inputContainerSize]}>
+                <Text style={styles.inputContainerLabel}>Size:</Text>
+                <Text style={styles.inputContainerValue}>
+                  <View
+                    style={{
+                      ...styles.inputSizeView,
+                      elevation: active === 1 ? 99 : 1,
+                      zIndex: active === 1 ? 99 : 1,
+                    }}
+                  >
+                    {/* dropdown to select size */}
+                    <DropDownPicker
+                      style={styles.inputSize}
+                      disabled={active === 3 || active === 2}
+                      onOpen={() => setActive(1)}
+                      onClose={() => setActive(0)}
+                      open={sizeOpen}
+                      value={size}
+                      items={sizes}
+                      setOpen={setSizeOpen}
+                      setValue={setSize}
+                      setItems={setSizes}
+                      placeholder={"Select an image size"}
+                    />
+                  </View>
+                </Text>
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputContainerLabel}>
+                  Number of Images:
+                </Text>
+                <Text style={styles.inputContainerValue}>
+                  <TextInput
+                    style={styles.inputNumOfImages}
+                    keyboardType="numeric"
+                    value={numOfImages.toString()}
+                    onChangeText={(value) => setNumOfImages(parseInt(value))}
+                  />
+                </Text>
+              </View>
+            </View>
+            {/* row of buttons */
+            /* confirm and cancel buttons */}
+            <View style={styles.buttonRowView}>
+              <Pressable
+                style={[styles.button]}
+                onPress={() => handleImageGenerationConfirm()}
+              >
+                <Text style={styles.textStyle}>Confirm</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.button]}
+                onPress={() => handleImageGenerationCancel()}
+              >
+                <Text style={styles.textStyle}>Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* add a pressable button to test generate Dall-e-3 image, if environment is development */}
       {__DEV__ && (
         <Pressable
@@ -185,6 +305,105 @@ const styles = StyleSheet.create({
   actionButton: {
     marginLeft: 10,
     marginRight: 5,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    flexDirection: "column",
+    gap: 10,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+    // black button, white text
+    backgroundColor: "#000",
+    color: "#fff",
+  },
+  // buttonOpen: {},
+  // buttonClose: {},
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  buttonRowView: {
+    marginTop: 20,
+    flexDirection: "row",
+    gap: 10,
+  },
+  inputsContainer: {
+    width: "100%",
+    flexDirection: "column",
+    gap: 20,
+  },
+  inputContainer: {
+    flex: 1,
+    flexDirection: "column",
+    gap: 0,
+  },
+  inputContainerPrompt: {
+    flexGrow: 1,
+  },
+  inputContainerSize: {
+    zIndex: 5000,
+  },
+  inputContainerLabel: {
+    flex: 1,
+  },
+  inputContainerValue: {
+    flex: 1,
+    // show border
+    // borderWidth: 1,
+    padding: 5,
+    flexGrow: 1,
+    width: "100%",
+  },
+  inputPrompt: {
+    flex: 1,
+    flexGrow: 1,
+    padding: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+    width: "100%",
+  },
+  inputSizeView: {
+    flex: 1,
+    zIndex: 1000,
+  },
+  inputSize: {
+    flex: 1,
+    padding: 5,
+    borderWidth: 1,
+    borderRadius: 5,
+    zIndex: 1000,
+  },
+  inputNumOfImages: {
+    flex: 1,
+    padding: 5,
+    borderWidth: 1,
+    borderRadius: 5,
   },
 });
 
