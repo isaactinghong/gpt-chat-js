@@ -4,25 +4,47 @@ import { View, StyleSheet, Pressable } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch } from "react-redux";
 import {
+  addMessage,
   createConversation,
   deleteConversation,
+  updateMessage,
 } from "../state/actions/chatActions";
 import { useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
 import OpenAI from '../services/OpenAIService';
+import { Message } from '../state/types/message';
+import { ChatCompletionMessageParam } from 'openai/resources';
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
 
-  const currentConversationId = useSelector(
-    (state: AppState) => state.chats.currentConversationId
+  const conversations = useSelector(
+    (state: AppState) => state.chats.conversations
   );
-
+  const currentConversationId = useSelector(
+    (state: any) => state.chats.currentConversationId
+  );
 
   // test generate Dall-e-3 image
   const handleGenerateDalle3Image = async () => {
     // log entry
     console.log("handleGenerateDalle3Image start");
+
+    // prepare the Message containing the url of the generated image
+    const newMessageFromAI: Message & ChatCompletionMessageParam = {
+      role: "assistant",
+      type: "image",
+      timestamp: Date.now(),
+      isLoading: true,
+    };
+
+    // add the message to the current conversation
+    dispatch(addMessage(currentConversationId, newMessageFromAI));
+
+
+    const messages: (Message & ChatCompletionMessageParam)[] = [
+      ...conversations[currentConversationId].messages,
+    ];
 
     const response = await OpenAI.api.images.generate({
       model: "dall-e-3",
@@ -46,6 +68,27 @@ const ChatHeaderRight = () => {
           ]
       }
     */
+
+    /*
+      export const addMessage = (
+        conversationId: string,
+        message: Message & ChatCompletionMessageParam
+      ): ChatActionTypes => ({
+        type: ADD_MESSAGE,
+        payload: { conversationId, message },
+      });
+
+      ChatCompletionAssistantMessageParam
+
+    */
+
+    // update the message with the generated image
+    newMessageFromAI.isLoading = false;
+    newMessageFromAI.content = response.data[0].url;
+
+    // update the message to the current conversation
+    const messageIndex = messages.length;
+    dispatch(updateMessage(currentConversationId, newMessageFromAI, messageIndex));
 
   }
 

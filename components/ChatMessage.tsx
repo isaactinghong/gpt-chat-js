@@ -100,7 +100,15 @@ const ChatMessage = ({
           {/* if content is array, display the first element */}
           {Array.isArray(message.content)
             ? (message.content[0] as ChatCompletionContentPartText).text
-            : message.content}
+            :
+            (
+              message.type == "image" ?
+              <Image source={{ uri: message.content }} style={{ width: 200, height: 200 }} />
+                 :
+              message.content
+            )
+
+          }
         </Text>
         {localImages?.length > 0 && (
           <View style={styles.imageContainer}>
