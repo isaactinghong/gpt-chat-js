@@ -42,13 +42,21 @@ const SideMenu = ({ navigation }) => {
   const [systemMessageLocal, setSystemMessageLocal] =
     React.useState(systemMessage);
 
-  const handleSave = (fieldName) => {
+  const handleSave = (fieldName, newInput) => {
+
+    // log
+    console.log("handleSave", fieldName, newInput?.target.value);
+
+    const updateSettings = {
+      [fieldName]: newInput.target.value,
+    }
+
+    // log updateSettings
+    console.log("updateSettings", updateSettings);
+
     /* handle save, using action: saveSettings */
     dispatch(
-      saveSettings({
-        modelName: modelNameLocal,
-        systemMessage: systemMessageLocal,
-      })
+      saveSettings(updateSettings)
     );
 
     // show success toast message
@@ -62,9 +70,8 @@ const SideMenu = ({ navigation }) => {
   React.useEffect(() => {
     if (modelNameLocal === "") {
       setModelNameLocal("gpt-4-vision-preview");
-      handleSave("GPT Model Name");
     }
-  }, [modelNameLocal]);
+  }, [modelNameLocal]); // adding handleSave to dependencies as a best practice
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -112,9 +119,9 @@ const SideMenu = ({ navigation }) => {
             style={styles.gptModelInput}
             placeholder="GPT Model Name"
             value={modelNameLocal}
-            onChangeText={setModelNameLocal}
-            onChange={() => handleSave("GPT Model Name")}
-            onSubmitEditing={() => handleSave("GPT Model Name")}
+            onChangeText={(value) => setModelNameLocal(value)}
+            onChange={(value) => handleSave("modelName", value)}
+            onSubmitEditing={(value) => handleSave("modelName", value)}
           />
         </View>
         <View style={styles.systemMessageInputView}>
@@ -128,7 +135,7 @@ const SideMenu = ({ navigation }) => {
             multiline={true}
             value={systemMessageLocal}
             onChangeText={setSystemMessageLocal}
-            onChange={() => handleSave("System Message")}
+            onChange={(value) => handleSave("systemMessage", value)}
           />
         </View>
         <Pressable

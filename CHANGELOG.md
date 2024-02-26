@@ -1,3 +1,7 @@
+[1.1.6]
+
+- Fixed model name and system message handleSave function to save changes correctly
+
 [1.1.5]
 
 - fixed that if pasting lines more than 15, the input field will not expand
