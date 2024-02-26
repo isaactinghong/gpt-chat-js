@@ -1,3 +1,7 @@
+[1.1.7]
+
+- Update conversation title model to "gpt-4-vision-preview" in ChatScreen.tsx
+
 [1.1.6]
 
 - Fixed model name and system message handleSave function to save changes correctly
