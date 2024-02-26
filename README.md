@@ -4,7 +4,7 @@
 
 - [x] add GPT Vision support
 - [x] add GPT Whisper support
-- [ ] add GPT Dall-E support
+- [x] add GPT Dall-E support
 - [ ] add GPT Text-to-speech support
 
 ## How to start gpt-chat-js

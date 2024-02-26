@@ -1,3 +1,7 @@
+[1.2.0]
+
+- Added GPT Dall-E-3 support
+
 [1.1.7]
 
 - Update conversation title model to "gpt-4-vision-preview" in ChatScreen.tsx
