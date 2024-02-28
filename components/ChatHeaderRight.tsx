@@ -23,6 +23,7 @@ import { Message } from "../state/types/message";
 import { ChatCompletionMessageParam } from "openai/resources";
 import DropDownPicker from "react-native-dropdown-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { storeImage } from "../idb/images-db";
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
@@ -126,6 +127,9 @@ const ChatHeaderRight = () => {
         prompt,
         n: numOfImages,
         size,
+        quality: "hd",
+        style: "natural",
+        response_format: "b64_json",
       });
 
       // log response
@@ -138,7 +142,7 @@ const ChatHeaderRight = () => {
           "data": [
               {
                   "revised_prompt": "Picture a common siamese cat with a twist: its fur is predominantly white, as opposed to the usual cream or fawn. Its blue eyes are still stunning against its unusual fur color. Despite the white coat, it has the signature features of a siamese such as the darker face, ears, paws, and tail. The cat is softly sitting on a lush green lawn, showing a mix of curiosity and alertness typical of these creatures. The sunlight gently illuminates its fur, causing it to take on a subtle, beautiful glow.",
-                  "url": "https://oaidalleapiprodscus.blob.core.windows.net/private/org-88wBwfFBOpztOgr5PqZIriNt/user-qGyWeZzogrFKJ6uMRTK1yJim/img-JOppxLff75Pn8RxGvoTO0wuN.png?st=2024-02-26T03%3A08%3A45Z&se=2024-02-26T05%3A08%3A45Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2024-02-25T12%3A14%3A56Z&ske=2024-02-26T12%3A14%3A56Z&sks=b&skv=2021-08-06&sig=LkGb6uxSMfFH5k6wqCuZQQjJg7bUbFy5ikrGBBlS/n8%3D"
+                  "b64_json": "..."
               }
           ]
       }
@@ -159,12 +163,25 @@ const ChatHeaderRight = () => {
 
       // update the message with the generated image
       newMessageFromAI.isLoading = false;
-      newMessageFromAI.images = response.data?.map((image, index) => {
-        return {
-          id: index.toString(),
-          url: image.url,
+      newMessageFromAI.images = [];
+
+      for (const image of response.data) {
+        // base64 image
+        const base64image = image.b64_json;
+
+        const base64imageUri = `data:image/jpeg;base64,${base64image}`;
+
+        // use IndexedDB to store the compressed image
+        const id = await storeImage(base64imageUri, currentConversationId);
+
+        const localImage = {
+          id,
+          // base64: base64image,
         };
-      });
+
+        newMessageFromAI.images.push(localImage);
+      }
+
       // add revised_prompt to the message.content
       newMessageFromAI.content += `\n\nRevised Prompt: ${response.data[0].revised_prompt}`;
 
@@ -230,7 +247,7 @@ const ChatHeaderRight = () => {
                   numberOfLines={5}
                 />
               </View>
-              <View style={[styles.inputContainer, styles.inputContainerSize]}>
+              <View style={[styles.inputContainer]}>
                 <Text style={styles.inputContainerLabel}>Size:</Text>
                 <View
                   style={{

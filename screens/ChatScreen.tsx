@@ -224,17 +224,30 @@ const ChatScreen = () => {
 
           // if msg.type === "image", then add it as image messsage
           if (msg.type === "image") {
-            // construct the openAIContent
-            // using msg.images
-            openAIContent = [
-              ...msg.images.map((image: LocalImage) => {
-                // fetch the base64 image from IndexedDB
-                return {
-                  type: "image_url" as const, // Fix: Assign type "image_url" explicitly
-                  image_url: { url: image.url },
-                };
-              }),
-            ];
+            if (msg.images?.length > 0) {
+              const indexedDBImages = await Promise.all(
+                msg.images?.map(async (localImage) => {
+                  // fetch the base64 image from IndexedDB
+                  return await getImage(localImage.id);
+                })
+              );
+
+              // construct the openAIContent
+              // using msg.images
+              openAIContent = [
+                // add image messages
+                ...indexedDBImages.map((indexedDBImage) => {
+                  const image_url: ChatCompletionContentPartImage.ImageURL = {
+                    url: indexedDBImage.uri,
+                  };
+
+                  return {
+                    type: "image_url" as const, // Fix: Assign type "image_url" explicitly
+                    image_url,
+                  };
+                }),
+              ];
+            }
           } else if (msg.images?.length > 0) {
             const indexedDBImages = await Promise.all(
               msg.images?.map(async (localImage) => {
