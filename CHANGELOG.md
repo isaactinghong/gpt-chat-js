@@ -1,3 +1,7 @@
+[1.2.3]
+
+- upgraded dall-e-3 feature to use indexedDBImages
+
 [1.2.2]
 
 - Show prompt under generated image
