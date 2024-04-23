@@ -10,13 +10,10 @@ import { AppState } from "../state/states/app-state";
 import { Conversation } from "../state/types/conversation";
 import OpenAI from "../services/OpenAIService";
 import { View, Text, StyleSheet } from "react-native";
-import {
-  addAudioFiles,
-  addImage,
-} from "../state/actions/chatActions";
+import { addAudioFiles, addImage } from "../state/actions/chatActions";
 import SharedContentScreen from "../screens/SharedContentScreen";
-import { storeImage } from '../idb/images-db';
-import { compressImage } from '../helpers/image-utils';
+import { storeImage } from "../idb/images-db";
+import { compressImage } from "../helpers/image-utils";
 
 const Drawer = createDrawerNavigator();
 
@@ -53,7 +50,6 @@ const DrawerNavigator = () => {
   const currentConversationId = useSelector(
     (state: AppState) => state.chats.currentConversationId
   );
-
 
   useEffect(() => {
     const handleRedirectAudios = async () => {
@@ -134,31 +130,30 @@ const DrawerNavigator = () => {
               // compress the image
               // const compressedImage = await compressImage(localUrl);
 
-
               // convert the image to base64
-              const base64image = await new Promise<string>((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onerror = reject;
-                reader.onload = () => {
-                  resolve(reader.result as string);
-                };
-                reader.readAsDataURL(blob);
-              });
+              const base64image = await new Promise<string>(
+                (resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onerror = reject;
+                  reader.onload = () => {
+                    resolve(reader.result as string);
+                  };
+                  reader.readAsDataURL(blob);
+                }
+              );
 
               // use IndexedDB to store the compressed image
               const id = await storeImage(base64image, currentConversationId);
 
               const localImage = {
                 id,
-                base64: base64image,
+                // base64: base64image,
               };
 
               // just add the original image
               dispatch(addImage(localImage));
-
             }
-        }
-
+          }
         }
         // log exit
         console.log("handleRedirectImages exit");

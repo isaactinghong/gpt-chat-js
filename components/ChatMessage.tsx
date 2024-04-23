@@ -58,7 +58,7 @@ const ChatMessage = ({
     } catch (e) {
       console.log(e);
     }
-  }, [message.timestamp]);
+  }, [message.timestamp, message.images]);
 
   return (
     <View
@@ -97,34 +97,47 @@ const ChatMessage = ({
               : styles.userMessageText
           }
         >
-          {/* if content is array, display the first element */}
-          {Array.isArray(message.content)
-            ? (message.content[0] as ChatCompletionContentPartText).text
-            : message.type == "image"
-            ? message.images?.map((image, index) => (
-                <View>
-                  <Pressable
-                    onPress={() =>
-                      openImageViewer(
-                        message.images.map((image) => ({
-                          url: image?.url,
-                          props: {},
-                        })),
-                        index
-                      )
-                    }
-                  >
-                    <Image
-                      source={{ uri: image.url }}
-                      style={{ width: 200, height: 200 }}
-                    />
-                  </Pressable>
-                  <Text>{message.content as string}</Text>
-                </View>
-              )) ?? "Generating image..."
-            : message.content}
+          <View style={{ flexDirection: "column" }}>
+            {/* if content is array, display the first element */}
+            {message.type === "image"
+              ? localImages.length > 0
+                ? localImages?.map((image, index) => (
+                    <View key={index} style={{ flexDirection: "column" }}>
+                      <Pressable
+                        onPress={() =>
+                          openImageViewer(
+                            localImages.map((image) => ({
+                              url: image?.base64,
+                              props: {},
+                            })),
+                            index
+                          )
+                        }
+                      >
+                        <Image
+                          key={index}
+                          source={{ uri: image.base64 }}
+                          style={{ width: 200, height: 200 }}
+                        />
+                      </Pressable>
+                      <Text>{message.content as string}</Text>
+                    </View>
+                  ))
+                : "Generating image..."
+              : null}
+            <Text
+              style={{
+                flex: 1,
+              }}
+            >
+              {Array.isArray(message.content)
+                ? (message.content[0] as ChatCompletionContentPartText).text
+                : message.content}
+            </Text>
+          </View>
         </Text>
-        {localImages?.length > 0 && (
+
+        {message.type !== "image" && localImages?.length > 0 && (
           <View style={styles.imageContainer}>
             {localImages.map((localImage, index) => {
               return (
