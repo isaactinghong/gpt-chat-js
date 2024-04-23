@@ -1,3 +1,7 @@
+[1.2.3]
+
+- migration #6: change settingsState.modelName to 'gpt-4-turbo'
+
 [1.2.2]
 
 - Show prompt under generated image
