@@ -1,3 +1,7 @@
+[1.2.4]
+
+- header title selectable
+
 [1.2.3]
 
 - migration #6: change settingsState.modelName to 'gpt-4-turbo'
