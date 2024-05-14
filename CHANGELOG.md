@@ -1,4 +1,4 @@
-[1.2.5]
+[1.2.5], [1.2.6]
 
 - migration #7: change settingsState.modelName to 'gpt-4o'
 
