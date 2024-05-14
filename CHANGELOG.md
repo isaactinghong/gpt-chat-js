@@ -1,3 +1,7 @@
+[1.2.5]
+
+- migration #7: change settingsState.modelName to 'gpt-4o'
+
 [1.2.4]
 
 - header title selectable

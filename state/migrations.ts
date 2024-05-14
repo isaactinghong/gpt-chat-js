@@ -55,6 +55,17 @@ export const migrations: MigrationManifest = {
       },
     } as unknown as PersistedState;
   }
+  // 7 to change settingsState.modelName to 'gpt-4o'
+  6: (state: { _persist: PersistState; }) => {
+    const appState = state as unknown as AppState
+    return {
+      ...appState,
+      settings: {
+        ...appState.settings,
+        modelName: 'gpt-4o',
+      },
+    } as unknown as PersistedState;
+  }
 
   // ...
   // you can keep adding migrations here for further versions
