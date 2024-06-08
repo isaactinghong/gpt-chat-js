@@ -63,12 +63,29 @@ const ChatMessage = ({
     }
   }, [message.timestamp, message.images]);
 
-  const handleLongPress = (content: string) => {
-    Clipboard.setString(content);
-    Toast.show({
-      type: 'success',
-      text1: 'Copied to clipboard',
-    });
+  const handleLongPress = (content: ChatCompletionContentPart) => {
+    try {
+
+      const textContent: string = Array.isArray(content)
+        ? (content[0] as ChatCompletionContentPartText).text
+        : (content as unknown as string);
+      Clipboard.setString(textContent);
+      // clear Toast first
+      Toast.hide();
+      Toast.show({
+        type: 'success',
+        text1: `"${textContent.slice(0, 15)}..." copied to clipboard`,
+      });
+    }
+    catch (e) {
+      console.error(e);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to copy to clipboard',
+      });
+    }
   };
 
   return (
@@ -103,9 +120,10 @@ const ChatMessage = ({
         <Pressable
           onLongPress={() =>
             handleLongPress(
-              Array.isArray(message.content)
-                ? (message.content[0] as ChatCompletionContentPartText).text
-                : (message.content as string)
+              message.content
+              // Array.isArray(message.content)
+              //   ? (message.content[0] as ChatCompletionContentPartText).text
+              //   : (message.content as string)
             )
           }
         >
