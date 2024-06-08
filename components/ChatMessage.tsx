@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Pressable,
+  ToastAndroid,
 } from "react-native";
 import { Message } from "../state/types/message";
 import OpenAIBlackLogo from "./OpenAIBlackLogo";
@@ -18,6 +19,8 @@ import {
 import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
 import { getImage } from "../idb/images-db";
 import { LocalImage } from "../state/types/local-image";
+import Toast from "react-native-toast-message";
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const ChatMessage = ({
   message,
@@ -60,6 +63,14 @@ const ChatMessage = ({
     }
   }, [message.timestamp, message.images]);
 
+  const handleLongPress = (content: string) => {
+    Clipboard.setString(content);
+    Toast.show({
+      type: 'success',
+      text1: 'Copied to clipboard',
+    });
+  };
+
   return (
     <View
       style={
@@ -89,19 +100,28 @@ const ChatMessage = ({
             : styles.userMessageContainer
         }
       >
-        <Text
-          selectable={true}
-          style={
-            message.role == "assistant"
-              ? styles.assistantMessageText
-              : styles.userMessageText
+        <Pressable
+          onLongPress={() =>
+            handleLongPress(
+              Array.isArray(message.content)
+                ? (message.content[0] as ChatCompletionContentPartText).text
+                : (message.content as string)
+            )
           }
         >
-          <View style={{ flexDirection: "column" }}>
-            {/* if content is array, display the first element */}
-            {message.type === "image"
-              ? localImages.length > 0
-                ? localImages?.map((image, index) => (
+          <Text
+            selectable={true}
+            style={
+              message.role == "assistant"
+                ? styles.assistantMessageText
+                : styles.userMessageText
+            }
+          >
+            <View style={{ flexDirection: "column" }}>
+              {/* if content is array, display the first element */}
+              {message.type === "image"
+                ? localImages.length > 0
+                  ? localImages?.map((image, index) => (
                     <View key={index} style={{ flexDirection: "column" }}>
                       <Pressable
                         onPress={() =>
@@ -123,19 +143,20 @@ const ChatMessage = ({
                       <Text>{message.content as string}</Text>
                     </View>
                   ))
-                : "Generating image..."
-              : null}
-            <Text
-              style={{
-                flex: 1,
-              }}
-            >
-              {Array.isArray(message.content)
-                ? (message.content[0] as ChatCompletionContentPartText).text
-                : message.content}
-            </Text>
-          </View>
-        </Text>
+                  : "Generating image..."
+                : null}
+              <Text
+                style={{
+                  flex: 1,
+                }}
+              >
+                {Array.isArray(message.content)
+                  ? (message.content[0] as ChatCompletionContentPartText).text
+                  : message.content}
+              </Text>
+            </View>
+          </Text>
+        </Pressable>
 
         {message.type !== "image" && localImages?.length > 0 && (
           <View style={styles.imageContainer}>
