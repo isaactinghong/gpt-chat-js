@@ -24,6 +24,7 @@ import { ChatCompletionMessageParam } from "openai/resources";
 import DropDownPicker from "react-native-dropdown-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { storeImage } from "../idb/images-db";
+import Toast from 'react-native-toast-message';
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
@@ -284,7 +285,7 @@ const ChatHeaderRight = () => {
                 <View
                   style={
                     (styles.inputContainerValue,
-                    styles.inputContainerValueNumOfImages)
+                      styles.inputContainerValueNumOfImages)
                   }
                 >
                   <TextInput
@@ -324,6 +325,46 @@ const ChatHeaderRight = () => {
       </Modal>
 
       <View style={styles.actionButtons}>
+
+        {/* add a pressable button to copy the whole conversation to clipboard */}
+        <Pressable
+          style={styles.actionButton}
+          onPress={(event) => {
+            // log
+            console.log("copy conversation to clipboard");
+
+            // copy the whole conversation to clipboard
+            try {
+
+              // start with title
+              let conversation = conversations[currentConversationId].title + "\n\n";
+
+              // add all messages with role and content
+              conversation += conversations[currentConversationId].messages.map((message) => {
+                return `${message.role}: \n${message.content}`;
+              }).join("\n\n");
+
+              navigator.clipboard.writeText(conversation);
+
+              Toast.show({
+                type: "success",
+                text1: "Conversation copied to clipboard",
+              });
+            }
+            catch (e) {
+              console.log("Failed to copy to clipboard", e);
+
+              Toast.show({
+                type: "error",
+                text1: "Error",
+                text2: "Failed to copy to clipboard",
+              });
+            }
+          }}
+        >
+          <Ionicons name="copy-outline" size={18} color="black" />
+        </Pressable>
+
         {/* add a pressable button to test generate Dall-e-3 image */}
         <Pressable
           style={styles.actionButton}
