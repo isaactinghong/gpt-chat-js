@@ -1,3 +1,7 @@
+[1.2.9]
+
+- improved context menu
+
 [1.2.8]
 
 - fixed line wrapping issue in chat messages

@@ -24,6 +24,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { storeImage } from "../idb/images-db";
 import Toast from 'react-native-toast-message';
 import { ChatCompletionMessageParam } from 'openai/resources';
+import { faCopy } from '@fortawesome/free-regular-svg-icons/faCopy'
+import { faBrush } from '@fortawesome/free-solid-svg-icons/faBrush'
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
@@ -180,9 +182,15 @@ const ChatHeaderRight = () => {
         >
           <View style={styles.contextMenu}>
             <Pressable onPress={handleCopyConversation} style={styles.menuItem}>
-              <Text style={styles.menuItemText}>Copy Conversation to Clipboard</Text>
+              {/* copy icon, regular */}
+              <FontAwesomeIcon icon={faCopy} />
+              <Text style={styles.menuItemText}>
+                Copy Conversation to Clipboard
+              </Text>
             </Pressable>
             <Pressable onPress={onPressGenerateImage} style={styles.menuItem}>
+              {/* brush icon */}
+              <FontAwesomeIcon icon={faBrush} />
               <Text style={styles.menuItemText}>Generate Dall-e-3 Image</Text>
             </Pressable>
           </View>
@@ -413,7 +421,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 10,
-    width: 200,
+    width: 300,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -425,6 +433,9 @@ const styles = StyleSheet.create({
   },
   menuItem: {
     padding: 10,
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
   },
   menuItemText: {
     fontSize: 16,

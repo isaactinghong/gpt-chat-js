@@ -9,9 +9,6 @@ import { Text } from "react-native";
 import Toast from "react-native-toast-message";
 import * as serviceWorkerRegistration from "./src/serviceWorkerRegistration";
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faBrush } from "@fortawesome/free-solid-svg-icons";
-
-library.add(faBrush);
 
 export default function App() {
   return (
