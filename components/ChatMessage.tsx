@@ -63,7 +63,7 @@ const ChatMessage = ({
     }
   }, [message.timestamp, message.images]);
 
-  const handleLongPress = (content: ChatCompletionContentPart) => {
+  const handleLongPress = (content: string | ChatCompletionContentPart[]) => {
     try {
 
       const textContent: string = Array.isArray(content)
@@ -110,99 +110,96 @@ const ChatMessage = ({
         </View>
       )}
 
-      <View
+      <Pressable
+        onLongPress={() =>
+          handleLongPress(
+            message.content
+            // Array.isArray(message.content)
+            //   ? (message.content[0] as ChatCompletionContentPartText).text
+            //   : (message.content as string)
+          )
+        }
         style={
           message.role == "assistant"
             ? styles.assistantMessageContainer
             : styles.userMessageContainer
         }
       >
-        <Pressable
-          onLongPress={() =>
-            handleLongPress(
-              message.content
-              // Array.isArray(message.content)
-              //   ? (message.content[0] as ChatCompletionContentPartText).text
-              //   : (message.content as string)
-            )
+        <Text
+          selectable={true}
+          style={
+            message.role == "assistant"
+              ? styles.assistantMessageText
+              : styles.userMessageText
           }
         >
-          <Text
-            selectable={true}
-            style={
-              message.role == "assistant"
-                ? styles.assistantMessageText
-                : styles.userMessageText
-            }
-          >
-            <View style={{ flexDirection: "column" }}>
-              {/* if content is array, display the first element */}
-              {message.type === "image"
-                ? localImages.length > 0
-                  ? localImages?.map((image, index) => (
-                    <View key={index} style={{ flexDirection: "column" }}>
-                      <Pressable
-                        onPress={() =>
-                          openImageViewer(
-                            localImages.map((image) => ({
-                              url: image?.base64,
-                              props: {},
-                            })),
-                            index
-                          )
-                        }
-                      >
-                        <Image
-                          key={index}
-                          source={{ uri: image.base64 }}
-                          style={{ width: 200, height: 200 }}
-                        />
-                      </Pressable>
-                      <Text>{message.content as string}</Text>
-                    </View>
-                  ))
-                  : "Generating image..."
-                : null}
-              <Text
-                style={{
-                  flex: 1,
-                }}
-              >
-                {Array.isArray(message.content)
-                  ? (message.content[0] as ChatCompletionContentPartText).text
-                  : message.content}
-              </Text>
-            </View>
-          </Text>
-        </Pressable>
-
-        {message.type !== "image" && localImages?.length > 0 && (
-          <View style={styles.imageContainer}>
-            {localImages.map((localImage, index) => {
-              return (
-                <Pressable
-                  key={index}
-                  onPress={() =>
-                    openImageViewer(
-                      localImages.map((localImage) => ({
-                        url: localImage?.base64,
-                        props: {},
-                      })),
-                      index
-                    )
-                  }
-                >
-                  <Image
-                    key={index}
-                    source={{ uri: localImage?.base64 }}
-                    style={styles.imageThumbnail}
-                  />
-                </Pressable>
-              );
-            })}
+          <View style={{ flexDirection: "column" }}>
+            {/* if content is array, display the first element */}
+            {message.type === "image"
+              ? localImages.length > 0
+                ? localImages?.map((image, index) => (
+                  <View key={index} style={{ flexDirection: "column" }}>
+                    <Pressable
+                      onPress={() =>
+                        openImageViewer(
+                          localImages.map((image) => ({
+                            url: image?.base64,
+                            props: {},
+                          })),
+                          index
+                        )
+                      }
+                    >
+                      <Image
+                        key={index}
+                        source={{ uri: image.base64 }}
+                        style={{ width: 200, height: 200 }}
+                      />
+                    </Pressable>
+                    <Text>{message.content as string}</Text>
+                  </View>
+                ))
+                : "Generating image..."
+              : null}
+            <Text
+              style={{
+                flex: 1,
+              }}
+            >
+              {Array.isArray(message.content)
+                ? (message.content[0] as ChatCompletionContentPartText).text
+                : message.content}
+            </Text>
           </View>
-        )}
-      </View>
+        </Text>
+      </Pressable>
+
+      {message.type !== "image" && localImages?.length > 0 && (
+        <View style={styles.imageContainer}>
+          {localImages.map((localImage, index) => {
+            return (
+              <Pressable
+                key={index}
+                onPress={() =>
+                  openImageViewer(
+                    localImages.map((localImage) => ({
+                      url: localImage?.base64,
+                      props: {},
+                    })),
+                    index
+                  )
+                }
+              >
+                <Image
+                  key={index}
+                  source={{ uri: localImage?.base64 }}
+                  style={styles.imageThumbnail}
+                />
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 };

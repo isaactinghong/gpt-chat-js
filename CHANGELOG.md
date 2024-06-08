@@ -1,3 +1,7 @@
+[1.2.8]
+
+- fixed line wrapping issue in chat messages
+
 [1.2.7]
 
 - added long press copy message feature.
