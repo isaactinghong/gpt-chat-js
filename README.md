@@ -62,6 +62,7 @@ npx workbox-cli generateSW workbox-config.js
 #netlify switch
 npm version patch
 git push --tags
+git push --all
 
 npx expo export:web
 netlify deploy --dir web-build --prod

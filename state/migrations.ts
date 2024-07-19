@@ -65,7 +65,7 @@ export const migrations: MigrationManifest = {
         modelName: 'gpt-4o',
       },
     } as unknown as PersistedState;
-  }
+  },
 
   // 8 to change settingsState.modelName to 'gpt-4o-mini'
   8: (state: { _persist: PersistState; }) => {
