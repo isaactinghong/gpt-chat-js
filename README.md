@@ -59,6 +59,10 @@ npx workbox-cli generateSW workbox-config.js
 ## Deployment pwa to netlify with webpack export
 
 ```shell
+#netlify switch
+npm version patch
+git push --tags
+git push --all
 
 npx expo export:web
 netlify deploy --dir web-build --prod

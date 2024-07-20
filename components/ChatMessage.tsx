@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Pressable,
+  ToastAndroid,
 } from "react-native";
 import { Message } from "../state/types/message";
 import OpenAIBlackLogo from "./OpenAIBlackLogo";
@@ -18,6 +19,8 @@ import {
 import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
 import { getImage } from "../idb/images-db";
 import { LocalImage } from "../state/types/local-image";
+import Toast from "react-native-toast-message";
+import Clipboard from '@react-native-clipboard/clipboard';
 
 const ChatMessage = ({
   message,
@@ -60,6 +63,31 @@ const ChatMessage = ({
     }
   }, [message.timestamp, message.images]);
 
+  const handleLongPress = (content: string | ChatCompletionContentPart[]) => {
+    try {
+
+      const textContent: string = Array.isArray(content)
+        ? (content[0] as ChatCompletionContentPartText).text
+        : (content as unknown as string);
+      Clipboard.setString(textContent);
+      // clear Toast first
+      Toast.hide();
+      Toast.show({
+        type: 'success',
+        text1: `"${textContent.slice(0, 15)}..." copied to clipboard`,
+      });
+    }
+    catch (e) {
+      console.error(e);
+
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to copy to clipboard',
+      });
+    }
+  };
+
   return (
     <View
       style={
@@ -82,7 +110,15 @@ const ChatMessage = ({
         </View>
       )}
 
-      <View
+      <Pressable
+        onLongPress={() =>
+          handleLongPress(
+            message.content
+            // Array.isArray(message.content)
+            //   ? (message.content[0] as ChatCompletionContentPartText).text
+            //   : (message.content as string)
+          )
+        }
         style={
           message.role == "assistant"
             ? styles.assistantMessageContainer
@@ -102,27 +138,27 @@ const ChatMessage = ({
             {message.type === "image"
               ? localImages.length > 0
                 ? localImages?.map((image, index) => (
-                    <View key={index} style={{ flexDirection: "column" }}>
-                      <Pressable
-                        onPress={() =>
-                          openImageViewer(
-                            localImages.map((image) => ({
-                              url: image?.base64,
-                              props: {},
-                            })),
-                            index
-                          )
-                        }
-                      >
-                        <Image
-                          key={index}
-                          source={{ uri: image.base64 }}
-                          style={{ width: 200, height: 200 }}
-                        />
-                      </Pressable>
-                      <Text>{message.content as string}</Text>
-                    </View>
-                  ))
+                  <View key={index} style={{ flexDirection: "column" }}>
+                    <Pressable
+                      onPress={() =>
+                        openImageViewer(
+                          localImages.map((image) => ({
+                            url: image?.base64,
+                            props: {},
+                          })),
+                          index
+                        )
+                      }
+                    >
+                      <Image
+                        key={index}
+                        source={{ uri: image.base64 }}
+                        style={{ width: 200, height: 200 }}
+                      />
+                    </Pressable>
+                    <Text>{message.content as string}</Text>
+                  </View>
+                ))
                 : "Generating image..."
               : null}
             <Text
@@ -136,34 +172,34 @@ const ChatMessage = ({
             </Text>
           </View>
         </Text>
+      </Pressable>
 
-        {message.type !== "image" && localImages?.length > 0 && (
-          <View style={styles.imageContainer}>
-            {localImages.map((localImage, index) => {
-              return (
-                <Pressable
+      {message.type !== "image" && localImages?.length > 0 && (
+        <View style={styles.imageContainer}>
+          {localImages.map((localImage, index) => {
+            return (
+              <Pressable
+                key={index}
+                onPress={() =>
+                  openImageViewer(
+                    localImages.map((localImage) => ({
+                      url: localImage?.base64,
+                      props: {},
+                    })),
+                    index
+                  )
+                }
+              >
+                <Image
                   key={index}
-                  onPress={() =>
-                    openImageViewer(
-                      localImages.map((localImage) => ({
-                        url: localImage?.base64,
-                        props: {},
-                      })),
-                      index
-                    )
-                  }
-                >
-                  <Image
-                    key={index}
-                    source={{ uri: localImage?.base64 }}
-                    style={styles.imageThumbnail}
-                  />
-                </Pressable>
-              );
-            })}
-          </View>
-        )}
-      </View>
+                  source={{ uri: localImage?.base64 }}
+                  style={styles.imageThumbnail}
+                />
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 };

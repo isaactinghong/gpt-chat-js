@@ -549,45 +549,49 @@ const ChatScreen = () => {
       navigator.userAgent
     );
 
+    const addLinebreak = () => {
+
+      const cursorPosition = event.target.selectionStart;
+      setInputText(
+        inputText.substring(0, cursorPosition) +
+        "\n" +
+        inputText.substring(cursorPosition)
+      );
+
+      // Use setTimeout to ensure the cursor moves to the new line
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.selectionStart = cursorPosition + 1;
+          inputRef.current.selectionEnd = cursorPosition + 1;
+        }
+      }, 0);
+
+      event.preventDefault(); // stop event propagation
+    }
+
     if (Platform.OS === "web" && isHardwareKeyboard) {
       // Traditional desktop handling
       if (event.nativeEvent.key === "Enter" && !event.nativeEvent.shiftKey) {
-        console.log("handleMessageKeyPress enter", inputText);
+        // console.log("handleMessageKeyPress enter", inputText);
         sendMessage();
         event.preventDefault(); // stop event propagation
       } else if (
         event.nativeEvent.key === "Enter" &&
         event.nativeEvent.shiftKey
       ) {
-        console.log("handleMessageKeyPress shift+enter", inputText);
-        // setInputText(inputText + "\n"); // Add a line break
-        // revised: Add a line break at the cursor position
-        const cursorPosition = event.target.selectionStart;
-        setInputText(
-          inputText.substring(0, cursorPosition) +
-          "\n" +
-          inputText.substring(cursorPosition)
-        );
+        // console.log("handleMessageKeyPress shift+enter", inputText);
 
-        // Use setTimeout to ensure the cursor moves to the new line
-        setTimeout(() => {
-          if (inputRef.current) {
-            inputRef.current.selectionStart = cursorPosition + 1;
-            inputRef.current.selectionEnd = cursorPosition + 1;
-          }
-        }, 0);
-
-        event.preventDefault(); // stop event propagation
+        addLinebreak();
       }
     } else if (Platform.OS === "web" && !isHardwareKeyboard) {
       // Mobile browser handling (where we treat Enter as newline)
       if (event.nativeEvent.key === "Enter") {
-        console.log(
-          "handleMessageKeyPress return key on mobile browser",
-          inputText
-        );
-        setInputText(inputText + "\n"); // Add a line break
-        event.preventDefault(); // stop event propagation
+        // console.log(
+        //   "handleMessageKeyPress return key on mobile browser",
+        //   inputText
+        // );
+
+        addLinebreak();
       }
     }
   };

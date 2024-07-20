@@ -200,7 +200,7 @@ const DrawerNavigator = () => {
           headerTitle: (props) => {
             return (
               <View style={styles.headerTitleContainer}>
-                <Text style={styles.headerTitle}>
+                <Text style={styles.headerTitle} selectable={true}>
                   {currentConversation?.title}
                 </Text>
               </View>

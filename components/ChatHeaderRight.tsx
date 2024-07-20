@@ -1,5 +1,4 @@
-// components/ChatHeaderRight.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -7,37 +6,33 @@ import {
   Modal,
   Text,
   TextInput,
+  Clipboard,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   addMessage,
   createConversation,
   deleteConversation,
   updateMessage,
 } from "../state/actions/chatActions";
-import { useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
 import OpenAI from "../services/OpenAIService";
 import { Message } from "../state/types/message";
-import { ChatCompletionMessageParam } from "openai/resources";
 import DropDownPicker from "react-native-dropdown-picker";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { storeImage } from "../idb/images-db";
+import Toast from 'react-native-toast-message';
+import { ChatCompletionMessageParam } from 'openai/resources';
+import { faCopy } from '@fortawesome/free-regular-svg-icons/faCopy'
+import { faBrush } from '@fortawesome/free-solid-svg-icons/faBrush'
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
 
-  // add brush to awesome font
-
+  const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
-  /*
-  prompt: string,
-  size: "1024x1024" | "1792x1024" | "1024x1792",
-  numOfImages: number
-  */
   const [prompt, setPrompt] = useState("");
-
   const [sizeOpen, setSizeOpen] = useState(false);
   const [active, setActive] = useState(0);
   const [size, setSize] = useState("1024x1024");
@@ -55,34 +50,43 @@ const ChatHeaderRight = () => {
     (state: any) => state.chats.currentConversationId
   );
 
-  // test generate image
-  const onPressGenerateImage = async (event) => {
-    // log entry
-    console.log("onPressGenerateImage start");
+  const toggleContextMenu = () => {
+    setContextMenuVisible(!contextMenuVisible);
+  };
 
-    // fill the prompt with any cursor selected text
-    const prompt = window.getSelection().toString();
-
-    console.log("prefill prompt:", prompt);
-
-    // if prompt is not empty, set it
-    if (prompt) {
-      setPrompt(prompt);
-    }
-
-    // show dialog
+  const onPressGenerateImage = (event) => {
+    setContextMenuVisible(false);
     setDialogVisible(true);
   };
 
-  // handle image generation confirm
+  const handleCopyConversation = () => {
+    setContextMenuVisible(false);
+
+    try {
+      let conversation = conversations[currentConversationId].title + "\n\n";
+      conversation += conversations[currentConversationId].messages.map((message) => {
+        return `${message.role}: \n${message.content}`;
+      }).join("\n\n");
+
+      navigator.clipboard.writeText(conversation);
+
+      Toast.show({
+        type: "success",
+        text1: "Conversation copied to clipboard",
+      });
+    } catch (e) {
+      console.log("Failed to copy to clipboard", e);
+
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to copy to clipboard",
+      });
+    }
+  };
+
   const handleImageGenerationConfirm = () => {
-    // log entry
-    console.log("handleImageGenerationConfirm start");
-
-    // hide dialog
     setDialogVisible(false);
-
-    // call API to generate Dall-e-3 image
     callAPIToGenerateDalle3Image(
       prompt,
       size as "1024x1024" | "1792x1024" | "1024x1792",
@@ -90,12 +94,7 @@ const ChatHeaderRight = () => {
     );
   };
 
-  // handle image generation cancel
   const handleImageGenerationCancel = () => {
-    // log entry
-    console.log("handleImageGenerationCancel start");
-
-    // hide dialog
     setDialogVisible(false);
   };
 
@@ -108,7 +107,6 @@ const ChatHeaderRight = () => {
       ...conversations[currentConversationId].messages,
     ];
 
-    // prepare the Message containing the url of the generated image
     const newMessageFromAI: Message & ChatCompletionMessageParam = {
       role: "assistant",
       type: "image",
@@ -118,7 +116,6 @@ const ChatHeaderRight = () => {
       isLoading: true,
     };
 
-    // add the message to the current conversation
     dispatch(addMessage(currentConversationId, newMessageFromAI));
 
     try {
@@ -132,73 +129,29 @@ const ChatHeaderRight = () => {
         response_format: "b64_json",
       });
 
-      // log response
-      console.log("onPressGenerateImage response", response);
-
-      /*
-      response:
-      {
-          "created": 1708920525,
-          "data": [
-              {
-                  "revised_prompt": "Picture a common siamese cat with a twist: its fur is predominantly white, as opposed to the usual cream or fawn. Its blue eyes are still stunning against its unusual fur color. Despite the white coat, it has the signature features of a siamese such as the darker face, ears, paws, and tail. The cat is softly sitting on a lush green lawn, showing a mix of curiosity and alertness typical of these creatures. The sunlight gently illuminates its fur, causing it to take on a subtle, beautiful glow.",
-                  "b64_json": "..."
-              }
-          ]
-      }
-    */
-
-      /*
-      export const addMessage = (
-        conversationId: string,
-        message: Message & ChatCompletionMessageParam
-      ): ChatActionTypes => ({
-        type: ADD_MESSAGE,
-        payload: { conversationId, message },
-      });
-
-      ChatCompletionAssistantMessageParam
-
-    */
-
-      // update the message with the generated image
       newMessageFromAI.isLoading = false;
       newMessageFromAI.images = [];
 
       for (const image of response.data) {
-        // base64 image
         const base64image = image.b64_json;
-
         const base64imageUri = `data:image/jpeg;base64,${base64image}`;
-
-        // use IndexedDB to store the compressed image
         const id = await storeImage(base64imageUri, currentConversationId);
-
-        const localImage = {
-          id,
-          // base64: base64image,
-        };
-
+        const localImage = { id };
         newMessageFromAI.images.push(localImage);
       }
 
-      // add revised_prompt to the message.content
       newMessageFromAI.content += `\n\nRevised Prompt: ${response.data[0].revised_prompt}`;
 
-      // update the message to the current conversation
       const messageIndex = messages.length;
       dispatch(
         updateMessage(currentConversationId, newMessageFromAI, messageIndex)
       );
     } catch (e) {
       console.log(e);
-
-      // update the message with the error
       newMessageFromAI.isLoading = false;
       newMessageFromAI.content = `Error: ${e}`;
       newMessageFromAI.type = "text";
 
-      // update the message to the current conversation
       const messageIndex = messages.length;
       dispatch(
         updateMessage(currentConversationId, newMessageFromAI, messageIndex)
@@ -206,25 +159,49 @@ const ChatHeaderRight = () => {
     }
   };
 
-  // effect to handle number of images. 1-3.
-  React.useEffect(() => {
+  useEffect(() => {
     if (numOfImages < 1) {
       setNumOfImages(1);
     } else if (numOfImages > 3) {
       setNumOfImages(3);
-    } else {
-      // do nothing
     }
   }, [numOfImages]);
 
   return (
     <View style={styles.container}>
+      {/* Context Menu Modal */}
+      <Modal
+        transparent={true}
+        visible={contextMenuVisible}
+        onRequestClose={() => setContextMenuVisible(false)}
+        animationType="fade"
+      >
+        <Pressable
+          style={styles.contextMenuBackground}
+          onPress={() => setContextMenuVisible(false)}
+        >
+          <View style={styles.contextMenu}>
+            <Pressable onPress={handleCopyConversation} style={styles.menuItem}>
+              {/* copy icon, regular */}
+              <FontAwesomeIcon icon={faCopy} />
+              <Text style={styles.menuItemText}>
+                Copy Conversation to Clipboard
+              </Text>
+            </Pressable>
+            <Pressable onPress={onPressGenerateImage} style={styles.menuItem}>
+              {/* brush icon */}
+              <FontAwesomeIcon icon={faBrush} />
+              <Text style={styles.menuItemText}>Generate Dall-e-3 Image</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
       <Modal
         animationType="slide"
         transparent={true}
         visible={dialogVisible}
         onRequestClose={() => {
-          console.log("Modal has been closed.");
           handleImageGenerationCancel();
         }}
       >
@@ -256,7 +233,6 @@ const ChatHeaderRight = () => {
                     zIndex: active === 1 ? 99 : 1,
                   }}
                 >
-                  {/* dropdown to select size */}
                   <DropDownPicker
                     style={styles.inputSize}
                     disabled={active === 3 || active === 2}
@@ -272,39 +248,7 @@ const ChatHeaderRight = () => {
                   />
                 </View>
               </View>
-              <View
-                style={[
-                  styles.inputContainer,
-                  styles.inputContainerNumOfImages,
-                ]}
-              >
-                <Text style={styles.inputContainerLabel}>
-                  Number of Images:
-                </Text>
-                <View
-                  style={
-                    (styles.inputContainerValue,
-                    styles.inputContainerValueNumOfImages)
-                  }
-                >
-                  <TextInput
-                    style={styles.inputNumOfImages}
-                    keyboardType="numeric"
-                    value={numOfImages.toString()}
-                    editable={false}
-                  />
-                  {/* add and subtract buttons */}
-                  <Pressable onPress={() => setNumOfImages(numOfImages + 1)}>
-                    <Ionicons name="add" size={24} color="black" />
-                  </Pressable>
-                  <Pressable onPress={() => setNumOfImages(numOfImages - 1)}>
-                    <Ionicons name="remove" size={24} color="black" />
-                  </Pressable>
-                </View>
-              </View>
             </View>
-            {/* row of buttons */
-            /* confirm and cancel buttons */}
             <View style={styles.buttonRowView}>
               <Pressable
                 style={[styles.button]}
@@ -324,21 +268,10 @@ const ChatHeaderRight = () => {
       </Modal>
 
       <View style={styles.actionButtons}>
-        {/* add a pressable button to test generate Dall-e-3 image */}
-        <Pressable
-          style={styles.actionButton}
-          onPress={(event) => {
-            onPressGenerateImage(event);
-          }}
-        >
-          {/* <Ionicons name="aperture" size={24} color="black" /> */}
-          <FontAwesomeIcon icon="brush" size={18} color="black" />
-        </Pressable>
-
+        {/* Action Menu Button */}
         <Pressable
           style={styles.actionButton}
           onPress={() => {
-            // create new conversation, using action: createConversation
             dispatch(createConversation());
           }}
         >
@@ -347,15 +280,17 @@ const ChatHeaderRight = () => {
         <Pressable
           style={styles.actionButton}
           onPress={() => {
-            /* handle trash */
             dispatch(deleteConversation(currentConversationId));
           }}
         >
           <Ionicons name="trash-outline" size={20} color="black" />
         </Pressable>
-        {/* <Pressable style={styles.actionButton} onPress={() => {}}>
-        <Ionicons name="ellipsis-vertical" size={20} color="black" />
-      </Pressable> */}
+        <Pressable
+          style={styles.actionButton}
+          onPress={toggleContextMenu}
+        >
+          <Ionicons name="ellipsis-vertical" size={24} color="black" />
+        </Pressable>
       </View>
     </View>
   );
@@ -404,12 +339,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 10,
     elevation: 2,
-    // black button, white text
     backgroundColor: "#000",
     color: "#fff",
   },
-  // buttonOpen: {},
-  // buttonClose: {},
   textStyle: {
     color: "white",
     fontWeight: "bold",
@@ -447,11 +379,8 @@ const styles = StyleSheet.create({
   },
   inputContainerValue: {
     flex: 1,
-    // show border
-    // borderWidth: 1,
     padding: 5,
     flexGrow: 1,
-    // width: "100%",
   },
   inputContainerValueNumOfImages: {
     flexDirection: "row",
@@ -477,11 +406,39 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   inputNumOfImages: {
-    // flex: 1,
     width: 50,
     padding: 5,
     borderWidth: 1,
     borderRadius: 5,
+  },
+  contextMenuBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  contextMenu: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    width: 300,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  menuItem: {
+    padding: 10,
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+  },
+  menuItemText: {
+    fontSize: 16,
   },
 });
 

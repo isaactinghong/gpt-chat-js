@@ -1,5 +1,28 @@
+[1.2.9]
+
+- improved context menu
+
+[1.2.8]
+
+- fixed line wrapping issue in chat messages
+
+[1.2.7]
+
+- added long press copy message feature.
+- added copy whole convo feature
+- fixed input message shift enter issue in mobile
+
+[1.2.5], [1.2.6]
+
+- migration #7: change settingsState.modelName to 'gpt-4o'
+
+[1.2.4]
+
+- header title selectable
+
 [1.2.3]
 
+- migration #6: change settingsState.modelName to 'gpt-4-turbo'
 - upgraded dall-e-3 feature to use indexedDBImages
 
 [1.2.2]
