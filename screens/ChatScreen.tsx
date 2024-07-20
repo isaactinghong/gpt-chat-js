@@ -262,18 +262,18 @@ const ChatScreen = () => {
                 // if not, get the first element of the array
                 ...(typeof msg.content === "string"
                   ? [
-                      {
-                        type: "text",
-                        text: msg.content,
-                      },
-                    ]
+                    {
+                      type: "text",
+                      text: msg.content,
+                    },
+                  ]
                   : [
-                      {
-                        type: "text",
-                        text: (msg.content[0] as ChatCompletionContentPartText)
-                          .text,
-                      },
-                    ]),
+                    {
+                      type: "text",
+                      text: (msg.content[0] as ChatCompletionContentPartText)
+                        .text,
+                    },
+                  ]),
 
                 // add image messages
                 ...indexedDBImages.map((indexedDBImage) => {
@@ -372,12 +372,12 @@ const ChatScreen = () => {
         const titleResult = await OpenAI.api.chat.completions.create({
           messages: titleMessages.map(
             (msg) =>
-              ({
-                role: msg.role,
-                content: msg.content,
-              } as ChatCompletionMessageParam)
+            ({
+              role: msg.role,
+              content: msg.content,
+            } as ChatCompletionMessageParam)
           ),
-          model: "gpt-4-vision-preview",
+          model: "gpt-4o-mini",
         });
 
         let title = titleResult.choices[0]?.message?.content || "Untitled";
@@ -565,8 +565,8 @@ const ChatScreen = () => {
         const cursorPosition = event.target.selectionStart;
         setInputText(
           inputText.substring(0, cursorPosition) +
-            "\n" +
-            inputText.substring(cursorPosition)
+          "\n" +
+          inputText.substring(cursorPosition)
         );
 
         // Use setTimeout to ensure the cursor moves to the new line
