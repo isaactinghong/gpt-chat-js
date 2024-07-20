@@ -26,13 +26,17 @@ import Toast from 'react-native-toast-message';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { faCopy } from '@fortawesome/free-regular-svg-icons/faCopy'
 import { faBrush } from '@fortawesome/free-solid-svg-icons/faBrush'
+import { faComment } from '@fortawesome/free-regular-svg-icons/faComment'
+import { SpeechCreateParams } from 'openai/resources/audio/speech';
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
 
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
-  const [dialogVisible, setDialogVisible] = useState(false);
-  const [prompt, setPrompt] = useState("");
+
+  // Dall-e-3 Image Generation Modal
+  const [dallEDialogVisible, setDallEDialogVisible] = useState(false);
+  const [dallEPrompt, setPrompt] = useState("");
   const [sizeOpen, setSizeOpen] = useState(false);
   const [active, setActive] = useState(0);
   const [size, setSize] = useState("1024x1024");
@@ -42,6 +46,18 @@ const ChatHeaderRight = () => {
     { label: "1024x1792", value: "1024x1792" },
   ]);
   const [numOfImages, setNumOfImages] = useState(1);
+
+  // Text-to-speech Generation Modal
+  const [ttpDialogVisible, setTTPDialogVisible] = useState(false);
+  const [ttpPrompt, setTTPPrompt] = useState("");
+  const [ttpModel, setTTPModel] = useState<SpeechCreateParams["model"]>("tts-1");
+  const [ttpModelOpen, setTTPModelOpen] = useState(false);
+  const [ttpVoice, setTTPVoice] = useState<SpeechCreateParams["voice"]>("alloy");
+  const [ttpVoiceOpen, setTTPVoiceOpen] = useState(false);
+  // `0.25` to `4.0`
+  const [ttpSpeed, setTTPSpeed] = useState<SpeechCreateParams["speed"]>(1.0);
+  const [ttpFormat, setTTPFormat] = useState<SpeechCreateParams["response_format"]>("mp3");
+  const [ttpFormatOpen, setTTPFormatOpen] = useState(false);
 
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
@@ -56,8 +72,14 @@ const ChatHeaderRight = () => {
 
   const onPressGenerateImage = (event) => {
     setContextMenuVisible(false);
-    setDialogVisible(true);
+    setDallEDialogVisible(true);
   };
+
+  const onPressGenerateVoice = (event) => {
+    setContextMenuVisible(false);
+    console.log("Generate Voice");
+    setTTPDialogVisible(true);
+  }
 
   const handleCopyConversation = () => {
     setContextMenuVisible(false);
@@ -86,17 +108,32 @@ const ChatHeaderRight = () => {
   };
 
   const handleImageGenerationConfirm = () => {
-    setDialogVisible(false);
+    setDallEDialogVisible(false);
     callAPIToGenerateDalle3Image(
-      prompt,
+      dallEPrompt,
       size as "1024x1024" | "1792x1024" | "1024x1792",
       numOfImages
     );
   };
 
+  const handleVoiceGenerationConfirm = () => {
+    // setTTPDialogVisible(false);
+    callAPIToGenerateTextToSpeech({
+      prompt: ttpPrompt,
+      model: ttpModel,
+      voice: ttpVoice,
+      speed: ttpSpeed,
+      format: ttpFormat,
+    });
+  }
+
   const handleImageGenerationCancel = () => {
-    setDialogVisible(false);
+    setDallEDialogVisible(false);
   };
+
+  const handleVoiceGenerationQuit = () => {
+    setTTPDialogVisible(false);
+  }
 
   const callAPIToGenerateDalle3Image = async (
     prompt: string,
@@ -159,6 +196,44 @@ const ChatHeaderRight = () => {
     }
   };
 
+  const callAPIToGenerateTextToSpeech = async ({
+    prompt,
+    model = "tts-1",
+    voice = "alloy",
+    speed = 1.0,
+    format = "mp3",
+  }: {
+    prompt: string;
+    model?: SpeechCreateParams["model"];
+    voice?: SpeechCreateParams["voice"];
+    speed?: SpeechCreateParams["speed"];
+    format?: SpeechCreateParams["response_format"];
+  }) => {
+
+    try {
+      const response = await OpenAI.api.audio.speech.create({
+        model,
+        input: prompt,
+        voice,
+        speed,
+        response_format: format,
+      });
+
+      response.blob().then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "audio.mp3";
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+
+    } catch (e) {
+      console.error(`Failed to generate audio: ${e}`);
+    }
+  }
+
   useEffect(() => {
     if (numOfImages < 1) {
       setNumOfImages(1);
@@ -191,16 +266,22 @@ const ChatHeaderRight = () => {
             <Pressable onPress={onPressGenerateImage} style={styles.menuItem}>
               {/* brush icon */}
               <FontAwesomeIcon icon={faBrush} />
-              <Text style={styles.menuItemText}>Generate Dall-e-3 Image</Text>
+              <Text style={styles.menuItemText}>Dall-e-3 Image</Text>
+            </Pressable>
+            <Pressable onPress={onPressGenerateVoice} style={styles.menuItem}>
+              {/* brush icon */}
+              <FontAwesomeIcon icon={faComment} />
+              <Text style={styles.menuItemText}>Text-to-speech</Text>
             </Pressable>
           </View>
         </Pressable>
       </Modal>
 
+      {/* Dall-e-3 Image Generation Modal */}
       <Modal
         animationType="slide"
         transparent={true}
-        visible={dialogVisible}
+        visible={dallEDialogVisible}
         onRequestClose={() => {
           handleImageGenerationCancel();
         }}
@@ -218,7 +299,7 @@ const ChatHeaderRight = () => {
                 <Text style={styles.inputContainerLabel}>Prompt:</Text>
                 <TextInput
                   style={styles.inputPrompt}
-                  value={prompt}
+                  value={dallEPrompt}
                   onChangeText={setPrompt}
                   multiline
                   numberOfLines={5}
@@ -262,6 +343,139 @@ const ChatHeaderRight = () => {
               >
                 <Text style={styles.textStyle}>Cancel</Text>
               </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Text-to-speech Generation Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={ttpDialogVisible}
+        onRequestClose={() => {
+          handleVoiceGenerationQuit();
+        }}
+      >
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.textStyle}>Generate Text-to-speech</Text>
+            <Text style={styles.modalText}>
+              Generate a voice using OpenAI's Text-to-speech model
+            </Text>
+            <View style={[styles.itemsContainer]}>
+              <View
+                style={[styles.inputContainer, styles.inputContainerPrompt, styles.twoColumnItem, {
+                  zIndex: 1,
+                }]}
+              >
+                <Text style={styles.inputContainerLabel}>Prompt:</Text>
+                <TextInput
+                  style={styles.inputPrompt}
+                  value={ttpPrompt}
+                  onChangeText={setTTPPrompt}
+                  multiline
+                  numberOfLines={5}
+                />
+              </View>
+              <View style={[styles.inputContainer, styles.oneColumnItem, {
+                zIndex: 3,
+              }]}>
+                <Text style={styles.inputContainerLabel}>Model:</Text>
+                {/* select from available models */}
+                <DropDownPicker
+                  style={styles.inputPrompt}
+                  items={[
+                    { label: "TTS-1", value: "tts-1" },
+                    { label: "TTS-1-HD", value: "tts-1-hd" },
+                  ]}
+                  containerStyle={{ height: 40 }}
+                  value={ttpModel}
+                  multiple={false}
+                  setValue={setTTPModel}
+                  open={ttpModelOpen}
+                  setOpen={setTTPModelOpen}
+                />
+              </View>
+              <View style={[styles.inputContainer, styles.oneColumnItem, {
+                zIndex: 2,
+              }]}>
+                <Text style={styles.inputContainerLabel}>Voice:</Text>
+                {/* select from available voices */}
+                <DropDownPicker
+                  style={styles.inputPrompt}
+                  items={[
+                    { label: "Alloy", value: "alloy" },
+                    { label: "Echo", value: "echo" },
+                    { label: "Fable", value: "fable" },
+                    { label: "Onyx", value: "onyx" },
+                    { label: "Nova", value: "nova" },
+                    { label: "Shimmer", value: "shimmer" },
+                  ]}
+                  containerStyle={{ height: 40 }}
+                  value={ttpVoice}
+                  multiple={false}
+                  setValue={setTTPVoice}
+                  open={ttpVoiceOpen}
+                  setOpen={setTTPVoiceOpen}
+                />
+              </View>
+              <View style={[styles.inputContainer, styles.oneColumnItem]}>
+                <Text style={styles.inputContainerLabel}>Speed:</Text>
+                <input
+                  type="number"
+                  style={
+                    {
+                      padding: 5,
+                      height: 40,
+                    }
+                  }
+                  value={String(ttpSpeed)}
+                  step="0.25"
+                  onChange={(value) => {
+                    // if value is a number, set it
+                    // else, ignore
+                    const speed = parseFloat(value.target.value);
+                    if (!isNaN(speed)) {
+                      setTTPSpeed(speed);
+                    }
+                  }}
+                />
+              </View>
+              <View style={[styles.inputContainer, styles.oneColumnItem]}>
+                <Text style={styles.inputContainerLabel}>Format:</Text>
+                <DropDownPicker
+                  style={styles.inputPrompt}
+                  items={[
+                    { label: "MP3", value: "mp3" },
+                    { label: "Opus", value: "opus" },
+                    { label: "AAC", value: "aac" },
+                    { label: "FLAC", value: "flac" },
+                    { label: "WAV", value: "wav" },
+                    { label: "PCM", value: "pcm" },
+                  ]}
+                  containerStyle={{ height: 40 }}
+                  value={ttpFormat}
+                  multiple={false}
+                  setValue={setTTPFormat}
+                  open={ttpFormatOpen}
+                  setOpen={setTTPFormatOpen}
+                />
+              </View>
+              <View style={styles.buttonRowView}>
+                <Pressable
+                  style={[styles.button]}
+                  onPress={() => handleVoiceGenerationConfirm()}
+                >
+                  <Text style={styles.textStyle}>Generate</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.button]}
+                  onPress={() => handleVoiceGenerationQuit()}
+                >
+                  <Text style={styles.textStyle}>Quit</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         </View>
@@ -354,6 +568,8 @@ const styles = StyleSheet.create({
   buttonRowView: {
     marginTop: 20,
     flexDirection: "row",
+    width: "100%",
+    justifyContent: "center",
     gap: 10,
     zIndex: -1,
   },
@@ -365,7 +581,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flex: 1,
     flexDirection: "column",
-    gap: 0,
+    gap: 5,
   },
   inputContainerNumOfImages: {
     display: "none",
@@ -376,6 +592,8 @@ const styles = StyleSheet.create({
   },
   inputContainerLabel: {
     flex: 1,
+    flexShrink: 1,
+    flexGrow: 0,
   },
   inputContainerValue: {
     flex: 1,
@@ -439,6 +657,25 @@ const styles = StyleSheet.create({
   },
   menuItemText: {
     fontSize: 16,
+  },
+  itemsContainer: {
+    // grid of two columns
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "100%",
+  },
+  oneColumnItem: {
+    zIndex: 1,
+    // span 1 column
+    flexBasis: "50%",
+    padding: 5,
+  },
+  twoColumnItem: {
+    zIndex: 1,
+    // span 1 column
+    flexBasis: "100%",
+    padding: 5,
   },
 });
 
