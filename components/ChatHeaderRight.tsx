@@ -25,6 +25,7 @@ import { storeImage } from "../idb/images-db";
 import Toast from 'react-native-toast-message';
 import { ChatCompletionMessageParam } from 'openai/resources';
 import { faCopy } from '@fortawesome/free-regular-svg-icons/faCopy'
+import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { faBrush } from '@fortawesome/free-solid-svg-icons/faBrush'
 import { faComment } from '@fortawesome/free-regular-svg-icons/faComment'
 import { SpeechCreateParams } from 'openai/resources/audio/speech';
@@ -263,6 +264,16 @@ const ChatHeaderRight = () => {
                 Copy Conversation to Clipboard
               </Text>
             </Pressable>
+            <Pressable
+              style={styles.menuItem}
+              onPress={() => {
+                dispatch(deleteConversation(currentConversationId));
+              }}
+            >
+              {/* trash icon */}
+              <FontAwesomeIcon icon={faTrash} />
+              <Text style={styles.menuItemText}>Delete Conversation</Text>
+            </Pressable>
             <Pressable onPress={onPressGenerateImage} style={styles.menuItem}>
               {/* brush icon */}
               <FontAwesomeIcon icon={faBrush} />
@@ -493,14 +504,6 @@ const ChatHeaderRight = () => {
         </Pressable>
         <Pressable
           style={styles.actionButton}
-          onPress={() => {
-            dispatch(deleteConversation(currentConversationId));
-          }}
-        >
-          <Ionicons name="trash-outline" size={20} color="black" />
-        </Pressable>
-        <Pressable
-          style={styles.actionButton}
           onPress={toggleContextMenu}
         >
           <Ionicons name="ellipsis-vertical" size={24} color="black" />
@@ -636,6 +639,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   contextMenu: {
+    flexDirection: "column",
+    alignItems: 'flex-start',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 10,
