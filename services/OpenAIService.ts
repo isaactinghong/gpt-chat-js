@@ -39,4 +39,18 @@ export default class OpenAI {
     }
     this.api.apiKey = apiKey;
   }
+
+  static async suggestFileName(text: string) {
+    return await this.api.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content: `give a file name (without file extension) for this audio file with this voice over:\n${text}`,
+        },
+      ],
+    }).then((response) => {
+      return response.choices[0].message.content;
+    });
+  }
 }

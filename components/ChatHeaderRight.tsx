@@ -29,6 +29,10 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash'
 import { faBrush } from '@fortawesome/free-solid-svg-icons/faBrush'
 import { faComment } from '@fortawesome/free-regular-svg-icons/faComment'
 import { SpeechCreateParams } from 'openai/resources/audio/speech';
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import ClipLoader from "react-spinners/ClipLoader";
 
 const ChatHeaderRight = () => {
   const dispatch = useDispatch();
@@ -50,6 +54,7 @@ const ChatHeaderRight = () => {
 
   // Text-to-speech Generation Modal
   const [ttpDialogVisible, setTTPDialogVisible] = useState(false);
+  const [ttpLoading, setTTPLoading] = useState(false);
   const [ttpPrompt, setTTPPrompt] = useState("");
   const [ttpModel, setTTPModel] = useState<SpeechCreateParams["model"]>("tts-1");
   const [ttpModelOpen, setTTPModelOpen] = useState(false);
@@ -59,6 +64,7 @@ const ChatHeaderRight = () => {
   const [ttpSpeed, setTTPSpeed] = useState<SpeechCreateParams["speed"]>(1.0);
   const [ttpFormat, setTTPFormat] = useState<SpeechCreateParams["response_format"]>("mp3");
   const [ttpFormatOpen, setTTPFormatOpen] = useState(false);
+  const [audioSrc, setAudioSrc] = useState("");
 
   const conversations = useSelector(
     (state: AppState) => state.chats.conversations
@@ -212,6 +218,10 @@ const ChatHeaderRight = () => {
   }) => {
 
     try {
+
+      // set loading
+      setTTPLoading(true);
+
       const response = await OpenAI.api.audio.speech.create({
         model,
         input: prompt,
@@ -220,14 +230,16 @@ const ChatHeaderRight = () => {
         response_format: format,
       });
 
-      response.blob().then((blob) => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "audio.mp3";
-        a.click();
-        URL.revokeObjectURL(url);
-      });
+      const responseBlob = await response.blob()
+
+      // create a new blob URL
+      const url = URL.createObjectURL(responseBlob);
+
+      // set the audio src
+      setAudioSrc(url);
+
+      // set loading
+      setTTPLoading(false);
 
 
     } catch (e) {
@@ -369,14 +381,27 @@ const ChatHeaderRight = () => {
         }}
       >
         <View style={styles.centeredView}>
+
           <View style={styles.modalView}>
-            <Text style={styles.textStyle}>Generate Text-to-speech</Text>
-            <Text style={styles.modalText}>
+            {/* <Text style={styles.modalText}>
               Generate a voice using OpenAI's Text-to-speech model
-            </Text>
+            </Text> */}
+            {/* right most close button */}
+            <View style={{
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              width: "100%",
+            }}>
+              <Pressable
+                onPress={() => handleVoiceGenerationQuit()}
+              >
+                {/* awesome font close icon */}
+                <FontAwesomeIcon icon={faClose} />
+              </Pressable>
+            </View>
             <View style={[styles.itemsContainer]}>
               <View
-                style={[styles.inputContainer, styles.inputContainerPrompt, styles.twoColumnItem, {
+                style={[styles.inputContainer, styles.inputContainerPrompt, styles.fullColumnItem, {
                   zIndex: 1,
                 }]}
               >
@@ -389,7 +414,7 @@ const ChatHeaderRight = () => {
                   numberOfLines={5}
                 />
               </View>
-              <View style={[styles.inputContainer, styles.oneColumnItem, {
+              <View style={[styles.inputContainer, styles.thirdColumnItem, {
                 zIndex: 3,
               }]}>
                 <Text style={styles.inputContainerLabel}>Model:</Text>
@@ -408,7 +433,7 @@ const ChatHeaderRight = () => {
                   setOpen={setTTPModelOpen}
                 />
               </View>
-              <View style={[styles.inputContainer, styles.oneColumnItem, {
+              <View style={[styles.inputContainer, styles.thirdColumnItem, {
                 zIndex: 2,
               }]}>
                 <Text style={styles.inputContainerLabel}>Voice:</Text>
@@ -431,7 +456,7 @@ const ChatHeaderRight = () => {
                   setOpen={setTTPVoiceOpen}
                 />
               </View>
-              <View style={[styles.inputContainer, styles.oneColumnItem]}>
+              <View style={[styles.inputContainer, styles.thirdColumnItem]}>
                 <Text style={styles.inputContainerLabel}>Speed:</Text>
                 <input
                   type="number"
@@ -453,7 +478,7 @@ const ChatHeaderRight = () => {
                   }}
                 />
               </View>
-              <View style={[styles.inputContainer, styles.oneColumnItem]}>
+              <View style={[styles.inputContainer, styles.thirdColumnItem]}>
                 <Text style={styles.inputContainerLabel}>Format:</Text>
                 <DropDownPicker
                   style={styles.inputPrompt}
@@ -473,18 +498,57 @@ const ChatHeaderRight = () => {
                   setOpen={setTTPFormatOpen}
                 />
               </View>
+              {/* audio player */}
+              <View style={[styles.inputContainer, styles.fullColumnItem]}>
+                <AudioPlayer
+                  autoPlay
+                  src={audioSrc}
+                  onPlay={e => console.log("onPlay")}
+                  volume={1}
+                />
+              </View>
+
               <View style={styles.buttonRowView}>
                 <Pressable
-                  style={[styles.button]}
+                  style={[styles.button, {
+                    backgroundColor: ttpPrompt.length === 0 || ttpLoading ? "#ccc" : "#000",
+                  }]}
                   onPress={() => handleVoiceGenerationConfirm()}
+                  disabled={ttpPrompt.length === 0 || ttpLoading}
                 >
                   <Text style={styles.textStyle}>Generate</Text>
+                  {/* loading spinner icon if loading */}
+                  {ttpLoading &&
+
+                    <ClipLoader
+                      color={"#fff"}
+                      loading={ttpLoading}
+                      // cssOverride={override}
+                      size={16}
+                      aria-label="Loading Spinner"
+                      data-testid="loader"
+                    />
+                  }
                 </Pressable>
+                {/* download button, disabled if audioSrc is empty */}
                 <Pressable
-                  style={[styles.button]}
-                  onPress={() => handleVoiceGenerationQuit()}
+                  style={[styles.button, {
+                    backgroundColor: audioSrc ? "#000" : "#ccc",
+                  }]}
+                  onPress={async () => {
+                    if (audioSrc) {
+                      const a = document.createElement("a");
+                      a.href = audioSrc;
+
+                      const fileName = await OpenAI.suggestFileName(ttpPrompt);
+
+                      a.download = `${fileName}.mp3`;
+                      a.click();
+                    }
+                  }}
+                  disabled={!audioSrc}
                 >
-                  <Text style={styles.textStyle}>Quit</Text>
+                  <Text style={styles.textStyle}>Download</Text>
                 </Pressable>
               </View>
             </View>
@@ -558,6 +622,8 @@ const styles = StyleSheet.create({
     elevation: 2,
     backgroundColor: "#000",
     color: "#fff",
+    flexDirection: "row",
+    gap: 5,
   },
   textStyle: {
     color: "white",
@@ -669,18 +735,28 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     width: "100%",
+    alignItems: "flex-start",
   },
-  oneColumnItem: {
+  thirdColumnItem: {
+    zIndex: 1,
+    // span 1 column
+    flexBasis: "33.33%",
+    flexGrow: 0,
+    padding: 5,
+  },
+  halfColumnItem: {
     zIndex: 1,
     // span 1 column
     flexBasis: "50%",
+    flexGrow: 0,
     padding: 5,
   },
-  twoColumnItem: {
+  fullColumnItem: {
     zIndex: 1,
     // span 1 column
     flexBasis: "100%",
     padding: 5,
+    marginTop: 10,
   },
 });
 
