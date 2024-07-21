@@ -85,6 +85,8 @@ const ChatHeaderRight = () => {
   const onPressGenerateVoice = (event) => {
     setContextMenuVisible(false);
     console.log("Generate Voice");
+    // clear the audioSrc
+    setAudioSrc("");
     setTTPDialogVisible(true);
   }
 
