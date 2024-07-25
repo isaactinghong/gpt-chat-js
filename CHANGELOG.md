@@ -1,3 +1,7 @@
+[1.2.17]
+
+- reset gpt model to `gpt-4o-mini`
+
 [1.2.9]
 
 - improved context menu

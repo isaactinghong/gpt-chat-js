@@ -63,10 +63,10 @@ const SideMenu = ({ navigation }) => {
     });
   };
 
-  // effect, if modelName becomes "", set it back to "gpt-4-vision-preview"
+  // effect, if modelName becomes "", set it back to "gpt-4o-mini"
   React.useEffect(() => {
     if (modelNameLocal === "") {
-      setModelNameLocal("gpt-4-vision-preview");
+      setModelNameLocal("gpt-4o-mini");
     }
   }, [modelNameLocal]); // adding handleSave to dependencies as a best practice
 
