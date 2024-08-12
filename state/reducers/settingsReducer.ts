@@ -8,23 +8,7 @@ const initialState: SettingsState = {
   // modelName: 'gpt-4-1106-preview',
   modelName: "gpt-4o-mini",
   systemMessage: "Chat with me.",
-  myProfile: `## User Profile
-
-### Personal Information
-- **Name:** ???
-- **Age:** ???
-- **Sex:** ???
-- **Weight:** ???
-- **Height:** ???
-- **Living Place:** ???
-- **Marital Status:** ???
-
-### Occupation
-- **Title:** ???
-
-### Hobbies
-- **???**
-`,
+  myProfile: defaultMyProfile,
 };
 
 // reducer
@@ -44,5 +28,23 @@ const settingsReducer = (
       return state;
   }
 };
+
+export const defaultMyProfile = `## User Profile
+
+### Personal Information
+- **Name:** ???
+- **Age:** ???
+- **Sex:** ???
+- **Weight:** ???
+- **Height:** ???
+- **Living Place:** ???
+- **Marital Status:** ???
+
+### Occupation
+- **Title:** ???
+
+### Hobbies
+- **???**
+`;
 
 export default settingsReducer;

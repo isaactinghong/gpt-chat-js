@@ -1,6 +1,7 @@
 import { MigrationManifest, PersistState, PersistedState } from 'redux-persist';
 import { initialChatState } from "./reducers/chatReducer";
 import { AppState } from './states/app-state';
+import { defaultMyProfile } from './reducers/settingsReducer';
 
 const keepSettingsResetOthers = (state) => {
   // migration to keep only the necessary state
@@ -77,7 +78,20 @@ export const migrations: MigrationManifest = {
         modelName: 'gpt-4o-mini',
       },
     } as unknown as PersistedState;
+  },
+
+  // 9 to change settingsState.myProfile to ... if it is empty
+  9: (state: { _persist: PersistState; }) => {
+    const appState = state as unknown as AppState
+    return {
+      ...appState,
+      settings: {
+        ...appState.settings,
+        ...(appState.settings.myProfile == '' && { myProfile: defaultMyProfile }),
+      },
+    } as unknown as PersistedState;
   }
+
 
   // ...
   // you can keep adding migrations here for further versions
