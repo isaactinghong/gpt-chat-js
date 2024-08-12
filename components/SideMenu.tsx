@@ -84,7 +84,7 @@ const SideMenu = ({ navigation }) => {
 
     // set myProfileLocal
     setMyProfileLocal(myProfile);
-  }, []);
+  }, [myProfile]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

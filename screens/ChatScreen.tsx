@@ -308,7 +308,7 @@ ${myProfile}`;
           messages: chatMessagesToOpenAI,
           model,
           max_tokens: 4096,
-          stream: true,
+          stream: true
         });
         for await (const chunk of stream) {
           // process.stdout.write(chunk.choices[0]?.delta?.content || '');
@@ -346,11 +346,24 @@ ${myProfile}`;
       } as ChatCompletionAssistantMessageParam);
 
       const titleLength = 40;
-      const titleInstruction = `Please give a short title to the following conversation.
-      Treat it like you are giving a title for a book.
-      The title should be short, around 3-8 words, must be within ${titleLength} characters.
-      No quotation marks are needed.
-      `;
+      const titleInstruction = `
+existing user_profile:
+${myProfile}
+--------------------------------
+I'm going to ask OpenAI to give a title to this conversation,
+and collect as much data in the conversation as possible into the user_profile.
+--------------------------------
+# title
+Please give a title to this conversation. The title should be less than ${titleLength} characters.
+--------------------------------
+# user_profile collect my data as much as possible into the user_profile.
+create new, modify or remove markdown headings if needed.
+--------------------------------
+now, I expect you to give me a JSON with the following exact format:
+{
+  "title": "Renewed title of the conversation",
+  "user_profile": "Updated user profile (in markdown) if any, otherwise just give \`null\`",
+}`;
 
       // system message to ask openai to give a title
       const firstMessage: ChatCompletionMessageParam = {
@@ -359,7 +372,7 @@ ${myProfile}`;
       };
 
       // title messages
-      const titleMessages = [
+      const postProcessingMessages = [
         firstMessage,
         ...messages
           .filter((msg) => msg.type !== "image")
@@ -376,10 +389,10 @@ ${myProfile}`;
           }),
       ];
 
-      // get new conversation title from openai
+      // get new conversation title, and updated user content from openai
       try {
-        const titleResult = await OpenAI.api.chat.completions.create({
-          messages: titleMessages.map(
+        const postProcessingResult = await OpenAI.api.chat.completions.create({
+          messages: postProcessingMessages.map(
             (msg) =>
             ({
               role: msg.role,
@@ -387,20 +400,64 @@ ${myProfile}`;
             } as ChatCompletionMessageParam)
           ),
           model: "gpt-4o-mini",
+          response_format: {
+            type: "json_object",
+          }
         });
 
-        let title = titleResult.choices[0]?.message?.content || "Untitled";
+        // get the content of the first message
+        let postProcessingContent = postProcessingResult.choices[0]?.message?.content || "Untitled";
 
-        // just trim it
-        if (title.length > titleLength) {
-          title = title.substring(0, titleLength + 15);
+        console.log("postProcessingContent", postProcessingContent);
+
+        // parse if the content is JSON
+        let postProcessingContentJSON: {
+          title: string;
+          user_profile: string;
+        } = {
+          title: "",
+          user_profile: "",
+        };
+        try {
+          postProcessingContentJSON = JSON.parse(postProcessingContent);
+        } catch (error) {
+          console.log("Error parsing JSON", error);
         }
 
+        // // just trim it
+        // if (titleContent.length > titleLength) {
+        //   titleContent = titleContent.substring(0, titleLength + 15);
+        // }
+
         // trim any new line in the title
-        title = title.replace(/(\r\n|\n|\r)/gm, "");
+        // titleContent = titleContent.replace(/(\r\n|\n|\r)/gm, "");
 
         // update conversation title
-        dispatch(updateConversation(currentConversationId, title));
+        if (postProcessingContentJSON.title) {
+          dispatch(
+            updateConversation(currentConversationId, postProcessingContentJSON.title)
+          );
+        }
+        else {
+          // show error toast message
+          Toast.show({
+            type: "error",
+            text1: "Error getting conversation title",
+            text2: "Title is empty",
+          });
+        }
+
+        // if user_profile is not null, update myProfile
+        if (postProcessingContentJSON.user_profile) {
+          // log updating user profile now
+          console.log("Updating user profile now");
+
+          dispatch(
+            saveSettings({
+              myProfile: postProcessingContentJSON.user_profile,
+            })
+          );
+        }
       } catch (error) {
         console.log("Error", error);
 
