@@ -6,6 +6,7 @@ import {
   Button,
   StyleSheet,
   Pressable,
+  Linking,
 } from "react-native";
 import { useDispatch } from "react-redux";
 import { saveSettings } from "../state/actions/settingsActions";
@@ -17,21 +18,47 @@ import GlobalStyles from "../theme/GlobalStyles";
 const SettingsScreen = () => {
   const dispatch = useDispatch();
 
+  // openAiApiKey
   const openAiApiKey = useSelector(
     (state: AppState) => state.settings.openAiApiKey
   );
-
   const [openAiApiKeyLocal, setOpenAiApiKey] = React.useState(openAiApiKey);
+
+  // newsApiKey
+  const newsApiKey = useSelector(
+    (state: AppState) => state.settings.newsApiKey
+  );
+  const [newsApiKeyLocal, setNewsApiKey] = React.useState(newsApiKey);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>API Key</Text>
+      {/* OpenAI API Key */}
+      <Text style={styles.title}>OpenAI API Key</Text>
       <TextInput
         style={styles.input}
         placeholder="Your API Key here"
         value={openAiApiKeyLocal}
         onChangeText={setOpenAiApiKey}
       />
+
+      {/* News API Key */}
+      <Text style={styles.title}
+      >News API Key (<Text
+        style={{ color: 'blue' }}
+      ><Pressable
+        // inline
+        onPress={() => {
+          // navigate the newsapi.org website
+          Linking.openURL("https://newsapi.org/");
+        }}
+      >click here to get API key</Pressable></Text>)</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Your API Key here"
+        value={newsApiKeyLocal}
+        onChangeText={setNewsApiKey}
+      />
+
       <Pressable
         style={GlobalStyles.primaryButton}
         onPress={() => {
@@ -39,6 +66,7 @@ const SettingsScreen = () => {
           dispatch(
             saveSettings({
               openAiApiKey: openAiApiKeyLocal,
+              newsApiKey: newsApiKeyLocal,
             })
           );
 

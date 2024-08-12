@@ -164,6 +164,8 @@ const ChatMessage = ({
             <Text
               style={{
                 flex: 1,
+                flexWrap: "wrap",
+                flexShrink: 1,
               }}
             >
               {Array.isArray(message.content)
@@ -259,6 +261,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 20,
     flex: 1,
+
   },
   userMessageText: {
     alignContent: "center",

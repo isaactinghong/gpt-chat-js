@@ -23,7 +23,7 @@ export const defaultMyProfile = `## User Profile
 // initialState
 const initialState: SettingsState = {
   openAiApiKey: "",
-  // modelName: 'gpt-4-1106-preview',
+  newsApiKey: "",
   modelName: "gpt-4o-mini",
   systemMessage: "Chat with me.",
   myProfile: defaultMyProfile,

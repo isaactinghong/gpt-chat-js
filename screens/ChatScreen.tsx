@@ -33,6 +33,8 @@ import {
   ChatCompletionContentPartText,
   ChatCompletionMessage,
   ChatCompletionMessageParam,
+  ChatCompletionTool,
+  ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from "openai/resources";
 import * as ImagePicker from "expo-image-picker";
@@ -49,6 +51,7 @@ import RecordVoiceButton from "../components/RecordVoiceButton";
 import { toFile } from "openai/uploads";
 import { compressImage } from "../helpers/image-utils";
 import { LocalImage } from "../state/types/local-image";
+import NewsAPI from '../services/NewsService';
 
 const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
 const MAX_INPUT_LINES = 15; // Maximum number of lines the input can have
@@ -84,6 +87,9 @@ const ChatScreen = () => {
 
   const openAiApiKey = useSelector(
     (state: AppState) => state.settings.openAiApiKey
+  );
+  const newsAiApiKey = useSelector(
+    (state: AppState) => state.settings.newsApiKey
   );
   const systemMessage = useSelector(
     (state: AppState) => state.settings.systemMessage
@@ -306,23 +312,42 @@ ${myProfile}`;
           } as ChatCompletionMessageParam);
         }
 
-        const stream = await OpenAI.api.chat.completions.create({
-          messages: chatMessagesToOpenAI,
-          model,
-          max_tokens: 4096,
-          stream: true
-        });
-        for await (const chunk of stream) {
-          // process.stdout.write(chunk.choices[0]?.delta?.content || '');
-          messageContent += chunk.choices[0]?.delta?.content || "";
+        // tools, if any
+        const tools: ChatCompletionTool[] = [];
 
-          newMessageFromAI.content = messageContent;
+        // if newsApiKey is set, add news api tools
+        /*
 
-          console.log("messageIndex", messageIndex);
-          dispatch(
-            updateMessage(currentConversationId, newMessageFromAI, messageIndex)
-          );
+        {
+          type: "function",
+          function: NewsAPI.descriptionGetTopHeadlines,
+        },
+        {
+          type: "function",
+          function: NewsAPI.descriptionSearchArticlesOfTopic,
         }
+          */
+        if (newsAiApiKey) {
+          tools.push({
+            type: "function",
+            function: NewsAPI.descriptionGetTopHeadlines,
+          });
+          tools.push({
+            type: "function",
+            function: NewsAPI.descriptionSearchArticlesOfTopic,
+          });
+        }
+
+
+        callOpenAiApiToUpdateMessages({
+          chatMessagesToOpenAI,
+          currentConversationId,
+          newMessageFromAI,
+          messageIndex,
+          messageContent,
+          tools,
+        });
+
       } catch (error) {
         console.log("Error", error);
 
@@ -340,15 +365,11 @@ ${myProfile}`;
         );
       }
 
-      // add the new message from AI to messages
-      messages.push({
-        role: "assistant",
-        content: messageContent,
-        timestamp: Date.now(),
-      } as ChatCompletionAssistantMessageParam);
-
+      /////////////////////////////////////////////////////////////////////////////
+      // prepare the post processing messages to get the new title and user_profile
+      /////////////////////////////////////////////////////////////////////////////
       const titleLength = 40;
-      const titleInstruction = `
+      const postProcessingMessageInstruction = `
 existing user_profile:
 ${myProfile}
 --------------------------------
@@ -373,14 +394,14 @@ now, I expect you to give me a JSON with the following exact format:
 }`;
 
       // system message to ask openai to give a title
-      const firstMessage: ChatCompletionMessageParam = {
+      const firstPostProcessingMessage: ChatCompletionMessageParam = {
         role: "system",
-        content: titleInstruction,
+        content: postProcessingMessageInstruction,
       };
 
       // title messages
       const postProcessingMessages = [
-        firstMessage,
+        firstPostProcessingMessage,
         ...messages
           .filter((msg) => msg.type !== "image")
           .map((msg) => {
@@ -391,6 +412,12 @@ now, I expect you to give me a JSON with the following exact format:
                 ...msg,
                 content: (msg.content[0] as ChatCompletionContentPartText).text,
               };
+            }
+            else if ((msg as ChatCompletionAssistantMessageParam).tool_calls) {
+              return {
+                ...msg,
+                tool_calls: (msg as ChatCompletionAssistantMessageParam).tool_calls,
+              }
             }
             return msg;
           }),
@@ -403,7 +430,9 @@ now, I expect you to give me a JSON with the following exact format:
             (msg) =>
             ({
               role: msg.role,
-              content: msg.content,
+              ...(msg.content && { content: msg.content }),
+              ...((msg as ChatCompletionAssistantMessageParam).tool_calls && { tool_calls: (msg as ChatCompletionAssistantMessageParam).tool_calls }),
+              ...((msg as ChatCompletionToolMessageParam).tool_call_id && { tool_call_id: (msg as ChatCompletionToolMessageParam).tool_call_id }),
             } as ChatCompletionMessageParam)
           ),
           model: "gpt-4o-mini",
@@ -500,6 +529,232 @@ now, I expect you to give me a JSON with the following exact format:
       });
     }
   };
+
+  const callOpenAiApiToUpdateMessages = async ({
+    chatMessagesToOpenAI,
+    currentConversationId,
+    newMessageFromAI,
+    messageIndex,
+    messageContent,
+    tools,
+  }: {
+    chatMessagesToOpenAI: ChatCompletionMessageParam[];
+    currentConversationId: string;
+    newMessageFromAI: Message & ChatCompletionMessageParam;
+    messageIndex: number;
+    messageContent: string;
+    tools?: ChatCompletionTool[];
+  }) => {
+
+    const stream = await OpenAI.api.chat.completions.create({
+      messages: chatMessagesToOpenAI,
+      model,
+      max_tokens: 4096,
+      stream: true,
+      ...((tools && tools.length > 0) && { tools }),
+    });
+
+    let localToolCalls: Chat.Completions.ChatCompletionMessageToolCall[] = [];
+
+    for await (const chunk of stream) {
+
+      const firstChoice = chunk.choices[0];
+
+      // if firstChoice is null, continue
+      if (!firstChoice) {
+        continue;
+      }
+
+      // get the tool_calls
+      const toolCalls = firstChoice.delta?.tool_calls;
+
+      // if firstChoice.delta?.tool_calls is not null and tool_calls is not empty
+      if (toolCalls && toolCalls.length > 0) {
+
+        /*
+        {
+          finish_reason: 'tool_calls',
+          index: 0,
+          logprobs: null,
+          message: {
+              content: null,
+              role: 'assistant',
+              function_call: null,
+              tool_calls: [
+                  {
+                      id: 'call_62136354',
+                      function: {
+                          arguments: '{"order_id":"order_12345"}',
+                          name: 'get_delivery_date'
+                      },
+                      type: 'function'
+                  }
+              ]
+          }
+        }
+        */
+        // for each tool_call
+        for (const toolCall of toolCalls) {
+
+          // add item to localToolCalls if toolCall.index is not in localToolCalls
+          if (localToolCalls.length - 1 < toolCall.index) {
+            localToolCalls.push({
+              ...toolCall,
+              id: toolCall.id,
+              type: toolCall.type,
+              function: {
+                ...toolCall.function,
+                arguments: toolCall.function.arguments,
+                name: toolCall.function.name,
+              } as Chat.Completions.ChatCompletionMessageToolCall.Function,
+            });
+          }
+
+          // otherwise, append the function arguments to the existing localToolCalls
+          else {
+            localToolCalls[toolCall.index].function.arguments +=
+              toolCall.function.arguments;
+          }
+
+        }
+
+      }
+      // else if finish_reason is "tool_calls"
+      else if (firstChoice.finish_reason === "tool_calls") {
+
+        // log localToolCalls
+        console.log("localToolCalls", localToolCalls);
+
+        // if localToolCalls is not empty
+        if (localToolCalls.length > 0) {
+
+
+          // for each toolCall in localToolCalls
+          for (const toolCall of localToolCalls) {
+
+            try {
+
+              // add toolCall to messages
+              messages.push({
+                role: 'assistant',
+                timestamp: Date.now(),
+                tool_calls: [{
+                  ...toolCall,
+                  id: toolCall.id,
+                  function: toolCall.function,
+                }],
+              });
+
+
+              // get the function name
+              const functionName = toolCall.function?.name;
+
+              // get the function arguments
+              const functionArguments = JSON.parse(toolCall.function?.arguments);
+
+              // log functionName and functionArguments
+              console.log("functionName", functionName);
+              console.log("functionArguments", functionArguments);
+
+              // call the function
+              let functionResult = null;
+              if (functionName === "get_top_headlines") {
+                functionResult = await NewsAPI.getTopHeadlines({
+                  ...(functionArguments.country && { country: functionArguments.country }),
+                  ...(functionArguments.category && { category: functionArguments.category }),
+                  ...(functionArguments.q && { q: functionArguments.q }),
+                });
+              }
+              else if (functionName === "search_articles_of_topic") {
+                functionResult = await NewsAPI.searchArticlesOfTopic({
+                  /*
+                    topicOrKeyword,
+                    from,
+                    sortBy,
+                  */
+                  ...(functionArguments.topic_or_keyword && { topicOrKeyword: functionArguments.topic_or_keyword }),
+                  ...(functionArguments.from && { from: functionArguments.from }),
+                  ...(functionArguments.sortBy && { sortBy: functionArguments.sortBy }),
+                });
+              }
+
+              // if functionResult is null
+              if (!functionResult) {
+                continue;
+              }
+
+              // add the function result to messages
+              messages.push({
+                role: "tool",
+                content: JSON.stringify(functionResult),
+                timestamp: Date.now(),
+                tool_call_id: toolCall.id,
+              } as ChatCompletionToolMessageParam
+              );
+
+              // call OpenAI to update messages with the new tool result
+              await callOpenAiApiToUpdateMessages({
+                chatMessagesToOpenAI: messages.map((msg) => {
+                  // if content type is array,
+                  // set content as the first element of the array
+                  if (Array.isArray(msg.content)) {
+                    return {
+                      ...msg,
+                      content: (msg.content[0] as ChatCompletionContentPartText).text,
+                    };
+                  }
+                  else if ((msg as ChatCompletionAssistantMessageParam).tool_calls) {
+                    return {
+                      ...msg,
+                      tool_calls: (msg as ChatCompletionAssistantMessageParam).tool_calls,
+                    }
+                  }
+                  return msg;
+                }),
+                currentConversationId,
+                newMessageFromAI,
+                messageIndex,
+                messageContent,
+              });
+
+
+            }
+            catch (error) {
+              console.log("Error calling tool function", error);
+
+              // show error toast message
+              Toast.show({
+                type: "error",
+                text1: "Error calling tool function",
+                text2: error.message,
+              });
+            }
+          }
+        }
+      }
+      // else the response is message
+      else {
+
+        // process.stdout.write(chunk.choices[0]?.delta?.content || '');
+        messageContent += chunk.choices[0]?.delta?.content || "";
+
+        newMessageFromAI.content = messageContent;
+
+        dispatch(
+          updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+        );
+
+        // add the new message from AI to messages
+        messages.push({
+          role: "assistant",
+          content: messageContent,
+          timestamp: Date.now(),
+        } as ChatCompletionAssistantMessageParam);
+      }
+
+
+    }
+  }
 
   const handleConfirmApiKey = (inputValue) => {
     console.log("OpenAI API Key", inputValue);

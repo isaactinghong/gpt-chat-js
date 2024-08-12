@@ -14,6 +14,7 @@ import { addAudioFiles, addImage } from "../state/actions/chatActions";
 import SharedContentScreen from "../screens/SharedContentScreen";
 import { storeImage } from "../idb/images-db";
 import { compressImage } from "../helpers/image-utils";
+import NewsAPI from '../services/NewsService';
 
 const Drawer = createDrawerNavigator();
 
@@ -176,6 +177,15 @@ const DrawerNavigator = () => {
   React.useEffect(() => {
     OpenAI.setApiKey(openAiApiKey);
   }, [openAiApiKey]);
+
+  const newsAiApiKey = useSelector(
+    (state: AppState) => state.settings.newsApiKey
+  );
+
+  // whenever newsAiApiKey changes, update the NewsAIService
+  React.useEffect(() => {
+    NewsAPI.setApiKey(newsAiApiKey);
+  }, [newsAiApiKey]);
 
   const currentConversation: Conversation = useSelector(
     (state: AppState) =>
