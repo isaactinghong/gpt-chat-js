@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -21,10 +21,17 @@ import { getImage } from "../idb/images-db";
 import { LocalImage } from "../state/types/local-image";
 import Toast from "react-native-toast-message";
 import Clipboard from '@react-native-clipboard/clipboard';
-
-import Markdown from 'react-native-markdown-display';
 import { useSelector } from 'react-redux';
 import { AppState } from '../state/states/app-state';
+
+import Markdown from 'react-native-markdown-display';
+import MDEditor from '@uiw/react-md-editor';
+import mermaid from "mermaid";
+import { getCodeString } from 'rehype-rewrite';
+// No import is required in the WebPack.
+import "@uiw/react-markdown-preview/markdown.css";
+// No import is required in the WebPack.
+// import "@uiw/react-md-editor/markdown-editor.css";
 
 const ChatMessage = ({
   message,
@@ -172,12 +179,28 @@ const ChatMessage = ({
               : null}
             {/* if showMarkdown */}
             {showMarkdown && (
-              <Markdown>
-                {Array.isArray(message.content)
+              // <Markdown>
+              //   {Array.isArray(message.content)
+              //     ? (message.content[0] as ChatCompletionContentPartText).text
+              //     : message.content}
+              // </Markdown>)
+
+              <MDEditor
+                value={Array.isArray(message.content)
                   ? (message.content[0] as ChatCompletionContentPartText).text
                   : message.content}
-              </Markdown>)
-            }
+                style={{ flex: 1, whiteSpace: 'pre-wrap', height: 'auto', }}
+                preview="preview"
+                hideToolbar={true}
+                toolbarBottom={false}
+                contentEditable={false}
+                previewOptions={{
+                  components: {
+                    code: Code
+                  }
+                }}
+              />
+            )}
             {/* else show pure text */}
             {!showMarkdown && (
               <Text>
@@ -219,6 +242,49 @@ const ChatMessage = ({
       )}
     </View>
   );
+};
+
+const randomid = () => parseInt(String(Math.random() * 1e15), 10).toString(36);
+const Code = ({ inline, children = [], className, ...props }) => {
+  const demoid = useRef(`dome${randomid()}`);
+  const [container, setContainer] = useState(null);
+  const isMermaid =
+    className && /^language-mermaid/.test(className.toLocaleLowerCase());
+  const code = children
+    ? getCodeString(props.node.children)
+    : children[0] || "";
+
+  useEffect(() => {
+    if (container && isMermaid && demoid.current && code) {
+      mermaid
+        .render(demoid.current, code)
+        .then(({ svg, bindFunctions }) => {
+          container.innerHTML = svg;
+          if (bindFunctions) {
+            bindFunctions(container);
+          }
+        })
+        .catch((error) => {
+          console.log("error:", error);
+        });
+    }
+  }, [container, isMermaid, code, demoid]);
+
+  const refElement = useCallback((node) => {
+    if (node !== null) {
+      setContainer(node);
+    }
+  }, []);
+
+  if (isMermaid) {
+    return (
+      <Fragment>
+        <code id={demoid.current} style={{ display: "none" }} />
+        <code className={className} ref={refElement} data-name="mermaid" />
+      </Fragment>
+    );
+  }
+  return <code className={className}>{children}</code>;
 };
 
 const styles = StyleSheet.create({

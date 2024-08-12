@@ -65,6 +65,27 @@
       -ms-overflow-style: scrollbar;
     }
 
+    /* w-md-editor-bar, display none */
+    .w-md-editor-bar {
+      display: none;
+    }
+    .wmde-markdown p {
+      margin-bottom: 0px !important;
+    }
+    .wmde-markdown pre {
+      margin-bottom: 0px !important;
+    }
+    /* .wmde-markdown li > p {
+      margin-top: -1.5em !important;
+    } */
+    .wmde-markdown::before {
+      display: none !important;
+    }
+    /* .wmde-markdown ul, .wmde-markdown ol {
+      margin-block-start: -1em !important;
+      margin-block-end: -2em !important;
+    } */
+
     /* Enable for apps that support dark-theme */
     /*@media (prefers-color-scheme: dark) {
         body {
