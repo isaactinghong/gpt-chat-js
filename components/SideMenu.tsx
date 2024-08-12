@@ -219,13 +219,13 @@ const SideMenu = ({ navigation }) => {
               <Text style={GlobalStyles.primaryButtonText}>Save</Text>
             </Pressable>
             <Pressable
-              style={GlobalStyles.primaryButton}
+              style={GlobalStyles.primaryClearButton}
               onPress={() => {
                 // set modal visibility to false
                 setModalVisible(false);
               }}
             >
-              <Text style={GlobalStyles.primaryButtonText}>Close</Text>
+              <Text style={GlobalStyles.primaryClearButtonText}>Close</Text>
             </Pressable>
           </View>
         </View>
