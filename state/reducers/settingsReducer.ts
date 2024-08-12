@@ -2,6 +2,24 @@
 import { SettingsActionTypes, SAVE_SETTINGS } from "../actions/settingsActions";
 import { SettingsState } from "../states/settings-state";
 
+export const defaultMyProfile = `## User Profile
+
+### Personal Information
+- **Name:** ???
+- **Age:** ???
+- **Sex:** ???
+- **Weight:** ???
+- **Height:** ???
+- **Living Place:** ???
+- **Marital Status:** ???
+
+### Occupation
+- **Title:** ???
+
+### Hobbies
+- **???**
+`;
+
 // initialState
 const initialState: SettingsState = {
   openAiApiKey: "",
@@ -28,23 +46,5 @@ const settingsReducer = (
       return state;
   }
 };
-
-export const defaultMyProfile = `## User Profile
-
-### Personal Information
-- **Name:** ???
-- **Age:** ???
-- **Sex:** ???
-- **Weight:** ???
-- **Height:** ???
-- **Living Place:** ???
-- **Marital Status:** ???
-
-### Occupation
-- **Title:** ???
-
-### Hobbies
-- **???**
-`;
 
 export default settingsReducer;
