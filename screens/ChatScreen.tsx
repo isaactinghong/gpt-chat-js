@@ -358,6 +358,7 @@ Please give a title to this conversation. The title should be less than ${titleL
 --------------------------------
 # user_profile collect my data as much as possible into the user_profile.
 create new, modify or remove markdown headings if needed.
+make sure the user_profile is a string, not object or array. and the string should be in markdown format.
 --------------------------------
 now, I expect you to give me a JSON with the following exact format:
 {
@@ -451,6 +452,20 @@ now, I expect you to give me a JSON with the following exact format:
         if (postProcessingContentJSON.user_profile) {
           // log updating user profile now
           console.log("Updating user profile now");
+
+          // if the user_profile is object
+          // convert it to markdown string
+          if (typeof postProcessingContentJSON.user_profile === "object") {
+
+            // log user_profile is object
+            console.log("user_profile is object");
+
+            postProcessingContentJSON.user_profile = JSON.stringify(
+              postProcessingContentJSON.user_profile,
+              null,
+              2
+            );
+          }
 
           dispatch(
             saveSettings({
