@@ -7,6 +7,7 @@ import {
   Button,
   StyleSheet,
   Pressable,
+  Modal,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -37,10 +38,16 @@ const SideMenu = ({ navigation }) => {
   const systemMessage = useSelector(
     (state: AppState) => state.settings.systemMessage
   );
+  const myProfile = useSelector((state: AppState) => state.settings.myProfile);
 
   const [modelNameLocal, setModelNameLocal] = React.useState(modelName);
   const [systemMessageLocal, setSystemMessageLocal] =
     React.useState(systemMessage);
+  const [myProfileLocal, setMyProfileLocal] = React.useState("");
+  const [myProfileError, setMyProfileError] = React.useState("");
+
+  // modal visibility
+  const [modalVisible, setModalVisible] = React.useState(false);
 
   const handleSave = (fieldName, newInput) => {
     // log
@@ -56,6 +63,9 @@ const SideMenu = ({ navigation }) => {
     /* handle save, using action: saveSettings */
     dispatch(saveSettings(updateSettings));
 
+    // close the modal
+    setModalVisible(false);
+
     // show success toast message
     Toast.show({
       type: "success",
@@ -69,6 +79,12 @@ const SideMenu = ({ navigation }) => {
       setModelNameLocal("gpt-4o-mini");
     }
   }, [modelNameLocal]); // adding handleSave to dependencies as a best practice
+
+  // onMount, load myProfile from store
+  React.useEffect(() => {
+
+    setMyProfileLocal(JSON.stringify(myProfile, null, 2));
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -108,6 +124,16 @@ const SideMenu = ({ navigation }) => {
         </ScrollView>
 
         {/* Bottom of the side menu */}
+        {/* my profile button, click to open modal */}
+        <Pressable
+          style={GlobalStyles.primaryClearButton}
+          onPress={() => {
+            // set modal visibility to true
+            setModalVisible(true);
+          }}
+        >
+          <Text style={GlobalStyles.primaryClearButtonText}>My Profile</Text>
+        </Pressable>
         <View style={styles.gptModelInputView}>
           {/* label: model: */}
           <Text style={styles.inputLabel}>Model:</Text>
@@ -147,6 +173,78 @@ const SideMenu = ({ navigation }) => {
         </Pressable>
         <Text style={styles.versionText}>Version {version}</Text>
       </View>
+      {/* modal for my profile */}
+      <Modal animationType="slide" transparent={false} visible={modalVisible}>
+        <View style={styles.modalView}>
+          <Text>My Profile</Text>
+
+          {/* a flex grow input for my profile */}
+          <TextInput
+            style={{ flex: 1, borderColor: "gray", borderWidth: 1, fontSize: 16 }}
+            multiline={true}
+            numberOfLines={4}
+            value={myProfileLocal}
+            onChangeText={(value) => setMyProfileLocal(value)}
+          />
+
+          {/* show error if any */}
+          {myProfileError && <Text style={{ color: "red" }}>{myProfileError}</Text>}
+
+
+          {/* a row of two buttons: Save and Close */}
+          <View style={styles.modalButtonsContainer}>
+            <Pressable
+              style={GlobalStyles.primaryButton}
+              onPress={() => {
+                // validate myProfileLocal
+                try {
+                  // log start
+                  console.log("myProfileLocal", myProfileLocal);
+
+                  const newInput = JSON.parse(myProfileLocal);
+
+                  // clear error
+                  setMyProfileError("");
+
+                  // log myProfile
+                  console.log("myProfile newInput", newInput);
+
+                  // set modal visibility to false
+                  setModalVisible(false);
+
+                  // save to store
+                  dispatch(saveSettings({ myProfile: newInput }));
+
+                  // show success toast message
+                  Toast.show({
+                    type: "success",
+                    text1: "My Profile saved",
+                  });
+                } catch (error) {
+                  // log error
+                  console.error("error", error);
+
+                  // set error
+                  setMyProfileError("Invalid JSON");
+
+                  return;
+                }
+              }}
+            >
+              <Text style={GlobalStyles.primaryButtonText}>Save</Text>
+            </Pressable>
+            <Pressable
+              style={GlobalStyles.primaryButton}
+              onPress={() => {
+                // set modal visibility to false
+                setModalVisible(false);
+              }}
+            >
+              <Text style={GlobalStyles.primaryButtonText}>Close</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -154,6 +252,19 @@ const SideMenu = ({ navigation }) => {
 const styles = StyleSheet.create({
   newConversationButton: {
     marginBottom: 10,
+  },
+  modalView: {
+    flex: 1,
+    gap: 10,
+    // justifyContent: "center",
+    // alignItems: "center",
+    backgroundColor: "#fff",
+    padding: 35,
+  },
+  modalButtonsContainer: {
+    flexDirection: "row",
+    gap: 10,
+    justifyContent: "flex-end",
   },
   containerView: {
     flex: 1,

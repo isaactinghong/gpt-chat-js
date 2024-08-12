@@ -8,6 +8,16 @@ export default StyleSheet.create({
     color: "#fff",
     alignSelf: "center",
   },
+  primaryClearButton: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderColor: "#000",
+    borderWidth: 1,
+  },
+  primaryClearButtonText: {
+    color: "#000",
+    alignSelf: "center",
+  },
   droidSafeArea: {
     flex: 1,
     // backgroundColor: npLBlue,
