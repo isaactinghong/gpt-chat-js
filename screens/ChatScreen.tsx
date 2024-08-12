@@ -93,7 +93,9 @@ const ChatScreen = () => {
   // system message with profile, calculated from systemMessage and myProfile
   const systemMessageWithProfile = `${systemMessage}
 --------------------------------
-This is my profile:
+Today is ${new Date().toDateString()}.
+--------------------------------
+This is my profile, please take reference when generating responses:
 ${myProfile}`;
 
 
