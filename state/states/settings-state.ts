@@ -4,4 +4,5 @@ export interface SettingsState {
   modelName: string;
   systemMessage: string;
   myProfile: string;
+  showMarkdown: boolean;
 }

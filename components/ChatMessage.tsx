@@ -22,6 +22,10 @@ import { LocalImage } from "../state/types/local-image";
 import Toast from "react-native-toast-message";
 import Clipboard from '@react-native-clipboard/clipboard';
 
+import Markdown from 'react-native-markdown-display';
+import { useSelector } from 'react-redux';
+import { AppState } from '../state/states/app-state';
+
 const ChatMessage = ({
   message,
   openImageViewer,
@@ -30,6 +34,11 @@ const ChatMessage = ({
   openImageViewer: (images: IImageInfo[], selectedIndex: number) => void;
 }) => {
   const [localImages, setLocalImages] = React.useState<LocalImage[]>([]);
+
+  // showMarkdown from settings
+  const showMarkdown = useSelector(
+    (state: AppState) => state.settings.showMarkdown
+  );
 
   React.useEffect(() => {
     try {
@@ -161,17 +170,23 @@ const ChatMessage = ({
                 ))
                 : "Generating image..."
               : null}
-            <Text
-              style={{
-                flex: 1,
-                flexWrap: "wrap",
-                flexShrink: 1,
-              }}
-            >
-              {Array.isArray(message.content)
-                ? (message.content[0] as ChatCompletionContentPartText).text
-                : message.content}
-            </Text>
+            {/* if showMarkdown */}
+            {showMarkdown && (
+              <Markdown>
+                {Array.isArray(message.content)
+                  ? (message.content[0] as ChatCompletionContentPartText).text
+                  : message.content}
+              </Markdown>)
+            }
+            {/* else show pure text */}
+            {!showMarkdown && (
+              <Text>
+                {Array.isArray(message.content)
+                  ? (message.content[0] as ChatCompletionContentPartText).text
+                  : message.content}
+              </Text>
+            )}
+
           </View>
         </Text>
       </Pressable>

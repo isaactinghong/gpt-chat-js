@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Pressable,
   Linking,
+  Switch,
 } from "react-native";
 import { useDispatch } from "react-redux";
 import { saveSettings } from "../state/actions/settingsActions";
@@ -29,6 +30,12 @@ const SettingsScreen = () => {
     (state: AppState) => state.settings.newsApiKey
   );
   const [newsApiKeyLocal, setNewsApiKey] = React.useState(newsApiKey);
+
+  // showMarkdown
+  const showMarkdown = useSelector(
+    (state: AppState) => state.settings.showMarkdown
+  );
+  const [showMarkdownLocal, setShowMarkdownLocal] = React.useState(showMarkdown);
 
   return (
     <View style={styles.container}>
@@ -59,6 +66,24 @@ const SettingsScreen = () => {
         onChangeText={setNewsApiKey}
       />
 
+      {/* margin */}
+      <View style={{ height: 20 }}></View>
+
+      {/* Show Markdown toggle */}
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 15 }}>
+        <Text style={{ marginRight: 10, fontSize: 20 }}>Show Markdown</Text>
+        <Switch
+          // big
+          style={{ transform: [{ scaleX: 1.5 }, { scaleY: 1.5 }] }}
+          value={showMarkdownLocal}
+          onValueChange={setShowMarkdownLocal}
+        />
+      </View>
+
+      {/* margin */}
+      <View style={{ flexGrow: 1 }}></View>
+
+      {/* Save Button */}
       <Pressable
         style={GlobalStyles.primaryButton}
         onPress={() => {
@@ -67,6 +92,7 @@ const SettingsScreen = () => {
             saveSettings({
               openAiApiKey: openAiApiKeyLocal,
               newsApiKey: newsApiKeyLocal,
+              showMarkdown: showMarkdownLocal,
             })
           );
 

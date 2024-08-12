@@ -102,6 +102,17 @@ export const migrations: MigrationManifest = {
         ...(appState.settings.myProfile == '' && { myProfile: defaultMyProfile }),
       },
     } as unknown as PersistedState;
+  },
+  // 11 to default showMarkdown to true
+  11: (state: { _persist: PersistState; }) => {
+    const appState = state as unknown as AppState
+    return {
+      ...appState,
+      settings: {
+        ...appState.settings,
+        showMarkdown: true,
+      },
+    } as unknown as PersistedState;
   }
 
 

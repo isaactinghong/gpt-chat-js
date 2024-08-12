@@ -27,6 +27,7 @@ const initialState: SettingsState = {
   modelName: "gpt-4o-mini",
   systemMessage: "Chat with me.",
   myProfile: defaultMyProfile,
+  showMarkdown: true,
 };
 
 // reducer
