@@ -90,6 +90,18 @@ export const migrations: MigrationManifest = {
         ...(appState.settings.myProfile == '' && { myProfile: defaultMyProfile }),
       },
     } as unknown as PersistedState;
+  },
+
+  // 10 to change settingsState.myProfile to ... if it is empty
+  10: (state: { _persist: PersistState; }) => {
+    const appState = state as unknown as AppState
+    return {
+      ...appState,
+      settings: {
+        ...appState.settings,
+        ...(appState.settings.myProfile == '' && { myProfile: defaultMyProfile }),
+      },
+    } as unknown as PersistedState;
   }
 
 
