@@ -88,6 +88,14 @@ const ChatScreen = () => {
   const systemMessage = useSelector(
     (state: AppState) => state.settings.systemMessage
   );
+  const myProfile = useSelector((state: AppState) => state.settings.myProfile);
+
+  // system message with profile, calculated from systemMessage and myProfile
+  const systemMessageWithProfile = `${systemMessage}
+--------------------------------
+This is my profile:
+${myProfile}`;
+
 
   const messages = conversations[currentConversationId]?.messages ?? [];
   // Sample data
@@ -180,7 +188,8 @@ const ChatScreen = () => {
     // system message to ask openai to give a title
     const firstChatMessage: ChatCompletionMessageParam = {
       role: "system",
-      content: systemMessage,
+      // content: systemMessage,
+      content: systemMessageWithProfile,
     };
 
     // chat messages for openai to generate response
