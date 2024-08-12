@@ -8,7 +8,7 @@ const initialState: SettingsState = {
   // modelName: 'gpt-4-1106-preview',
   modelName: "gpt-4o-mini",
   systemMessage: "Chat with me.",
-  myProfile: {},
+  myProfile: "",
 };
 
 // reducer

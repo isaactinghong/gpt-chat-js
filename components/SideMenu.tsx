@@ -43,8 +43,7 @@ const SideMenu = ({ navigation }) => {
   const [modelNameLocal, setModelNameLocal] = React.useState(modelName);
   const [systemMessageLocal, setSystemMessageLocal] =
     React.useState(systemMessage);
-  const [myProfileLocal, setMyProfileLocal] = React.useState("");
-  const [myProfileError, setMyProfileError] = React.useState("");
+  const [myProfileLocal, setMyProfileLocal] = React.useState(myProfile);
 
   // modal visibility
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -83,7 +82,8 @@ const SideMenu = ({ navigation }) => {
   // onMount, load myProfile from store
   React.useEffect(() => {
 
-    setMyProfileLocal(JSON.stringify(myProfile, null, 2));
+    // set myProfileLocal
+    setMyProfileLocal(myProfile);
   }, []);
 
   return (
@@ -124,16 +124,6 @@ const SideMenu = ({ navigation }) => {
         </ScrollView>
 
         {/* Bottom of the side menu */}
-        {/* my profile button, click to open modal */}
-        <Pressable
-          style={GlobalStyles.primaryClearButton}
-          onPress={() => {
-            // set modal visibility to true
-            setModalVisible(true);
-          }}
-        >
-          <Text style={GlobalStyles.primaryClearButtonText}>My Profile</Text>
-        </Pressable>
         <View style={styles.gptModelInputView}>
           {/* label: model: */}
           <Text style={styles.inputLabel}>Model:</Text>
@@ -161,6 +151,16 @@ const SideMenu = ({ navigation }) => {
             onChange={(value) => handleSave("systemMessage", value)}
           />
         </View>
+        {/* my profile button, click to open modal */}
+        <Pressable
+          style={GlobalStyles.primaryClearButton}
+          onPress={() => {
+            // set modal visibility to true
+            setModalVisible(true);
+          }}
+        >
+          <Text style={GlobalStyles.primaryClearButtonText}>My Profile</Text>
+        </Pressable>
         <Pressable
           // color={"#000"}
           style={GlobalStyles.primaryButton}
@@ -187,10 +187,6 @@ const SideMenu = ({ navigation }) => {
             onChangeText={(value) => setMyProfileLocal(value)}
           />
 
-          {/* show error if any */}
-          {myProfileError && <Text style={{ color: "red" }}>{myProfileError}</Text>}
-
-
           {/* a row of two buttons: Save and Close */}
           <View style={styles.modalButtonsContainer}>
             <Pressable
@@ -201,19 +197,11 @@ const SideMenu = ({ navigation }) => {
                   // log start
                   console.log("myProfileLocal", myProfileLocal);
 
-                  const newInput = JSON.parse(myProfileLocal);
-
-                  // clear error
-                  setMyProfileError("");
-
-                  // log myProfile
-                  console.log("myProfile newInput", newInput);
-
                   // set modal visibility to false
                   setModalVisible(false);
 
                   // save to store
-                  dispatch(saveSettings({ myProfile: newInput }));
+                  dispatch(saveSettings({ myProfile: myProfileLocal }));
 
                   // show success toast message
                   Toast.show({
@@ -222,10 +210,7 @@ const SideMenu = ({ navigation }) => {
                   });
                 } catch (error) {
                   // log error
-                  console.error("error", error);
-
-                  // set error
-                  setMyProfileError("Invalid JSON");
+                  console.error("error setting myProfile", error);
 
                   return;
                 }
