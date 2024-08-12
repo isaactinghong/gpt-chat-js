@@ -354,18 +354,20 @@ I'm going to ask OpenAI to give a title to this conversation,
 and collect as much data in the conversation as possible into the user_profile.
 --------------------------------
 [title]
-Please give a title to this conversation. The title should be less than ${titleLength} characters.
+Please give a new title, to this conversation. The title should be less than ${titleLength} characters.
 --------------------------------
 [user_profile]
-collect my data as much as possible into the user_profile.
+collect, fom the conversation, new information about my profile as much as possible into the user_profile.
+always keep the overall structure of the user_profile, do not make drastic changes.
 create new and modify markdown headings if needed.
 refrain from removing any data, or only remove if the data is ABSOLUTELY not needed.
 make sure the user_profile is a string, not object or array. and the string should be in markdown format.
+if nothing is changed, just give \`null\`.
 --------------------------------
 now, I expect you to give me a JSON with the following exact format:
 {
-  "title": "Renewed title of the conversation",
-  "user_profile": "Updated user profile (in markdown) if any, otherwise just give \`null\`",
+  "title": [title: string]
+  "user_profile": [user_profile: string]
 }`;
 
       // system message to ask openai to give a title
