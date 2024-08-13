@@ -115,7 +115,7 @@ const ChatScreen = () => {
 Today is ${new Date().toDateString()}.
 --------------------------------
 This is my profile, please take reference when generating responses:
-${myProfile}`
+${JSON.stringify(myProfile)}`
 
   // user_profile Structured Outpus JSON Schema for OpenAI API
   const postProcessingJSONSchema =
@@ -390,7 +390,7 @@ ${myProfile}`
       const titleLength = 40;
       const postProcessingMessageInstruction = `
 existing user_profile:
-${myProfile}
+${JSON.stringify(myProfile)}
 --------------------------------
 [title], required
 Please give a new title, to this conversation. The title should be less than ${titleLength} characters.
