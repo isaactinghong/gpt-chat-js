@@ -403,8 +403,10 @@ Please give a new title, to this conversation. The title should be less than ${t
 if the user_profile is not needed to be updated, set this to false.
 --------------------------------
 [new_profile], optional
-collect, fom the conversation, new information about my profile as much as possible into the user_profile, merge with the existing user_profile.
-create new and modify markdown headings if needed.
+collect, fom the conversation, new information about my profile into the user_profile, merge with the existing user_profile.
+only keep useful information which is needed for future conversations.
+if the information is too detailed, summarize it before adding to the user_profile.
+create new keys if needed, and update existing keys if needed.
 refrain from removing any data, or only remove if the data is ABSOLUTELY not needed.
 --------------------------------
 now, I expect you to give me a JSON with the following format:
