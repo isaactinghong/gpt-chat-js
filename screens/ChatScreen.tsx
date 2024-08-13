@@ -13,6 +13,8 @@ import {
   addImage,
   addMessage,
   clearImages,
+  postProcessingEnd,
+  postProcessingStart,
   removeAudioFiles,
   removeImage,
   updateConversation,
@@ -435,6 +437,9 @@ ${JSON.stringify(myProfileSample, null, 2)}
 
       // get new conversation title, and updated user content from openai
       try {
+        // post processing start
+        dispatch(postProcessingStart());
+
         const postProcessingResult = await OpenAI.api.chat.completions.create({
           messages: postProcessingMessages.map(
             (msg) =>
@@ -468,13 +473,8 @@ ${JSON.stringify(myProfileSample, null, 2)}
           console.log("Error parsing JSON", error);
         }
 
-        // // just trim it
-        // if (titleContent.length > titleLength) {
-        //   titleContent = titleContent.substring(0, titleLength + 15);
-        // }
-
-        // trim any new line in the title
-        // titleContent = titleContent.replace(/(\r\n|\n|\r)/gm, "");
+        // post processing end
+        dispatch(postProcessingEnd());
 
         // update conversation title
         if (postProcessingContentJson.title) {

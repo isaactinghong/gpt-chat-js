@@ -77,12 +77,12 @@ const ChatHeaderRight = () => {
     setContextMenuVisible(!contextMenuVisible);
   };
 
-  const onPressGenerateImage = (event) => {
+  const onPressGenerateImage = (event: any) => {
     setContextMenuVisible(false);
     setDallEDialogVisible(true);
   };
 
-  const onPressGenerateVoice = (event) => {
+  const onPressGenerateVoice = (event: any) => {
     setContextMenuVisible(false);
     console.log("Generate Voice");
     // clear the audioSrc
@@ -493,7 +493,7 @@ const ChatHeaderRight = () => {
                     { label: "PCM", value: "pcm" },
                   ]}
                   containerStyle={{ height: 40 }}
-                  value={ttpFormat}
+                  value={ttpFormat ?? null}
                   multiple={false}
                   setValue={setTTPFormat}
                   open={ttpFormatOpen}

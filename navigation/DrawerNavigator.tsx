@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "../state/states/app-state";
 import { Conversation } from "../state/types/conversation";
 import OpenAI from "../services/OpenAIService";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { addAudioFiles, addImage } from "../state/actions/chatActions";
 import SharedContentScreen from "../screens/SharedContentScreen";
 import { storeImage } from "../idb/images-db";
@@ -50,6 +50,11 @@ const DrawerNavigator = () => {
   // currentConversationId
   const currentConversationId = useSelector(
     (state: AppState) => state.chats.currentConversationId
+  );
+
+  // isPostProcessing
+  const isPostProcessing = useSelector(
+    (state: AppState) => state.chats.isPostProcessing
   );
 
   useEffect(() => {
@@ -213,6 +218,14 @@ const DrawerNavigator = () => {
                 <Text style={styles.headerTitle} selectable={true}>
                   {currentConversation?.title}
                 </Text>
+                {isPostProcessing ?
+
+                  <ActivityIndicator
+                    size="small"
+                    color="#000"
+                    style={styles.loadingSpinner}
+                  />
+                  : ""}
               </View>
             );
           },
@@ -235,14 +248,20 @@ const styles = StyleSheet.create({
   headerTitleContainer: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "flex-start",
     flex: 1,
+    gap: 5,
   },
   headerTitle: {
     fontSize: 15,
+    flexShrink: 1,
   },
   headerSubtitle: {
     fontSize: 12,
     color: "gray",
+  },
+  loadingSpinner: {
+    flexShrink: 1,
   },
 });
 
