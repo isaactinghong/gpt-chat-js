@@ -11,4 +11,6 @@ export interface ChatState {
   imagesToUpload: LocalImage[];
 
   audioFileNames: string[];
+
+  isPostProcessing: boolean;
 }

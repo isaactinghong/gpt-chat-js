@@ -12,6 +12,8 @@ import {
   REORDER_IMAGE,
   ADD_AUDIO_FILES,
   REMOVE_AUDIO_FILES,
+  POST_PROCESSING_START,
+  POST_PROCESSING_END,
 } from "../actions/chatActions";
 import { ChatState } from "../states/chat-state";
 import { Conversation } from "../types/conversation";
@@ -28,11 +30,12 @@ export const initialChatState: ChatState = {
   currentConversationId: "0",
   imagesToUpload: [],
   audioFileNames: [],
+  isPostProcessing: false,
 };
 
 const chatReducer = (
   state = initialChatState,
-  action: ChatActionTypes
+  action: ChatActionTypes,
 ): ChatState => {
   switch (action.type) {
     case ADD_MESSAGE: {
@@ -69,7 +72,7 @@ const chatReducer = (
     }
     case CREATE_CONVERSATION: {
       const conversation: Conversation = _createConversation(
-        Object.keys(state.conversations).length
+        Object.keys(state.conversations).length,
       );
       return {
         ...state,
@@ -187,13 +190,25 @@ const chatReducer = (
         audioFileNames: [],
       };
     }
+    case POST_PROCESSING_START: {
+      return {
+        ...state,
+        isPostProcessing: true,
+      };
+    }
+    case POST_PROCESSING_END: {
+      return {
+        ...state,
+        isPostProcessing: false,
+      };
+    }
     // ... other actions
     default:
       return state;
   }
 };
 
-const _createConversation = (conversationCount): Conversation => ({
+const _createConversation = (conversationCount: number): Conversation => ({
   id: new Date().getTime().toString(),
   title: `New Conversation ${conversationCount + 1}`,
   messages: [],

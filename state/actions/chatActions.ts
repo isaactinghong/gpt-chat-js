@@ -17,6 +17,8 @@ export const CLEAR_IMAGES = "CLEAR_IMAGES";
 export const REORDER_IMAGE = "REORDER_IMAGE";
 export const ADD_AUDIO_FILES = "ADD_AUDIO_FILES";
 export const REMOVE_AUDIO_FILES = "REMOVE_AUDIO_FILES";
+export const POST_PROCESSING_START = "POST_PROCESSING_START";
+export const POST_PROCESSING_END = "POST_PROCESSING_END";
 
 interface AddMessageAction {
   type: typeof ADD_MESSAGE;
@@ -98,6 +100,14 @@ interface RemoveAudioFilesAction {
   type: typeof REMOVE_AUDIO_FILES;
 }
 
+interface PostProcessingStartAction {
+  type: typeof POST_PROCESSING_START;
+}
+
+interface PostProcessingEndAction {
+  type: typeof POST_PROCESSING_END;
+}
+
 // Union type for chat-related actions
 export type ChatActionTypes =
   | AddMessageAction
@@ -112,11 +122,12 @@ export type ChatActionTypes =
   | ReorderImageAction
   | AddAudioFilesAction
   | RemoveAudioFilesAction
-  ;
+  | PostProcessingStartAction
+  | PostProcessing;
 
 export const addMessage = (
   conversationId: string,
-  message: Message & ChatCompletionMessageParam
+  message: Message & ChatCompletionMessageParam,
 ): ChatActionTypes => ({
   type: ADD_MESSAGE,
   payload: { conversationId, message },
@@ -125,7 +136,7 @@ export const addMessage = (
 export const updateMessage = (
   conversationId: string,
   message: Message & ChatCompletionMessageParam,
-  messageIndex: number
+  messageIndex: number,
 ): ChatActionTypes => ({
   type: UPDATE_MESSAGE,
   payload: {
@@ -142,7 +153,7 @@ export const createConversation = (): ChatActionTypes => {
 };
 
 export const selectConversation = (
-  conversationId: string
+  conversationId: string,
 ): ChatActionTypes => ({
   type: SELECT_CONVERSATION,
   payload: { conversationId },
@@ -163,7 +174,7 @@ export const deleteConversation = (conversationId: string): ChatActionTypes => {
 
 export const updateConversation = (
   conversationId: string,
-  title: string
+  title: string,
 ): ChatActionTypes => ({
   type: UPDATE_CONVERSATION,
   payload: { conversationId, title },
@@ -185,7 +196,7 @@ export const clearImages = (): ChatActionTypes => ({
 
 export const reorderImage = (
   imageIndex: number,
-  newIndex: number
+  newIndex: number,
 ): ChatActionTypes => ({
   type: REORDER_IMAGE,
   payload: { imageIndex, newIndex },
@@ -198,4 +209,12 @@ export const addAudioFiles = (audioFileNames: string[]): ChatActionTypes => ({
 
 export const removeAudioFiles = (): ChatActionTypes => ({
   type: REMOVE_AUDIO_FILES,
+});
+
+export const postProcessingStart = (): ChatActionTypes => ({
+  type: POST_PROCESSING_START,
+});
+
+export const postProcessingEnd = (): ChatActionTypes => ({
+  type: POST_PROCESSING_END,
 });

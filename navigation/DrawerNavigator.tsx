@@ -63,7 +63,7 @@ const DrawerNavigator = () => {
 
         const cache = await caches.open("shared-audios");
 
-        const serializedFileNames: Response = await cache.match("fileNames");
+        const serializedFileNames: Response | undefined = await cache.match("fileNames");
 
         if (!serializedFileNames) {
           // No shared content available
@@ -102,7 +102,7 @@ const DrawerNavigator = () => {
 
         const cache = await caches.open("shared-images");
 
-        const serializedFileNames: Response = await cache.match("fileNames");
+        const serializedFileNames: Response | undefined = await cache.match("fileNames");
 
         if (!serializedFileNames) {
           // No shared content available
@@ -144,7 +144,7 @@ const DrawerNavigator = () => {
               );
 
               // use IndexedDB to store the compressed image
-              const id = await storeImage(base64image, currentConversationId);
+              const id = await storeImage(base64image, currentConversationId!);
 
               const localImage = {
                 id,
@@ -189,7 +189,7 @@ const DrawerNavigator = () => {
 
   const currentConversation: Conversation = useSelector(
     (state: AppState) =>
-      state.chats.conversations[state.chats.currentConversationId]
+      state.chats.conversations[state.chats.currentConversationId!]
   );
 
   return (
