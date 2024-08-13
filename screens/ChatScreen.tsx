@@ -393,18 +393,10 @@ collect, fom the conversation, new information about my profile as much as possi
 create new and modify markdown headings if needed.
 refrain from removing any data, or only remove if the data is ABSOLUTELY not needed.
 --------------------------------
-[backup_profile]
-whenever in the conversation user requested to save the profile, return "backup_profile": true, in the JSON.
-otherwise, do not include "backup_profile" in the JSON.
---------------------------------
-now, I expect you to give me a JSON with the following exact format:
+now, I expect you to give me a JSON with the following format:
 {
-  title: [title: string]
-  user_profile: {
-    "personal_information": Record<string, string>,
-    [aspect: string]: Record<string, string>,
-  },
-  backup_profile?: boolean
+  title: string;
+  user_profile: json object;
 }
 --------------------------------
 an EXAMPLE of the user_profile:
