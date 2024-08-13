@@ -78,7 +78,7 @@
       display: none !important;
     }
 
-    .markdown-body ol li {
+    .markdown-body ol li, .markdown-body ul li {
       white-space: normal
     }
 
@@ -91,15 +91,30 @@
       display: none !important;
     }
 
-    .wmde-markdown li+li {
+    /* Target first-level list items for margin adjustment */
+    .wmde-markdown > ul > li + li,
+    .wmde-markdown > ol > li + li {
         margin-top: -1em !important;
     }
 
-    .wmde-markdown ol, .wmde-markdown ul {
-      padding-left: 1em !important;
-      margin-top: -1em !important;
-      margin-bottom: -2em !important;
+    /* Target only first-level lists for padding and margin adjustments */
+    .wmde-markdown > ul,
+    .wmde-markdown > ol {
+        padding-left: 1em !important;
+        margin-top: -1em !important;
+        margin-bottom: -2em !important;
     }
+
+    /* for nested list li, margin-top 0 */
+    .wmde-markdown ol ol li, .wmde-markdown ul ul li, .wmde-markdown ol ul li, .wmde-markdown ul ol li {
+      margin-top: 0 !important;
+    }
+
+    .wmde-markdown h1, .wmde-markdown h2, .wmde-markdown h3, .wmde-markdown h4, .wmde-markdown h5, .wmde-markdown h6 {
+      margin-top: 1em !important;
+      margin-bottom: 0em !important;
+    }
+
   </style>
 </head>
 
