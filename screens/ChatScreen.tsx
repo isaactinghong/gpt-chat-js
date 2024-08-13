@@ -50,8 +50,9 @@ import { Ionicons } from "@expo/vector-icons";
 import RecordVoiceButton from "../components/RecordVoiceButton";
 import { toFile } from "openai/uploads";
 import { compressImage } from "../helpers/image-utils";
-import { LocalImage } from "../state/types/local-image";
 import NewsAPI from '../services/NewsService';
+import { z } from "zod";
+import { zodFunction } from "openai/helpers/zod";
 
 const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
 const MAX_INPUT_LINES = 15; // Maximum number of lines the input can have
@@ -321,33 +322,23 @@ ${myProfile}`;
         }
 
         // tools, if any
+        // const tools: ChatCompletionTool[] = [];
+
         const tools: ChatCompletionTool[] = [];
+
 
         // if newsApiKey is set, add news api tools
         /*
 
-        {
-          type: "function",
-          function: NewsAPI.descriptionGetTopHeadlines,
-        },
-        {
-          type: "function",
-          function: NewsAPI.descriptionSearchArticlesOfTopic,
-        }
+          NewsAPI.getTopHeadlinesFunction,
+          NewsAPI.searchArticlesOfTopicFunction,
           */
         if (newsAiApiKey) {
-          tools.push({
-            type: "function",
-            function: NewsAPI.descriptionGetTopHeadlines,
-          });
-          tools.push({
-            type: "function",
-            function: NewsAPI.descriptionSearchArticlesOfTopic,
-          });
+          tools.push(NewsAPI.getTopHeadlinesFunction);
+          tools.push(NewsAPI.searchArticlesOfTopicFunction);
         }
 
-
-        callOpenAiApiToUpdateMessages({
+        await callOpenAiApiToUpdateMessages({
           chatMessagesToOpenAI,
           currentConversationId,
           newMessageFromAI,
@@ -388,12 +379,12 @@ and collect as much data in the conversation as possible into the user_profile.
 Please give a new title, to this conversation. The title should be less than ${titleLength} characters.
 --------------------------------
 [user_profile]
-collect, fom the conversation, new information about my profile as much as possible into the user_profile.
-always keep the overall structure of the user_profile, do not make drastic changes.
+always keep the overall structure of the existing user_profile, do not make drastic changes.
+collect, fom the conversation, new information about my profile as much as possible into the user_profile, merge with the existing user_profile.
 create new and modify markdown headings if needed.
 refrain from removing any data, or only remove if the data is ABSOLUTELY not needed.
 make sure the user_profile is a string, not object or array. and the string should be in markdown format.
-if nothing is changed, just give \`null\`.
+if nothing is changed, just give \`null\`, not "null" as string, but real null.
 --------------------------------
 now, I expect you to give me a JSON with the following exact format:
 {
@@ -616,6 +607,13 @@ now, I expect you to give me a JSON with the following exact format:
                 name: toolCall.function!.name,
               } as Chat.Completions.ChatCompletionMessageToolCall.Function,
             });
+
+            // append to the message that the tool call is being made
+            newMessageFromAI.content = `Requesting information from tool: ${toolCall.function?.name}...`;
+
+            dispatch(
+              updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+            );
           }
 
           // otherwise, append the function arguments to the existing localToolCalls
@@ -629,6 +627,7 @@ now, I expect you to give me a JSON with the following exact format:
       }
       // else if finish_reason is "tool_calls"
       else if (firstChoice.finish_reason === "tool_calls") {
+
 
         // log localToolCalls
         console.log("localToolCalls", localToolCalls);
@@ -742,6 +741,17 @@ now, I expect you to give me a JSON with the following exact format:
       }
       // else the response is message
       else {
+
+        // if the delta.role is assistant, clear the message in current assistant message
+        if (chunk.choices[0]?.delta?.role === "assistant") {
+
+          // clear the message
+          newMessageFromAI.content = ``;
+
+          dispatch(
+            updateMessage(currentConversationId, newMessageFromAI, messageIndex)
+          );
+        }
 
         // process.stdout.write(chunk.choices[0]?.delta?.content || '');
         messageContent += chunk.choices[0]?.delta?.content || "";

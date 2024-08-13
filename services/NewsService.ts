@@ -1,12 +1,21 @@
-import { Article } from '../models/article';
+import { Article } from "../models/article";
+import { z } from "zod";
+import { zodFunction } from "openai/helpers/zod";
+
+/*
+  zod example:
+  const OrderParameters = z.object({
+    order_id: z.string().describe("The customer's order ID."),
+  });
+  const GetDeliveryDateFunction = zodFunction({ name: "getDeliveryDate", parameters: OrderParameters });
+*/
 
 export default class NewsAPI {
-
   static _apiKey: string;
 
-  constructor() { }
+  constructor() {}
 
-  static setApiKey(apiKey) {
+  static setApiKey(apiKey: string) {
     this._apiKey = apiKey;
   }
 
@@ -52,51 +61,78 @@ Example response
     from?: string;
     sortBy?: string;
   }): Promise<{ status: string; totalResults: number; articles: Article[] }> {
-
     const urlSearchParams = new URLSearchParams();
 
-    urlSearchParams.append('q', topicOrKeyword);
+    urlSearchParams.append("q", topicOrKeyword);
 
     if (from) {
-      urlSearchParams.append('from', from);
+      urlSearchParams.append("from", from);
     }
     if (sortBy) {
-      urlSearchParams.append('sortBy', sortBy);
+      urlSearchParams.append("sortBy", sortBy);
     }
 
-    urlSearchParams.append('apiKey', this._apiKey);
+    urlSearchParams.append("apiKey", this._apiKey);
 
-    return fetch(`https://newsapi.org/v2/everything?${urlSearchParams.toString()}`)
-      .then(response => response.json())
-      .then(data => {
+    return fetch(
+      `https://newsapi.org/v2/everything?${urlSearchParams.toString()}`,
+    )
+      .then((response) => response.json())
+      .then((data) => {
         return data;
       });
   }
 
   // description of the function `searchArticlesOfTopic` to OpenAI:
-  static descriptionSearchArticlesOfTopic = {
-    "name": "search_articles_of_topic",
-    "description": "Search for news articles that mention a specific topic or keyword",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "topic_or_keyword": {
-          "type": "string",
-          "description": "The topic or keyword to search for in the news articles.",
-        },
-        "from": {
-          "type": "string",
-          "description": "The date from which to search for news articles. Format: YYYY-MM-DD",
-        },
-        "sortBy": {
-          "type": "string",
-          "description": "The sorting method for the search results. Possible values: relevancy, popularity, publishedAt",
-        },
-      },
-      "required": ["topic_or_keyword"],
-      "additionalProperties": false,
-    }
-  }
+  // static descriptionSearchArticlesOfTopic = {
+  //   name: "search_articles_of_topic",
+  //   description:
+  //     "Search for news articles that mention a specific topic or keyword",
+  //   parameters: {
+  //     type: "object",
+  //     properties: {
+  //       topic_or_keyword: {
+  //         type: "string",
+  //         description:
+  //           "The topic or keyword to search for in the news articles.",
+  //       },
+  //       from: {
+  //         type: "string",
+  //         description:
+  //           "The date from which to search for news articles. Format: YYYY-MM-DD",
+  //       },
+  //       sortBy: {
+  //         type: "string",
+  //         description:
+  //           "The sorting method for the search results. Possible values: relevancy, popularity, publishedAt",
+  //       },
+  //     },
+  //     required: ["topic_or_keyword"],
+  //     additionalProperties: false,
+  //   },
+  // };
+
+  static searchArticlesOfTopicParameter = z.object({
+    topicOrKeyword: z
+      .string()
+      .describe("The topic or keyword to search for in the news articles."),
+    from: z
+      .string()
+      .optional()
+      .describe(
+        "The date from which to search for news articles. Format: YYYY-MM-DD",
+      ),
+    sortBy: z
+      .string()
+      .optional()
+      .describe(
+        "The sorting method for the search results. Possible values: relevancy, popularity, publishedAt",
+      ),
+  });
+  static searchArticlesOfTopicFunction = zodFunction({
+    name: "search_articles_of_topic",
+    parameters: NewsAPI.searchArticlesOfTopicParameter,
+  });
 
   // Get the current top headlines for a country or category
   /*
@@ -151,53 +187,49 @@ Example response
     category?: string;
     q?: string;
   }): Promise<{ status: string; totalResults: number; articles: any[] }> {
-
     const urlSearchParams = new URLSearchParams();
 
     if (country) {
-      urlSearchParams.append('country', country);
+      urlSearchParams.append("country", country);
     }
     if (category) {
-      urlSearchParams.append('category', category);
+      urlSearchParams.append("category", category);
     }
     if (q) {
-      urlSearchParams.append('q', q);
+      urlSearchParams.append("q", q);
     }
 
-    urlSearchParams.append('apiKey', this._apiKey);
+    urlSearchParams.append("apiKey", this._apiKey);
 
-    return fetch(`https://newsapi.org/v2/top-headlines?${urlSearchParams.toString()}`)
-      .then(response => response.json())
-      .then(data => {
+    return fetch(
+      `https://newsapi.org/v2/top-headlines?${urlSearchParams.toString()}`,
+    )
+      .then((response) => response.json())
+      .then((data) => {
         return data;
       });
   }
 
-  // description of the function `getTopHeadlines` to OpenAI:
-  static descriptionGetTopHeadlines = {
-    "name": "get_top_headlines",
-    "description": "Get the current top headlines for a country or category",
-    "parameters": {
-      "type": "object",
-      "properties": {
-        "country": {
-          "type": "string",
-          "description": "The 2-letter ISO 3166-1 code of the country you want to get headlines for. Possible options: ae,ar,at,au,be,bg,br,ca,ch,cn,co,cu,de,eg,fr,gb,gr,hk,hu,id,ie,il,in,jp,kr,lt,lv,ma,mx,my,ng,no,ph,pl,pt,ro,rs,ru,sg,sk,th,tr,ua,us,ve,za",
-        },
-        "category": {
-          "type": "string",
-          "description": "The category you want to get headlines for. Possible options: business, entertainment, general, health, science, sports, technology",
-        },
-        "q": {
-          "type": "string",
-          "description": "Keywords or a phrase to search for",
-        },
-      },
-      "additionalProperties": false,
-    }
-  }
+  static getTopHeadlinesParameter = z.object({
+    country: z
+      .string()
+      .optional()
+      .describe(
+        "The 2-letter ISO 3166-1 code of the country you want to get headlines for. Possible options: ae,ar,at,au,be,bg,br,ca,ch,cn,co,cu,de,eg,fr,gb,gr,hk,hu,id,ie,il,in,jp,kr,lt,lv,ma,mx,my,ng,no,ph,pl,pt,ro,rs,ru,sg,sk,th,tr,ua,us,ve,za",
+      ),
+    category: z
+      .string()
+      .optional()
+      .describe(
+        "The category you want to get headlines for. Possible options: business, entertainment, general, health, science, sports, technology",
+      ),
+    q: z.string().optional().describe("Keywords or a phrase to search for."),
+  });
+  static getTopHeadlinesFunction = zodFunction({
+    name: "get_top_headlines",
+    parameters: NewsAPI.getTopHeadlinesParameter,
+  });
 }
-
 
 /*
 Example function:
