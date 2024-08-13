@@ -77,7 +77,7 @@ const ChatMessage = ({
     }
   }, [message.timestamp, message.images]);
 
-  const handleLongPress = (content: string | ChatCompletionContentPart[]) => {
+  const handleLongPress = (content: string | ChatCompletionContentPart) => {
     try {
 
       const textContent: string = Array.isArray(content)
@@ -127,7 +127,7 @@ const ChatMessage = ({
       <Pressable
         onLongPress={() =>
           handleLongPress(
-            message.content!
+            message.content as (string | ChatCompletionContentPart)
             // Array.isArray(message.content)
             //   ? (message.content[0] as ChatCompletionContentPartText).text
             //   : (message.content as string)

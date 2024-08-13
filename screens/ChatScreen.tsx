@@ -52,7 +52,7 @@ import { toFile } from "openai/uploads";
 import { compressImage } from "../helpers/image-utils";
 import NewsAPI from '../services/NewsService';
 import { z } from "zod";
-import { zodFunction } from "openai/helpers/zod";
+import { zodResponseFormat } from "openai/helpers/zod";
 
 const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
 const MAX_INPUT_LINES = 15; // Maximum number of lines the input can have
@@ -106,6 +106,12 @@ Today is ${new Date().toDateString()}.
 --------------------------------
 This is my profile, please take reference when generating responses:
 ${myProfile}`;
+
+  // user_profile Structured Outpus JSON Schema for OpenAI API
+  const postProcessingJSONSchema = z.object({
+    title: z.string(),
+    user_profile: z.object({}),
+  });
 
 
   const messages = conversations[currentConversationId]?.messages ?? [];
@@ -329,7 +335,7 @@ ${myProfile}`;
 
         // if newsApiKey is set, add news api tools
         /*
-
+  
           NewsAPI.getTopHeadlinesFunction,
           NewsAPI.searchArticlesOfTopicFunction,
           */
@@ -435,9 +441,7 @@ now, I expect you to give me a JSON with the following exact format:
             } as ChatCompletionMessageParam)
           ),
           model: "gpt-4o-mini",
-          response_format: {
-            type: "json_object",
-          }
+          response_format: zodResponseFormat(postProcessingJSONSchema, "post_processing"),
         });
 
         // get the content of the first message

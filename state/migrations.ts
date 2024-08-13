@@ -1,25 +1,28 @@
-import { MigrationManifest, PersistState, PersistedState } from 'redux-persist';
+import { MigrationManifest, PersistState, PersistedState } from "redux-persist";
 import { initialChatState } from "./reducers/chatReducer";
-import { AppState } from './states/app-state';
-import { defaultMyProfile } from './reducers/settingsReducer';
+import { AppState } from "./states/app-state";
+import { defaultMyProfile } from "./reducers/settingsReducer";
 
-const keepSettingsResetOthers = (state) => {
+const keepSettingsResetOthers = (state: PersistedState) => {
   // migration to keep only the necessary state
   return {
     ...state,
     chats: initialChatState,
-  };
+  } as PersistedState;
 };
 
 const removeConversationsWithoutId = (state: AppState): AppState => {
   // migration to remove conversations without id
   const newConversations = Object.values(state.chats.conversations).filter(
-    (conversation) => conversation.id
+    (conversation) => conversation.id,
   );
-  const conversationsObject = newConversations.reduce((acc, conversation) => {
-    acc[conversation.id] = conversation;
-    return acc;
-  }, {});
+  const conversationsObject = newConversations.reduce(
+    (acc, conversation) => {
+      acc[conversation.id] = conversation;
+      return acc;
+    },
+    {} as Record<string, any>,
+  );
   return {
     ...state,
     chats: {
@@ -27,15 +30,15 @@ const removeConversationsWithoutId = (state: AppState): AppState => {
       conversations: conversationsObject,
     },
   };
-}
+};
 
 export const migrations: MigrationManifest = {
   // The keys here correspond to the version numbers
-  0: (state) => {
+  0: (state: PersistedState) => {
     // migration clear out device state
     return {
       ...state,
-    };
+    } as PersistedState;
   },
   1: keepSettingsResetOthers,
   2: keepSettingsResetOthers,
@@ -43,69 +46,76 @@ export const migrations: MigrationManifest = {
   4: keepSettingsResetOthers,
 
   // 5 to remove conversations without id
-  5: (state: { _persist: PersistState; }) => removeConversationsWithoutId(state as unknown as AppState) as unknown as PersistedState,
+  5: (state: PersistedState) =>
+    removeConversationsWithoutId(
+      state as unknown as AppState,
+    ) as unknown as PersistedState,
 
   // 6 to change settingsState.modelName to 'gpt-4-turbo'
-  6: (state: { _persist: PersistState; }) => {
-    const appState = state as unknown as AppState
+  6: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
     return {
       ...appState,
       settings: {
         ...appState.settings,
-        modelName: 'gpt-4-turbo',
+        modelName: "gpt-4-turbo",
       },
     } as unknown as PersistedState;
   },
   // 7 to change settingsState.modelName to 'gpt-4o'
-  7: (state: { _persist: PersistState; }) => {
-    const appState = state as unknown as AppState
+  7: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
     return {
       ...appState,
       settings: {
         ...appState.settings,
-        modelName: 'gpt-4o',
+        modelName: "gpt-4o",
       },
     } as unknown as PersistedState;
   },
 
   // 8 to change settingsState.modelName to 'gpt-4o-mini'
-  8: (state: { _persist: PersistState; }) => {
-    const appState = state as unknown as AppState
+  8: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
     return {
       ...appState,
       settings: {
         ...appState.settings,
-        modelName: 'gpt-4o-mini',
+        modelName: "gpt-4o-mini",
       },
     } as unknown as PersistedState;
   },
 
   // 9 to change settingsState.myProfile to ... if it is empty
-  9: (state: { _persist: PersistState; }) => {
-    const appState = state as unknown as AppState
+  9: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
     return {
       ...appState,
       settings: {
         ...appState.settings,
-        ...(appState.settings.myProfile == '' && { myProfile: defaultMyProfile }),
+        ...(appState.settings.myProfile == "" && {
+          myProfile: defaultMyProfile,
+        }),
       },
     } as unknown as PersistedState;
   },
 
   // 10 to change settingsState.myProfile to ... if it is empty
-  10: (state: { _persist: PersistState; }) => {
-    const appState = state as unknown as AppState
+  10: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
     return {
       ...appState,
       settings: {
         ...appState.settings,
-        ...(appState.settings.myProfile == '' && { myProfile: defaultMyProfile }),
+        ...(appState.settings.myProfile == "" && {
+          myProfile: defaultMyProfile,
+        }),
       },
     } as unknown as PersistedState;
   },
   // 11 to default showMarkdown to true
-  11: (state: { _persist: PersistState; }) => {
-    const appState = state as unknown as AppState
+  11: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
     return {
       ...appState,
       settings: {
@@ -113,8 +123,7 @@ export const migrations: MigrationManifest = {
         showMarkdown: true,
       },
     } as unknown as PersistedState;
-  }
-
+  },
 
   // ...
   // you can keep adding migrations here for further versions
