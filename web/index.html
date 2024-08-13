@@ -65,27 +65,40 @@
       -ms-overflow-style: scrollbar;
     }
 
-    /* w-md-editor-bar, display none */
-    .w-md-editor-bar {
-      display: none;
-    }
+    /* wmde markdown */
     .wmde-markdown p {
       margin-bottom: 0px !important;
       margin-top: 0px !important;
     }
     .wmde-markdown pre {
-      margin-bottom: 0px !important;
+      margin-top: 0.5em !important;
+      margin-bottom: 0.5em !important;
     }
-    /* .wmde-markdown li > p {
-      margin-top: -1.5em !important;
-    } */
     .wmde-markdown::before {
       display: none !important;
     }
 
     .markdown-body ol li {
-      /* margin-bottom: 0.5em; */
       white-space: normal
+    }
+
+    .markdown-body {
+      display: flex;
+      flex-direction: column;
+      gap: 1em;
+    }
+    .wmde-markdown::after {
+      display: none !important;
+    }
+
+    .wmde-markdown li+li {
+        margin-top: -1em !important;
+    }
+
+    .wmde-markdown ol, .wmde-markdown ul {
+      padding-left: 1em !important;
+      margin-top: -1em !important;
+      margin-bottom: -2em !important;
     }
   </style>
 </head>

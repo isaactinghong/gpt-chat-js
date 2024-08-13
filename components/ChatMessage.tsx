@@ -24,13 +24,10 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { useSelector } from 'react-redux';
 import { AppState } from '../state/states/app-state';
 
-// import MDEditor from '@uiw/react-md-editor';
 import mermaid from "mermaid";
 import { getCodeString } from 'rehype-rewrite';
 // No import is required in the WebPack.
 import "@uiw/react-markdown-preview/markdown.css";
-// No import is required in the WebPack.
-// import "@uiw/react-md-editor/markdown-editor.css";
 import MarkdownPreview from '@uiw/react-markdown-preview';
 
 
@@ -150,7 +147,7 @@ const ChatMessage = ({
               : styles.userMessageText
           }
         >
-          <View style={{ flexDirection: "column", width: "100%" }}>
+          <View style={{ flexDirection: "column", width: "100%", display: "flex", }}>
             {/* if content is array, display the first element */}
             {message.type === "image"
               ? localImages.length > 0
@@ -309,7 +306,7 @@ const styles = StyleSheet.create({
     left: 15,
   },
   assistantMessageContainer: {
-    padding: 10,
+    paddingVertical: 20,
     paddingHorizontal: 15,
     marginTop: 15,
     marginLeft: 10,
@@ -321,7 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   userMessageContainer: {
-    padding: 10,
+    paddingVertical: 20,
     paddingHorizontal: 15,
     marginTop: 15,
     marginHorizontal: 15,

@@ -1,4 +1,3 @@
-import MDEditor from "@uiw/react-md-editor";
 import { StyleSheet, Platform } from "react-native";
 export default StyleSheet.create({
   primaryButton: {
