@@ -55,7 +55,6 @@ import { compressImage } from "../helpers/image-utils";
 import NewsAPI from '../services/NewsService';
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
-import { myProfileSample } from '../state/reducers/settingsReducer';
 import { MyProfile, myProfileZod } from '../models/my-profile';
 
 
@@ -116,7 +115,7 @@ const ChatScreen = () => {
 Today is ${new Date().toDateString()}.
 --------------------------------
 This is my profile, please take reference when generating responses:
-${myProfile}`;
+${JSON.stringify(myProfile)}`
 
   // user_profile Structured Outpus JSON Schema for OpenAI API
   const postProcessingJSONSchema =
@@ -391,10 +390,7 @@ ${myProfile}`;
       const titleLength = 40;
       const postProcessingMessageInstruction = `
 existing user_profile:
-${myProfile}
---------------------------------
-I'm going to ask OpenAI to give a title to this conversation,
-and collect as much data in the conversation as possible into the user_profile.
+${JSON.stringify(myProfile)}
 --------------------------------
 [title], required
 Please give a new title, to this conversation. The title should be less than ${titleLength} characters.
