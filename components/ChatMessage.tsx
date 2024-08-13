@@ -67,7 +67,7 @@ const ChatMessage = ({
               {
                 id: image.id,
                 base64: image.uri,
-              },
+              } as LocalImage,
             ]);
           }
         });
@@ -127,7 +127,7 @@ const ChatMessage = ({
       <Pressable
         onLongPress={() =>
           handleLongPress(
-            message.content
+            message.content!
             // Array.isArray(message.content)
             //   ? (message.content[0] as ChatCompletionContentPartText).text
             //   : (message.content as string)
@@ -159,7 +159,7 @@ const ChatMessage = ({
                           localImages.map((image) => ({
                             url: image?.base64,
                             props: {},
-                          })),
+                          } as IImageInfo)),
                           index
                         )
                       }
@@ -186,7 +186,7 @@ const ChatMessage = ({
               <MarkdownPreview
                 source={Array.isArray(message.content)
                   ? (message.content[0] as ChatCompletionContentPartText).text
-                  : message.content}
+                  : message.content ?? undefined}
                 components={{
                   code: Code
                 }}
@@ -217,7 +217,7 @@ const ChatMessage = ({
                     localImages.map((localImage) => ({
                       url: localImage?.base64,
                       props: {},
-                    })),
+                    } as IImageInfo)),
                     index
                   )
                 }
@@ -237,9 +237,14 @@ const ChatMessage = ({
 };
 
 const randomid = () => parseInt(String(Math.random() * 1e15), 10).toString(36);
-const Code = ({ inline, children = [], className, ...props }) => {
+const Code = ({ inline, children = [], className, ...props }: {
+  inline?: boolean;
+  children?: any;
+  className?: string;
+  node?: any;
+}) => {
   const demoid = useRef(`dome${randomid()}`);
-  const [container, setContainer] = useState(null);
+  const [container, setContainer] = useState(null as HTMLElement | null);
   const isMermaid =
     className && /^language-mermaid/.test(className.toLocaleLowerCase());
   const code = children
@@ -262,7 +267,7 @@ const Code = ({ inline, children = [], className, ...props }) => {
     }
   }, [container, isMermaid, code, demoid]);
 
-  const refElement = useCallback((node) => {
+  const refElement = useCallback((node: HTMLPreElement | null) => {
     if (node !== null) {
       setContainer(node);
     }

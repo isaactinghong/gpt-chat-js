@@ -44,7 +44,7 @@ import ImageViewer from "react-native-image-zoom-viewer";
 import { IImageInfo } from "react-native-image-zoom-viewer/built/image-viewer.type";
 // idb
 import * as idb from "idb";
-import { getImage, storeImage } from "../idb/images-db";
+import { getImage, IndexedDBImage, storeImage } from "../idb/images-db";
 import ChatMessage from "../components/ChatMessage";
 import { Ionicons } from "@expo/vector-icons";
 import RecordVoiceButton from "../components/RecordVoiceButton";
@@ -69,13 +69,15 @@ const ChatScreen = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
-  const inputRef = React.useRef(null);
-  const [imageIndexsHovered, setImageIndexsHovered] = useState({}); // array of image indexes that are hovered
+  const inputRef = React.useRef(null as any);
+  const [imageIndexsHovered, setImageIndexsHovered] = useState({} as {
+    [key: number]: boolean;
+  }); // array of image indexes that are hovered
   const [numberOfLines, setNumberOfLines] = useState(1);
   const [inputHeight, setInputHeight] = useState(BASE_LINE_HEIGHT);
 
   const [imageViewerVisible, setImageViewerVisible] = useState(false);
-  const [imagesToPreview, setImagesToPreview] = useState([]); // array of images to preview in image viewer
+  const [imagesToPreview, setImagesToPreview] = useState([] as IImageInfo[]); // array of images to preview in image viewer
   const [selectedImageIndex, setSelectedImageIndex] = useState(0); // index of selected image to preview in image viewer
 
   const conversations = useSelector(
@@ -240,20 +242,26 @@ ${myProfile}`;
           let openAIContent = msg.content;
 
           // if msg.type === "image", then add it as image messsage
+          const imageCount = msg.images?.length ?? 0;
+
           if (msg.type === "image") {
-            if (msg.images?.length > 0) {
-              const indexedDBImages = await Promise.all(
+            if (imageCount > 0) {
+              const indexedDBImages: IndexedDBImage[] | null = msg.images ? await Promise.all(
                 msg.images?.map(async (localImage) => {
                   // fetch the base64 image from IndexedDB
                   return await getImage(localImage.id);
                 })
-              );
+              ) : null;
+
+              if (!indexedDBImages) {
+                continue;
+              }
 
               // construct the openAIContent
               // using msg.images
               openAIContent = [
                 // add image messages
-                ...indexedDBImages.map((indexedDBImage) => {
+                ...indexedDBImages.map((indexedDBImage: IndexedDBImage) => {
                   const image_url: ChatCompletionContentPartImage.ImageURL = {
                     url: indexedDBImage.uri,
                   };
@@ -265,14 +273,14 @@ ${myProfile}`;
                 }),
               ];
             }
-          } else if (msg.images?.length > 0) {
-            const indexedDBImages = await Promise.all(
+          } else if (imageCount > 0) {
+            const indexedDBImages: IndexedDBImage[] | null = msg.images ? await Promise.all(
               msg.images?.map(async (localImage) => {
                 // fetch the base64 image from IndexedDB
                 return await getImage(localImage.id);
               })
-            );
-            if (msg.images?.length > 0) {
+            ) : null;
+            if (imageCount > 0) {
               openAIContent = [
                 // add text message
                 // check if content is string
@@ -287,13 +295,13 @@ ${myProfile}`;
                   : [
                     {
                       type: "text",
-                      text: (msg.content[0] as ChatCompletionContentPartText)
+                      text: (msg.content![0] as ChatCompletionContentPartText)
                         .text,
                     },
                   ]),
 
                 // add image messages
-                ...indexedDBImages.map((indexedDBImage) => {
+                ...indexedDBImages?.map((indexedDBImage) => {
                   const image_url: ChatCompletionContentPartImage.ImageURL = {
                     url: indexedDBImage.uri,
                   };
@@ -302,7 +310,7 @@ ${myProfile}`;
                     type: "image_url" as const, // Fix: Assign type "image_url" explicitly
                     image_url,
                   };
-                }),
+                }) ?? [],
               ] as ChatCompletionContentPart[];
             }
           }
@@ -348,7 +356,7 @@ ${myProfile}`;
           tools,
         });
 
-      } catch (error) {
+      } catch (error: any) {
         console.log("Error", error);
 
         // show error toast message
@@ -508,7 +516,7 @@ now, I expect you to give me a JSON with the following exact format:
             })
           );
         }
-      } catch (error) {
+      } catch (error: any) {
         console.log("Error", error);
 
         // show error toast message
@@ -518,7 +526,7 @@ now, I expect you to give me a JSON with the following exact format:
           text2: error.message,
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.log("Error", error);
 
       // show error toast message
@@ -600,12 +608,12 @@ now, I expect you to give me a JSON with the following exact format:
           if (localToolCalls.length - 1 < toolCall.index) {
             localToolCalls.push({
               ...toolCall,
-              id: toolCall.id,
-              type: toolCall.type,
+              id: toolCall.id!,
+              type: toolCall.type!,
               function: {
                 ...toolCall.function,
-                arguments: toolCall.function.arguments,
-                name: toolCall.function.name,
+                arguments: toolCall.function!.arguments,
+                name: toolCall.function!.name,
               } as Chat.Completions.ChatCompletionMessageToolCall.Function,
             });
           }
@@ -613,7 +621,7 @@ now, I expect you to give me a JSON with the following exact format:
           // otherwise, append the function arguments to the existing localToolCalls
           else {
             localToolCalls[toolCall.index].function.arguments +=
-              toolCall.function.arguments;
+              toolCall.function!.arguments;
           }
 
         }
@@ -719,7 +727,7 @@ now, I expect you to give me a JSON with the following exact format:
 
 
             }
-            catch (error) {
+            catch (error: any) {
               console.log("Error calling tool function", error);
 
               // show error toast message
@@ -756,7 +764,7 @@ now, I expect you to give me a JSON with the following exact format:
     }
   }
 
-  const handleConfirmApiKey = (inputValue) => {
+  const handleConfirmApiKey = (inputValue: string) => {
     console.log("OpenAI API Key", inputValue);
     // save settings
     dispatch(
@@ -851,21 +859,21 @@ now, I expect you to give me a JSON with the following exact format:
     });
   };
 
-  const handleImageHoverIn = (index) => {
+  const handleImageHoverIn = (index: number) => {
     console.log("handleImageHoverIn", index);
 
     // set imageIndexsHovered[index] to true
     setImageIndexsHovered({ ...imageIndexsHovered, [index]: true });
   };
 
-  const handleImageHoverOut = (index) => {
+  const handleImageHoverOut = (index: number) => {
     console.log("handleImageHoverOut", index);
 
     // set imageIndexsHovered[index] to false
     setImageIndexsHovered({ ...imageIndexsHovered, [index]: false });
   };
 
-  const handleImagePress = (index) => {
+  const handleImagePress = (index: number) => {
     console.log("handleImagePress", index);
 
     // delete from imagesHovered
@@ -885,7 +893,7 @@ now, I expect you to give me a JSON with the following exact format:
     setImageViewerVisible(true);
   };
 
-  const handleMessageKeyPress = (event) => {
+  const handleMessageKeyPress = (event: any) => {
     // Check if we're on a device that traditionally has a hardware keyboard
     const isHardwareKeyboard = !/iPhone|iPad|iPod|Android/i.test(
       navigator.userAgent
@@ -1018,7 +1026,7 @@ now, I expect you to give me a JSON with the following exact format:
     dispatch(removeAudioFiles());
   }, [audioFileNames]);
 
-  const handleInputContentSizeChange = (event) => {
+  const handleInputContentSizeChange = (event: any) => {
     // Extract contentSize from event nativeEvent
     // find number of lines in the input
     const contentSize = event.nativeEvent.contentSize;
