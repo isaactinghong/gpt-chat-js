@@ -24,14 +24,15 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import { useSelector } from 'react-redux';
 import { AppState } from '../state/states/app-state';
 
-import Markdown from 'react-native-markdown-display';
-import MDEditor from '@uiw/react-md-editor';
+// import MDEditor from '@uiw/react-md-editor';
 import mermaid from "mermaid";
 import { getCodeString } from 'rehype-rewrite';
 // No import is required in the WebPack.
 import "@uiw/react-markdown-preview/markdown.css";
 // No import is required in the WebPack.
 // import "@uiw/react-md-editor/markdown-editor.css";
+import MarkdownPreview from '@uiw/react-markdown-preview';
+
 
 const ChatMessage = ({
   message,
@@ -149,7 +150,7 @@ const ChatMessage = ({
               : styles.userMessageText
           }
         >
-          <View style={{ flexDirection: "column" }}>
+          <View style={{ flexDirection: "column", width: "100%" }}>
             {/* if content is array, display the first element */}
             {message.type === "image"
               ? localImages.length > 0
@@ -185,20 +186,15 @@ const ChatMessage = ({
               //     : message.content}
               // </Markdown>)
 
-              <MDEditor
-                value={Array.isArray(message.content)
+              <MarkdownPreview
+                source={Array.isArray(message.content)
                   ? (message.content[0] as ChatCompletionContentPartText).text
                   : message.content}
                 style={{ flex: 1, whiteSpace: 'pre-wrap', height: 'auto', }}
-                preview="preview"
-                hideToolbar={true}
-                toolbarBottom={false}
-                contentEditable={false}
-                previewOptions={{
-                  components: {
-                    code: Code
-                  }
+                components={{
+                  code: Code
                 }}
+                className='markdown-body'
               />
             )}
             {/* else show pure text */}
@@ -342,6 +338,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 20,
     flex: 1,
+    width: "100%",
 
   },
   userMessageText: {
@@ -349,6 +346,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 20,
     flex: 1,
+    width: "100%",
   },
   imageContainer: {
     flexDirection: "row",
