@@ -124,7 +124,23 @@ export const migrations: MigrationManifest = {
       },
     } as unknown as PersistedState;
   },
-
+  // 12 to update system message if it is "Chat with me."
+  12: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
+    return {
+      ...appState,
+      settings: {
+        ...appState.settings,
+        systemMessage:
+          appState.settings.systemMessage == "Chat with me."
+            ? `Talk to me like a human being.
+Try to reply one or two sentence long each time, unless really necessary.
+--------
+Any mermaid diagram can be rendered in the app when needed.`
+            : appState.settings.systemMessage,
+      },
+    } as unknown as PersistedState;
+  },
   // ...
   // you can keep adding migrations here for further versions
 };

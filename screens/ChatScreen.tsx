@@ -53,6 +53,9 @@ import { compressImage } from "../helpers/image-utils";
 import NewsAPI from '../services/NewsService';
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
+import { myProfileSample } from '../state/reducers/settingsReducer';
+import { myProfileZod } from '../models/my-profile';
+
 
 const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
 const MAX_INPUT_LINES = 15; // Maximum number of lines the input can have
@@ -110,7 +113,7 @@ ${myProfile}`;
   // user_profile Structured Outpus JSON Schema for OpenAI API
   const postProcessingJSONSchema = z.object({
     title: z.string(),
-    user_profile: z.object({}),
+    user_profile: myProfileZod,
   });
 
 
@@ -335,7 +338,7 @@ ${myProfile}`;
 
         // if newsApiKey is set, add news api tools
         /*
-  
+
           NewsAPI.getTopHeadlinesFunction,
           NewsAPI.searchArticlesOfTopicFunction,
           */
@@ -389,14 +392,24 @@ always keep the overall structure of the existing user_profile, do not make dras
 collect, fom the conversation, new information about my profile as much as possible into the user_profile, merge with the existing user_profile.
 create new and modify markdown headings if needed.
 refrain from removing any data, or only remove if the data is ABSOLUTELY not needed.
-make sure the user_profile is a string, not object or array. and the string should be in markdown format.
-if nothing is changed, just give \`null\`, not "null" as string, but real null.
+--------------------------------
+[backup_profile]
+whenever in the conversation user requested to save the profile, return "backup_profile": true, in the JSON.
+otherwise, do not include "backup_profile" in the JSON.
 --------------------------------
 now, I expect you to give me a JSON with the following exact format:
 {
-  "title": [title: string]
-  "user_profile": [user_profile: string]
-}`;
+  title: [title: string]
+  user_profile: {
+    "personal_information": Record<string, string>,
+    [aspect: string]: Record<string, string>,
+  },
+  backup_profile?: boolean
+}
+--------------------------------
+an EXAMPLE of the user_profile:
+${JSON.stringify(myProfileSample, null, 2)}
+`;
 
       // system message to ask openai to give a title
       const firstPostProcessingMessage: ChatCompletionMessageParam = {
@@ -450,7 +463,7 @@ now, I expect you to give me a JSON with the following exact format:
         console.log("postProcessingContent", postProcessingContent);
 
         // parse if the content is JSON
-        let postProcessingContentJSON: {
+        let postProcessingContentJson: {
           title: string;
           user_profile: string;
         } = {
@@ -458,7 +471,7 @@ now, I expect you to give me a JSON with the following exact format:
           user_profile: "",
         };
         try {
-          postProcessingContentJSON = JSON.parse(postProcessingContent);
+          postProcessingContentJson = JSON.parse(postProcessingContent);
         } catch (error) {
           console.log("Error parsing JSON", error);
         }
@@ -472,9 +485,9 @@ now, I expect you to give me a JSON with the following exact format:
         // titleContent = titleContent.replace(/(\r\n|\n|\r)/gm, "");
 
         // update conversation title
-        if (postProcessingContentJSON.title) {
+        if (postProcessingContentJson.title) {
           dispatch(
-            updateConversation(currentConversationId, postProcessingContentJSON.title)
+            updateConversation(currentConversationId, postProcessingContentJson.title)
           );
         }
         else {
@@ -487,19 +500,19 @@ now, I expect you to give me a JSON with the following exact format:
         }
 
         // if user_profile is not null, update myProfile
-        if (postProcessingContentJSON.user_profile) {
+        if (postProcessingContentJson.user_profile) {
           // log updating user profile now
           console.log("Updating user profile now");
 
           // if the user_profile is object
           // convert it to markdown string
-          if (typeof postProcessingContentJSON.user_profile === "object") {
+          if (typeof postProcessingContentJson.user_profile === "object") {
 
             // log user_profile is object
             console.log("user_profile is object");
 
-            postProcessingContentJSON.user_profile = JSON.stringify(
-              postProcessingContentJSON.user_profile,
+            postProcessingContentJson.user_profile = JSON.stringify(
+              postProcessingContentJson.user_profile,
               null,
               2
             );
@@ -507,7 +520,7 @@ now, I expect you to give me a JSON with the following exact format:
 
           dispatch(
             saveSettings({
-              myProfile: postProcessingContentJSON.user_profile,
+              myProfile: postProcessingContentJson.user_profile,
             })
           );
         }

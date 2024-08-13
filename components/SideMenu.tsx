@@ -25,7 +25,9 @@ import { saveSettings } from "../state/actions/settingsActions";
 import Toast from "react-native-toast-message";
 import GlobalStyles from "../theme/GlobalStyles";
 
-const SideMenu = ({ navigation }) => {
+const SideMenu = ({ navigation }: {
+  navigation: any;
+}) => {
   // load conversations from store
   const conversationList: Conversation[] = useSelector((state: AppState) =>
     state.chats.conversations
@@ -43,12 +45,29 @@ const SideMenu = ({ navigation }) => {
   const [modelNameLocal, setModelNameLocal] = React.useState(modelName);
   const [systemMessageLocal, setSystemMessageLocal] =
     React.useState(systemMessage);
-  const [myProfileLocal, setMyProfileLocal] = React.useState(myProfile);
+  const [myProfileLocal, setMyProfileLocal] = React.useState("");
+  // const [myProfileText, setMyProfileText] = React.useState("");
 
   // modal visibility
   const [modalVisible, setModalVisible] = React.useState(false);
+  // parse error
+  const [parseError, setParseError] = React.useState("");
 
-  const handleSave = (fieldName, newInput) => {
+  const handleMyProfileTextChange = (value: string) => {
+
+    // setMyProfileLocal
+    setMyProfileLocal(value);
+
+    // try to parse the value
+    try {
+      const myProfileJson = JSON.parse(value);
+      setParseError("");
+    } catch (error) {
+      setParseError("Invalid JSON");
+    }
+  }
+
+  const handleSave = (fieldName: string, newInput: any) => {
     // log
     console.log("handleSave", fieldName, newInput?.target.value);
 
@@ -81,6 +100,9 @@ const SideMenu = ({ navigation }) => {
 
   // onMount, load myProfile from store
   React.useEffect(() => {
+
+    // JSON stringify myProfile
+    // const myProfileString = JSON.stringify(myProfile, null, 2);
 
     // set myProfileLocal
     setMyProfileLocal(myProfile);
@@ -184,8 +206,11 @@ const SideMenu = ({ navigation }) => {
             multiline={true}
             numberOfLines={4}
             value={myProfileLocal}
-            onChangeText={(value) => setMyProfileLocal(value)}
+            onChangeText={(value) => handleMyProfileTextChange(value)}
           />
+
+          {/* show parse error if any */}
+          {parseError ? <Text style={{ color: "red" }}>{parseError}</Text> : null}
 
           {/* a row of two buttons: Save and Close */}
           <View style={styles.modalButtonsContainer}>
@@ -200,8 +225,11 @@ const SideMenu = ({ navigation }) => {
                   // set modal visibility to false
                   setModalVisible(false);
 
+                  // parse myProfileLocal into JSON
+                  const myProfileJson = JSON.parse(myProfileLocal);
+
                   // save to store
-                  dispatch(saveSettings({ myProfile: myProfileLocal }));
+                  dispatch(saveSettings({ myProfile: myProfileJson }));
 
                   // show success toast message
                   Toast.show({
