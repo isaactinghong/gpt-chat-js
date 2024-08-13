@@ -71,6 +71,7 @@
     }
     .wmde-markdown p {
       margin-bottom: 0px !important;
+      margin-top: 0px !important;
     }
     .wmde-markdown pre {
       margin-bottom: 0px !important;
@@ -81,17 +82,11 @@
     .wmde-markdown::before {
       display: none !important;
     }
-    /* .wmde-markdown ul, .wmde-markdown ol {
-      margin-block-start: -1em !important;
-      margin-block-end: -2em !important;
-    } */
 
-    /* Enable for apps that support dark-theme */
-    /*@media (prefers-color-scheme: dark) {
-        body {
-          background-color: black;
-        }
-      }*/
+    .markdown-body ol li {
+      /* margin-bottom: 0.5em; */
+      white-space: normal
+    }
   </style>
 </head>
 

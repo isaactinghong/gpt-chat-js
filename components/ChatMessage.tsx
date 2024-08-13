@@ -190,7 +190,6 @@ const ChatMessage = ({
                 source={Array.isArray(message.content)
                   ? (message.content[0] as ChatCompletionContentPartText).text
                   : message.content}
-                style={{ flex: 1, whiteSpace: 'pre-wrap', height: 'auto', }}
                 components={{
                   code: Code
                 }}
