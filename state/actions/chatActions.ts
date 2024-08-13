@@ -123,7 +123,7 @@ export type ChatActionTypes =
   | AddAudioFilesAction
   | RemoveAudioFilesAction
   | PostProcessingStartAction
-  | PostProcessing;
+  | PostProcessingEndAction;
 
 export const addMessage = (
   conversationId: string,

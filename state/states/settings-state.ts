@@ -19,7 +19,7 @@ export interface SettingsState {
   newsApiKey: string;
   modelName: string;
   systemMessage: string;
-  myProfile: string;
+  myProfile: string; // deprecated
   myProfileJson: MyProfile;
   showMarkdown: boolean;
 }

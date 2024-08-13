@@ -40,7 +40,7 @@ const SideMenu = ({ navigation }: {
   const systemMessage = useSelector(
     (state: AppState) => state.settings.systemMessage
   );
-  const myProfile = useSelector((state: AppState) => state.settings.myProfile);
+  const myProfileJson = useSelector((state: AppState) => state.settings.myProfileJson);
 
   const [modelNameLocal, setModelNameLocal] = React.useState(modelName);
   const [systemMessageLocal, setSystemMessageLocal] =
@@ -102,11 +102,11 @@ const SideMenu = ({ navigation }: {
   React.useEffect(() => {
 
     // JSON stringify myProfile
-    // const myProfileString = JSON.stringify(myProfile, null, 2);
+    const myProfileString = JSON.stringify(myProfileJson, null, 2);
 
     // set myProfileLocal
-    setMyProfileLocal(myProfile);
-  }, [myProfile]);
+    setMyProfileLocal(myProfileString);
+  }, [myProfileJson]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -229,7 +229,7 @@ const SideMenu = ({ navigation }: {
                   const myProfileJson = JSON.parse(myProfileLocal);
 
                   // save to store
-                  dispatch(saveSettings({ myProfile: myProfileJson }));
+                  dispatch(saveSettings({ myProfileJson: myProfileJson }));
 
                   // show success toast message
                   Toast.show({
