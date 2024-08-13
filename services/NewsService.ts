@@ -13,6 +13,8 @@ import { zodFunction } from "openai/helpers/zod";
 export default class NewsAPI {
   static _apiKey: string;
 
+  static _proxyUrl = "https://walrus-app-zl2gh.ondigitalocean.app/news/";
+
   constructor() {}
 
   static setApiKey(apiKey: string) {
@@ -75,7 +77,7 @@ Example response
     urlSearchParams.append("apiKey", this._apiKey);
 
     return fetch(
-      `https://newsapi.org/v2/everything?${urlSearchParams.toString()}`,
+      `${this._proxyUrl}/v2/everything?${urlSearchParams.toString()}`,
     )
       .then((response) => response.json())
       .then((data) => {
@@ -202,7 +204,7 @@ Example response
     urlSearchParams.append("apiKey", this._apiKey);
 
     return fetch(
-      `https://newsapi.org/v2/top-headlines?${urlSearchParams.toString()}`,
+      `${this._proxyUrl}/v2/top-headlines?${urlSearchParams.toString()}`,
     )
       .then((response) => response.json())
       .then((data) => {
