@@ -68,6 +68,14 @@ interface PostProcessingResponse {
   new_profile?: MyProfile;
 }
 
+
+const toolNameToLabel: { [key: string]: string } = {
+  [NewsAPI.getTopHeadlinesFunctionName]: "News API Top Headlines",
+  [NewsAPI.searchArticlesOfTopicFunctionName]: "News API Search Articles",
+  [GoogleSearchAPI.searchGoogleFunctionName]: "Google Search API",
+  "": "...",
+}
+
 const ChatScreen = () => {
   const dispatch = useDispatch();
 
@@ -668,7 +676,7 @@ now, I expect you to give me a JSON with the following format:
             });
 
             // append to the message that the tool call is being made
-            newMessageFromAI.content = `Requesting information from tool: ${toolCall.function?.name}...`;
+            newMessageFromAI.content = `Requesting information from "${toolNameToLabel[toolCall.function?.name ?? ""]}"...`;
 
             dispatch(
               updateMessage(currentConversationId, newMessageFromAI, messageIndex)
