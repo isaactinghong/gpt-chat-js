@@ -56,6 +56,7 @@ import NewsAPI from '../services/NewsService';
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { MyProfile, myProfileZod } from '../models/my-profile';
+import GoogleSearchAPI from '../services/GoogleSearchService';
 
 
 const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
@@ -103,6 +104,12 @@ const ChatScreen = () => {
   );
   const newsAiApiKey = useSelector(
     (state: AppState) => state.settings.newsApiKey
+  );
+  const googleSearchApiKey = useSelector(
+    (state: AppState) => state.settings.googleSearchApiKey
+  );
+  const googleSearchCx = useSelector(
+    (state: AppState) => state.settings.googleSearchCx
   );
   const systemMessage = useSelector(
     (state: AppState) => state.settings.systemMessage
@@ -356,6 +363,11 @@ ${JSON.stringify(myProfile)}`
         if (newsAiApiKey) {
           tools.push(NewsAPI.getTopHeadlinesFunction);
           tools.push(NewsAPI.searchArticlesOfTopicFunction);
+        }
+
+        if (googleSearchApiKey && googleSearchCx) {
+          // add google search tools
+          tools.push(GoogleSearchAPI.searchGoogleFunction);
         }
 
         await callOpenAiApiToUpdateMessages({
@@ -712,14 +724,19 @@ now, I expect you to give me a JSON with the following format:
 
               // call the function
               let functionResult = null;
-              if (functionName === "get_top_headlines") {
+              if (functionName === GoogleSearchAPI.searchGoogleFunctionName) {
+                functionResult = await GoogleSearchAPI.searchGoogle({
+                  query: functionArguments.query,
+                });
+              }
+              else if (functionName === NewsAPI.getTopHeadlinesFunctionName) {
                 functionResult = await NewsAPI.getTopHeadlines({
                   ...(functionArguments.country && { country: functionArguments.country }),
                   ...(functionArguments.category && { category: functionArguments.category }),
                   ...(functionArguments.q && { q: functionArguments.q }),
                 });
               }
-              else if (functionName === "search_articles_of_topic") {
+              else if (functionName === NewsAPI.searchArticlesOfTopicFunctionName) {
                 functionResult = await NewsAPI.searchArticlesOfTopic({
                   /*
                     topicOrKeyword,

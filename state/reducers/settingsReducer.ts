@@ -154,6 +154,8 @@ export const myProfileSample: MyProfile = {
 const initialState: SettingsState = {
   openAiApiKey: "",
   newsApiKey: "",
+  googleSearchApiKey: "",
+  googleSearchCx: "",
   modelName: "gpt-4o-mini",
   systemMessage: `Talk to me like a human being.
 Try to reply one or two sentence long each time, unless really necessary.

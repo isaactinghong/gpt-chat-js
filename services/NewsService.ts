@@ -131,8 +131,9 @@ Example response
         "The sorting method for the search results. Possible values: relevancy, popularity, publishedAt",
       ),
   });
+  static searchArticlesOfTopicFunctionName = "search_articles_of_topic";
   static searchArticlesOfTopicFunction = zodFunction({
-    name: "search_articles_of_topic",
+    name: NewsAPI.searchArticlesOfTopicFunctionName,
     parameters: NewsAPI.searchArticlesOfTopicParameter,
   });
 
@@ -227,8 +228,9 @@ Example response
       ),
     q: z.string().optional().describe("Keywords or a phrase to search for."),
   });
+  static getTopHeadlinesFunctionName = "get_top_headlines";
   static getTopHeadlinesFunction = zodFunction({
-    name: "get_top_headlines",
+    name: NewsAPI.getTopHeadlinesFunctionName,
     parameters: NewsAPI.getTopHeadlinesParameter,
   });
 }

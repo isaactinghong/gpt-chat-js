@@ -1,7 +1,7 @@
 import { OpenAI as OpenAIBase } from "openai";
 
 export default class OpenAI {
-  private static _instance = null;
+  private static _instance: OpenAI | null = null;
 
   _openai;
 
@@ -13,7 +13,7 @@ export default class OpenAI {
       OpenAI._instance = new OpenAI();
     }
 
-    return this._instance;
+    return OpenAI._instance!;
   }
 
   static get api(): OpenAIBase {
@@ -33,7 +33,7 @@ export default class OpenAI {
     });
   }
 
-  static setApiKey(apiKey) {
+  static setApiKey(apiKey: string) {
     if (!this.api) {
       return;
     }
@@ -41,16 +41,18 @@ export default class OpenAI {
   }
 
   static async suggestFileName(text: string) {
-    return await this.api.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: `give a file name (without file extension) for this audio file with this voice over:\n${text}`,
-        },
-      ],
-    }).then((response) => {
-      return response.choices[0].message.content;
-    });
+    return await this.api.chat.completions
+      .create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `give a file name (without file extension) for this audio file with this voice over:\n${text}`,
+          },
+        ],
+      })
+      .then((response) => {
+        return response.choices[0].message.content;
+      });
   }
 }

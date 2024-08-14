@@ -17,6 +17,8 @@ import { MyProfile } from "../../models/my-profile";
 export interface SettingsState {
   openAiApiKey: string;
   newsApiKey: string;
+  googleSearchApiKey: string;
+  googleSearchCx: string;
   modelName: string;
   systemMessage: string;
   myProfile: string; // deprecated

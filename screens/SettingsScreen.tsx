@@ -25,6 +25,22 @@ const SettingsScreen = () => {
   );
   const [openAiApiKeyLocal, setOpenAiApiKey] = React.useState(openAiApiKey);
 
+  // googleSearchApiKey
+  const googleSearchApiKey = useSelector(
+    (state: AppState) => state.settings.googleSearchApiKey
+  );
+  const [googleSearchApiKeyLocal, setGoogleSearchApiKey] = React.useState(
+    googleSearchApiKey
+  );
+
+  // googleSearchCx
+  const googleSearchCx = useSelector(
+    (state: AppState) => state.settings.googleSearchCx
+  );
+  const [googleSearchCxLocal, setGoogleSearchCx] = React.useState(
+    googleSearchCx
+  );
+
   // newsApiKey
   const newsApiKey = useSelector(
     (state: AppState) => state.settings.newsApiKey
@@ -46,6 +62,24 @@ const SettingsScreen = () => {
         placeholder="Your API Key here"
         value={openAiApiKeyLocal}
         onChangeText={setOpenAiApiKey}
+      />
+
+      {/* Google Search API Key */}
+      <Text style={styles.title}>Google Search API Key</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Your API Key here"
+        value={googleSearchApiKeyLocal}
+        onChangeText={setGoogleSearchApiKey}
+      />
+
+      {/* Google Search CX Key */}
+      <Text style={styles.title}>Google Search CX Key</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Your CX Key here"
+        value={googleSearchCxLocal}
+        onChangeText={setGoogleSearchCx}
       />
 
       {/* News API Key */}
@@ -91,6 +125,8 @@ const SettingsScreen = () => {
           dispatch(
             saveSettings({
               openAiApiKey: openAiApiKeyLocal,
+              googleSearchApiKey: googleSearchApiKeyLocal,
+              googleSearchCx: googleSearchCxLocal,
               newsApiKey: newsApiKeyLocal,
               showMarkdown: showMarkdownLocal,
             })
