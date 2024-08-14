@@ -57,6 +57,7 @@ import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { MyProfile, myProfileZod } from '../models/my-profile';
 import GoogleSearchAPI from '../services/GoogleSearchService';
+import CrawlAPI from '../services/CrawlService';
 
 
 const BASE_LINE_HEIGHT = 20; // This value should be close to the actual line height of your text input
@@ -73,6 +74,7 @@ const toolNameToLabel: { [key: string]: string } = {
   [NewsAPI.getTopHeadlinesFunctionName]: "News API Top Headlines",
   [NewsAPI.searchArticlesOfTopicFunctionName]: "News API Search Articles",
   [GoogleSearchAPI.searchGoogleFunctionName]: "Google Search API",
+  [CrawlAPI.crawlWebsiteFunctionName]: "Reading website",
   "": "...",
 }
 
@@ -377,6 +379,8 @@ ${JSON.stringify(myProfile)}`
           // add google search tools
           tools.push(GoogleSearchAPI.searchGoogleFunction);
         }
+
+        // tools.push(CrawlAPI.crawlWebsiteFunction)
 
         await callOpenAiApiToUpdateMessages({
           chatMessagesToOpenAI,
@@ -756,6 +760,11 @@ now, I expect you to give me a JSON with the following format:
                     ...(functionArguments.topic_or_keyword && { topicOrKeyword: functionArguments.topic_or_keyword }),
                     ...(functionArguments.from && { from: functionArguments.from }),
                     ...(functionArguments.sortBy && { sortBy: functionArguments.sortBy }),
+                  });
+                  break;
+                case CrawlAPI.crawlWebsiteFunctionName:
+                  functionResult = await CrawlAPI.crawlWebsite({
+                    url: functionArguments.url,
                   });
                   break;
               }
