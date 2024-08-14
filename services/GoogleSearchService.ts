@@ -400,13 +400,23 @@ export default class GoogleSearchAPI {
   }
 
   static searchGoogle({
-    query,
+    params,
   }: {
-    query: string;
+    params: any;
   }): Promise<{ status: string; totalResults: number; articles: any[] }> {
     const urlSearchParams = new URLSearchParams();
 
-    urlSearchParams.append("q", query);
+    // for each key of the params object, add it to the URLSearchParams
+    for (const key in params) {
+      if (params[key] !== undefined) {
+        // check if "none" is passed as a value, if so, don't add it to the URLSearchParams
+        if (params[key] === "none") {
+          continue;
+        }
+
+        urlSearchParams.append(key, params[key]);
+      }
+    }
 
     urlSearchParams.append("key", this._apiKey);
     urlSearchParams.append("cx", this._cx);
@@ -419,113 +429,113 @@ export default class GoogleSearchAPI {
   }
 
   static searchGoogleParameter = z.object({
-    dateRestrict: z
-      .string()
-      .optional()
-      .describe(
-        "Restricts results to URLs based on date. Supported values include: d[number]: requests results from the specified number of past days. w[number]: requests results from the specified number of past weeks. m[number]: requests results from the specified number of past months. y[number]: requests results from the specified number of past years.",
-      ),
-    exactTerms: z
-      .string()
-      .optional()
-      .describe(
-        "Identifies a phrase that all documents in the search results must contain.",
-      ),
-    excludeTerms: z
-      .string()
-      .optional()
-      .describe(
-        "Identifies a word or phrase that should not appear in any documents in the search results.",
-      ),
-    fileType: z
-      .enum([
-        "pdf",
-        "ps",
-        "csv",
-        "epub",
-        "kml",
-        "kmz",
-        "gpx",
-        "hwp",
-        "html",
-        "xls",
-        "xlsx",
-        "ppt",
-        "pptx",
-        "doc",
-        "docx",
-        "odp",
-        "ods",
-        "odt",
-        "rtf",
-        "svg",
-        "tex",
-        "txt",
-        "bas",
-        "c",
-        "cc",
-        "cpp",
-        "cxx",
-        "h",
-        "hpp",
-        "cs",
-        "java",
-        "pl",
-        "py",
-        "wml",
-        "xml",
-        "bmp",
-        "gif",
-        "jpeg",
-        "png",
-        "webp",
-        "svg",
-        "3gp",
-        "3g2",
-        "asf",
-        "avi",
-        "divx",
-        "m2v",
-        "m3u",
-        "m3u8",
-        "m4v",
-        "mkv",
-        "mov",
-        "mp4",
-        "mpeg",
-        "ogv",
-        "qvt",
-        "ram",
-        "rm",
-        "vob",
-        "webm",
-        "wmv",
-        "xap",
-      ])
-      .optional()
-      .describe("Restricts results to files of a specified extension."),
-    gl: z
-      .string()
-      .optional()
-      .describe(
-        "Geolocation of end user. The gl parameter value is a two-letter country code.",
-      ),
-    highRange: z
-      .string()
-      .optional()
-      .describe("Specifies the ending value for a search range."),
-    hl: z
-      .string()
-      .optional()
-      .describe("Sets the user interface language. e.g. en, zh-CN, zh-TW"),
-    hq: z
-      .string()
-      .optional()
-      .describe(
-        "Appends the specified query terms to the query, as if they were combined with a logical AND operator.",
-      ),
+    // dateRestrict: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "Restricts results to URLs based on date. Supported values include: d[number]: requests results from the specified number of past days. w[number]: requests results from the specified number of past weeks. m[number]: requests results from the specified number of past months. y[number]: requests results from the specified number of past years.",
+    //   ),
+    // exactTerms: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "Identifies a phrase that all documents in the search results must contain.",
+    //   ),
+    // excludeTerms: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "Identifies a word or phrase that should not appear in any documents in the search results.",
+    //   ),
+    // fileType: z
+    //   .enum([
+    //     "pdf",
+    //     "ps",
+    //     "csv",
+    //     "epub",
+    //     "kml",
+    //     "kmz",
+    //     "gpx",
+    //     "hwp",
+    //     "html",
+    //     "xls",
+    //     "xlsx",
+    //     "ppt",
+    //     "pptx",
+    //     "doc",
+    //     "docx",
+    //     "odp",
+    //     "ods",
+    //     "odt",
+    //     "rtf",
+    //     "svg",
+    //     "tex",
+    //     "txt",
+    //     "bas",
+    //     "c",
+    //     "cc",
+    //     "cpp",
+    //     "cxx",
+    //     "h",
+    //     "hpp",
+    //     "cs",
+    //     "java",
+    //     "pl",
+    //     "py",
+    //     "wml",
+    //     "xml",
+    //     "bmp",
+    //     "gif",
+    //     "jpeg",
+    //     "png",
+    //     "webp",
+    //     "svg",
+    //     "3gp",
+    //     "3g2",
+    //     "asf",
+    //     "avi",
+    //     "divx",
+    //     "m2v",
+    //     "m3u",
+    //     "m3u8",
+    //     "m4v",
+    //     "mkv",
+    //     "mov",
+    //     "mp4",
+    //     "mpeg",
+    //     "ogv",
+    //     "qvt",
+    //     "ram",
+    //     "rm",
+    //     "vob",
+    //     "webm",
+    //     "wmv",
+    //     "xap",
+    //   ])
+    //   .optional()
+    //   .describe("Restricts results to files of a specified extension."),
+    // gl: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "Geolocation of end user. The gl parameter value is a two-letter country code.",
+    //   ),
+    // highRange: z
+    //   .string()
+    //   .optional()
+    //   .describe("Specifies the ending value for a search range."),
+    // hl: z
+    //   .string()
+    //   .optional()
+    //   .describe("Sets the user interface language. e.g. en, zh-CN, zh-TW"),
+    // hq: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "Appends the specified query terms to the query, as if they were combined with a logical AND operator.",
+    //   ),
     imgColorType: z
-      .enum(["color", "gray", "mono", "trans"])
+      .enum(["color", "gray", "mono", "trans", "none"])
       .optional()
       .describe(
         "Returns black and white, grayscale, transparent, or color images.",
@@ -544,59 +554,77 @@ export default class GoogleSearchAPI {
         "teal",
         "white",
         "yellow",
+        "none",
       ])
       .optional()
-      .describe("Returns images of a specific dominant color."),
+      .describe(
+        "Returns images of a specific dominant color. do not specify if you want all colors.",
+      ),
     imgSize: z
-      .enum(["huge", "icon", "large", "medium", "small", "xlarge", "xxlarge"])
+      .enum([
+        "huge",
+        "icon",
+        "large",
+        "medium",
+        "small",
+        "xlarge",
+        "xxlarge",
+        "none",
+      ])
       .optional()
       .describe("Returns images of a specified size."),
     imgType: z
-      .enum(["clipart", "face", "lineart", "stock", "photo", "animated"])
+      .enum([
+        "clipart",
+        "face",
+        "lineart",
+        "stock",
+        "photo",
+        "animated",
+        "none",
+      ])
       .optional()
       .describe("Returns images of a type."),
-    lowRange: z
-      .string()
-      .optional()
-      .describe("Specifies the starting value for a search range."),
+    // lowRange: z
+    //   .string()
+    //   .optional()
+    //   .describe("Specifies the starting value for a search range."),
     num: z
       .number()
       .int()
-      .min(1)
-      .max(10)
       .optional()
       .describe("Number of search results to return."),
-    orTerms: z
-      .string()
-      .optional()
-      .describe(
-        "Provides additional search terms to check for in a document, where each document in the search results must contain at least one of the additional search terms.",
-      ),
-    q: z.string().describe("Query").optional(),
+    // orTerms: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "Provides additional search terms to check for in a document, where each document in the search results must contain at least one of the additional search terms.",
+    //   ),
+    q: z.string().describe("The query"),
     searchType: z
-      .enum(["image"])
+      .enum(["image", "none"])
       .optional()
       .describe(
         "Specifies the search type: image. If unspecified, results are limited to webpages.",
       ),
-    siteSearch: z
-      .string()
-      .optional()
-      .describe(
-        "Specifies a given site which should always be included or excluded from results.",
-      ),
-    siteSearchFilter: z
-      .enum(["e", "i"])
-      .optional()
-      .describe(
-        "Controls whether to include or exclude results from the site named in the siteSearch parameter.",
-      ),
-    sort: z
-      .string()
-      .optional()
-      .describe(
-        "The sort expression to apply to the results. The sort parameter specifies that the results be sorted according to the specified expression i.e. sort by date. Example: sort=date.",
-      ),
+    // siteSearch: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "Specifies a given site which should always be included or excluded from results.",
+    //   ),
+    // siteSearchFilter: z
+    //   .enum(["e", "i"])
+    //   .optional()
+    //   .describe(
+    //     "Controls whether to include or exclude results from the site named in the siteSearch parameter.",
+    //   ),
+    // sort: z
+    //   .string()
+    //   .optional()
+    //   .describe(
+    //     "The sort expression to apply to the results. The sort parameter specifies that the results be sorted according to the specified expression i.e. sort by date. Example: sort=date.",
+    //   ),
     start: z
       .number()
       .int()

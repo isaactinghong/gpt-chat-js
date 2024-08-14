@@ -734,7 +734,7 @@ now, I expect you to give me a JSON with the following format:
               let functionResult = null;
               if (functionName === GoogleSearchAPI.searchGoogleFunctionName) {
                 functionResult = await GoogleSearchAPI.searchGoogle({
-                  query: functionArguments.query,
+                  params: functionArguments,
                 });
               }
               else if (functionName === NewsAPI.getTopHeadlinesFunctionName) {
