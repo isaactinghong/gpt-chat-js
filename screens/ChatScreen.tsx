@@ -732,29 +732,32 @@ now, I expect you to give me a JSON with the following format:
 
               // call the function
               let functionResult = null;
-              if (functionName === GoogleSearchAPI.searchGoogleFunctionName) {
-                functionResult = await GoogleSearchAPI.searchGoogle({
-                  params: functionArguments,
-                });
-              }
-              else if (functionName === NewsAPI.getTopHeadlinesFunctionName) {
-                functionResult = await NewsAPI.getTopHeadlines({
-                  ...(functionArguments.country && { country: functionArguments.country }),
-                  ...(functionArguments.category && { category: functionArguments.category }),
-                  ...(functionArguments.q && { q: functionArguments.q }),
-                });
-              }
-              else if (functionName === NewsAPI.searchArticlesOfTopicFunctionName) {
-                functionResult = await NewsAPI.searchArticlesOfTopic({
-                  /*
-                    topicOrKeyword,
-                    from,
-                    sortBy,
-                  */
-                  ...(functionArguments.topic_or_keyword && { topicOrKeyword: functionArguments.topic_or_keyword }),
-                  ...(functionArguments.from && { from: functionArguments.from }),
-                  ...(functionArguments.sortBy && { sortBy: functionArguments.sortBy }),
-                });
+
+              switch (functionName) {
+                case GoogleSearchAPI.searchGoogleFunctionName:
+                  functionResult = await GoogleSearchAPI.searchGoogle({
+                    params: functionArguments,
+                  });
+                  break;
+                case NewsAPI.getTopHeadlinesFunctionName:
+                  functionResult = await NewsAPI.getTopHeadlines({
+                    ...(functionArguments.country && { country: functionArguments.country }),
+                    ...(functionArguments.category && { category: functionArguments.category }),
+                    ...(functionArguments.q && { q: functionArguments.q }),
+                  });
+                  break;
+                case NewsAPI.searchArticlesOfTopicFunctionName:
+                  functionResult = await NewsAPI.searchArticlesOfTopic({
+                    /*
+                      topicOrKeyword,
+                      from,
+                      sortBy,
+                    */
+                    ...(functionArguments.topic_or_keyword && { topicOrKeyword: functionArguments.topic_or_keyword }),
+                    ...(functionArguments.from && { from: functionArguments.from }),
+                    ...(functionArguments.sortBy && { sortBy: functionArguments.sortBy }),
+                  });
+                  break;
               }
 
               // if functionResult is null
@@ -771,35 +774,10 @@ now, I expect you to give me a JSON with the following format:
               } as ChatCompletionToolMessageParam
               );
 
-              // call OpenAI to update messages with the new tool result
-              await callOpenAiApiToUpdateMessages({
-                chatMessagesToOpenAI: messages.map((msg) => {
-                  // if content type is array,
-                  // set content as the first element of the array
-                  if (Array.isArray(msg.content)) {
-                    return {
-                      ...msg,
-                      content: (msg.content[0] as ChatCompletionContentPartText).text,
-                    };
-                  }
-                  else if ((msg as ChatCompletionAssistantMessageParam).tool_calls) {
-                    return {
-                      ...msg,
-                      tool_calls: (msg as ChatCompletionAssistantMessageParam).tool_calls,
-                    }
-                  }
-                  return msg;
-                }),
-                currentConversationId,
-                newMessageFromAI,
-                messageIndex,
-                messageContent,
-              });
-
 
             }
             catch (error: any) {
-              console.log("Error calling tool function", error);
+              console.log("Error calling tool functions", error);
 
               // show error toast message
               Toast.show({
@@ -809,6 +787,46 @@ now, I expect you to give me a JSON with the following format:
               });
             }
           }
+
+          try {
+
+            // call OpenAI to update messages with the new tool result
+            await callOpenAiApiToUpdateMessages({
+              chatMessagesToOpenAI: messages.map((msg) => {
+                // if content type is array,
+                // set content as the first element of the array
+                if (Array.isArray(msg.content)) {
+                  return {
+                    ...msg,
+                    content: (msg.content[0] as ChatCompletionContentPartText).text,
+                  };
+                }
+                else if ((msg as ChatCompletionAssistantMessageParam).tool_calls) {
+                  return {
+                    ...msg,
+                    tool_calls: (msg as ChatCompletionAssistantMessageParam).tool_calls,
+                  }
+                }
+                return msg;
+              }),
+              currentConversationId,
+              newMessageFromAI,
+              messageIndex,
+              messageContent,
+            });
+          }
+          catch (error: any) {
+            console.log("Error calling OpenAI API", error);
+
+            // show error toast message
+            Toast.show({
+              type: "error",
+              text1: "Error calling OpenAI API",
+              text2: error.message,
+            });
+          }
+
+
         }
       }
       // else the response is message
