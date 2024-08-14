@@ -15,6 +15,7 @@ import SharedContentScreen from "../screens/SharedContentScreen";
 import { storeImage } from "../idb/images-db";
 import { compressImage } from "../helpers/image-utils";
 import NewsAPI from '../services/NewsService';
+import GoogleSearchAPI from '../services/GoogleSearchService';
 
 const Drawer = createDrawerNavigator();
 
@@ -183,6 +184,19 @@ const DrawerNavigator = () => {
     OpenAI.setApiKey(openAiApiKey);
   }, [openAiApiKey]);
 
+  const googleSearchApiKey = useSelector(
+    (state: AppState) => state.settings.googleSearchApiKey
+  );
+  const googleSearchCx = useSelector(
+    (state: AppState) => state.settings.googleSearchCx
+  );
+
+  // whenever googleSearchApiKey or googleSearchCx changes, update the GoogleSearchAPI
+  React.useEffect(() => {
+    GoogleSearchAPI.setApiKey(googleSearchApiKey);
+    GoogleSearchAPI.setCX(googleSearchCx);
+  }, [googleSearchApiKey, googleSearchCx]);
+
   const newsAiApiKey = useSelector(
     (state: AppState) => state.settings.newsApiKey
   );
@@ -191,6 +205,7 @@ const DrawerNavigator = () => {
   React.useEffect(() => {
     NewsAPI.setApiKey(newsAiApiKey);
   }, [newsAiApiKey]);
+
 
   const currentConversation: Conversation = useSelector(
     (state: AppState) =>
