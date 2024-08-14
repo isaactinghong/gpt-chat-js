@@ -414,6 +414,11 @@ export default class GoogleSearchAPI {
           continue;
         }
 
+        // if searchType is "webpages", don't add it to the URLSearchParams
+        if (key === "searchType" && params[key] === "webpages") {
+          continue;
+        }
+
         urlSearchParams.append(key, params[key]);
       }
     }
@@ -602,7 +607,7 @@ export default class GoogleSearchAPI {
     //   ),
     q: z.string().describe("The query"),
     searchType: z
-      .enum(["image", "none"])
+      .enum(["image", "webpages"])
       .optional()
       .describe(
         "Specifies the search type: image. If unspecified, results are limited to webpages.",

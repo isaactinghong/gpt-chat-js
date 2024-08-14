@@ -835,11 +835,11 @@ now, I expect you to give me a JSON with the following format:
         );
 
         // add the new message from AI to messages
-        messages.push({
-          role: "assistant",
-          content: messageContent,
-          timestamp: Date.now(),
-        } as ChatCompletionAssistantMessageParam);
+        // messages.push({
+        //   role: "assistant",
+        //   content: messageContent,
+        //   timestamp: Date.now(),
+        // } as ChatCompletionAssistantMessageParam);
       }
 
 
