@@ -380,7 +380,7 @@ ${JSON.stringify(myProfile)}`
           tools.push(GoogleSearchAPI.searchGoogleFunction);
         }
 
-        // tools.push(CrawlAPI.crawlWebsiteFunction)
+        tools.push(CrawlAPI.crawlWebsiteFunction)
 
         await callOpenAiApiToUpdateMessages({
           chatMessagesToOpenAI,
@@ -739,39 +739,91 @@ now, I expect you to give me a JSON with the following format:
 
               switch (functionName) {
                 case GoogleSearchAPI.searchGoogleFunctionName:
-                  functionResult = await GoogleSearchAPI.searchGoogle({
-                    params: functionArguments,
-                  });
+                  try {
+
+                    functionResult = await GoogleSearchAPI.searchGoogle({
+                      params: functionArguments,
+                    });
+                  }
+                  catch (error: any) {
+                    console.log("Error calling searchGoogle", error);
+
+                    // show error toast message
+                    Toast.show({
+                      type: "error",
+                      text1: "Error calling searchGoogle",
+                      text2: error.message,
+                    });
+                  }
                   break;
                 case NewsAPI.getTopHeadlinesFunctionName:
-                  functionResult = await NewsAPI.getTopHeadlines({
-                    ...(functionArguments.country && { country: functionArguments.country }),
-                    ...(functionArguments.category && { category: functionArguments.category }),
-                    ...(functionArguments.q && { q: functionArguments.q }),
-                  });
+                  try {
+
+                    functionResult = await NewsAPI.getTopHeadlines({
+                      ...(functionArguments.country && { country: functionArguments.country }),
+                      ...(functionArguments.category && { category: functionArguments.category }),
+                      ...(functionArguments.q && { q: functionArguments.q }),
+                    });
+                  }
+                  catch (error: any) {
+                    console.log("Error calling getTopHeadlines", error);
+
+                    // show error toast message
+                    Toast.show({
+                      type: "error",
+                      text1: "Error calling getTopHeadlines",
+                      text2: error.message,
+                    });
+                  }
                   break;
                 case NewsAPI.searchArticlesOfTopicFunctionName:
-                  functionResult = await NewsAPI.searchArticlesOfTopic({
-                    /*
-                      topicOrKeyword,
-                      from,
-                      sortBy,
-                    */
-                    ...(functionArguments.topic_or_keyword && { topicOrKeyword: functionArguments.topic_or_keyword }),
-                    ...(functionArguments.from && { from: functionArguments.from }),
-                    ...(functionArguments.sortBy && { sortBy: functionArguments.sortBy }),
-                  });
+                  try {
+
+                    functionResult = await NewsAPI.searchArticlesOfTopic({
+                      /*
+                        topicOrKeyword,
+                        from,
+                        sortBy,
+                      */
+                      ...(functionArguments.topic_or_keyword && { topicOrKeyword: functionArguments.topic_or_keyword }),
+                      ...(functionArguments.from && { from: functionArguments.from }),
+                      ...(functionArguments.sortBy && { sortBy: functionArguments.sortBy }),
+                    });
+                  }
+                  catch (error: any) {
+                    console.log("Error calling searchArticlesOfTopic", error);
+
+                    // show error toast message
+                    Toast.show({
+                      type: "error",
+                      text1: "Error calling searchArticlesOfTopic",
+                      text2: error.message,
+                    });
+                  }
                   break;
                 case CrawlAPI.crawlWebsiteFunctionName:
-                  functionResult = await CrawlAPI.crawlWebsite({
-                    url: functionArguments.url,
-                  });
+                  try {
+
+                    functionResult = await CrawlAPI.crawlWebsite({
+                      url: functionArguments.url,
+                    });
+                  }
+                  catch (error: any) {
+                    console.log("Error calling crawlWebsite", error);
+
+                    // show error toast message
+                    Toast.show({
+                      type: "error",
+                      text1: "Error calling crawlWebsite",
+                      text2: error.message,
+                    });
+                  }
                   break;
               }
 
               // if functionResult is null
               if (!functionResult) {
-                continue;
+                functionResult = "No result";
               }
 
               // add the function result to messages
