@@ -240,7 +240,7 @@ const DrawerNavigator = () => {
                     color="#000"
                     style={styles.loadingSpinner}
                   />
-                  : ""}
+                  : null}
               </View>
             );
           },
