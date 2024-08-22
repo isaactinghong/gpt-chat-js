@@ -14,7 +14,9 @@
 
 ```shell
 npm install # if you have not installed the dependencies
+# bun install
 npx expo start --web
+# bunx expo start --web
 ```
 
 ## What is gpt-chat-js
@@ -66,6 +68,7 @@ git push --tags
 git push --all
 
 npx expo export:web
+# bunx expo export:web
 netlify deploy --dir web-build --prod
 
 ```
