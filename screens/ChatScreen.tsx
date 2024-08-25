@@ -211,7 +211,7 @@ Please answer me with the awareness of the above date.
           content.filter(
             (contentPart) => contentPart.type === "text"
           )[0] as ChatCompletionContentPartText
-        )?.text,
+        )?.text ?? "",
         images: imagesToUpload.map((localImage) => ({
           id: localImage.id,
           // base64: localImage.base64, // do not store base64 in redux store
@@ -222,7 +222,7 @@ Please answer me with the awareness of the above date.
     else {
       newMessage = {
         role: "user",
-        content: inputText,
+        content: inputText ?? "",
         timestamp: Date.now(),
       };
       newMessageToStore = newMessage;
@@ -444,14 +444,14 @@ now, I expect you to give me a JSON with the following format:
       // `;
 
       // system message to ask openai to give a title
-      const firstPostProcessingMessage: ChatCompletionMessageParam = {
+      const firstPostProcessingSystemMessage: ChatCompletionMessageParam = {
         role: "system",
         content: postProcessingMessageInstruction,
       };
 
       // title messages
       const postProcessingMessages = [
-        firstPostProcessingMessage,
+        firstPostProcessingSystemMessage,
         ...messages
           .filter((msg) => msg.type !== "image")
           .map((msg) => {
@@ -460,7 +460,7 @@ now, I expect you to give me a JSON with the following format:
             if (Array.isArray(msg.content)) {
               return {
                 ...msg,
-                content: (msg.content[0] as ChatCompletionContentPartText).text,
+                content: (msg.content[0] as ChatCompletionContentPartText).text ?? "",
               };
             }
             else if ((msg as ChatCompletionAssistantMessageParam).tool_calls) {
@@ -469,8 +469,13 @@ now, I expect you to give me a JSON with the following format:
                 tool_calls: (msg as ChatCompletionAssistantMessageParam).tool_calls,
               }
             }
-            return msg;
+            return {
+              ...msg,
+              content: msg.content ?? "",
+            }
           }),
+        // include the last message coming from openai
+        newMessageFromAI,
       ];
 
       // get new conversation title, and updated user content from openai
@@ -483,7 +488,7 @@ now, I expect you to give me a JSON with the following format:
             (msg) =>
             ({
               role: msg.role,
-              ...(msg.content && { content: msg.content }),
+              content: msg.content ?? "",
               ...((msg as ChatCompletionAssistantMessageParam).tool_calls && { tool_calls: (msg as ChatCompletionAssistantMessageParam).tool_calls }),
               ...((msg as ChatCompletionToolMessageParam).tool_call_id && { tool_call_id: (msg as ChatCompletionToolMessageParam).tool_call_id }),
             } as ChatCompletionMessageParam)
