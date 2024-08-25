@@ -1222,6 +1222,52 @@ now, I expect you to give me a JSON with the following format:
     }
   }, [inputText]);
 
+  // useEffect on inputRef, to add paste event listener
+  useEffect(() => {
+    const handlePaste = async (event: ClipboardEvent) => {
+      const items = event.clipboardData?.items;
+      if (items) {
+        for (const item of Array.from(items)) {
+          if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (e) => {
+                const base64image = e.target?.result as string;
+                // const imageInClipboard = {
+                //   id: Date.now().toString(), // Generate a unique ID for the image
+                //   base64: base64Image,
+                // };
+
+                // use IndexedDB to store the compressed image
+                storeImage(base64image, currentConversationId!).then((id) => {
+                  const localImage = {
+                    id,
+                    base64: base64image,
+                  };
+
+                  dispatch(addImage(localImage));
+                });
+              };
+              reader.readAsDataURL(file);
+            }
+          }
+        }
+      }
+    };
+
+    const inputElement = inputRef.current;
+    if (inputElement) {
+      inputElement.addEventListener('paste', handlePaste);
+    }
+
+    return () => {
+      if (inputElement) {
+        inputElement.removeEventListener('paste', handlePaste);
+      }
+    };
+  }, [dispatch]);
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.messagesContainer}>

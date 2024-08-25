@@ -154,7 +154,7 @@ const DrawerNavigator = () => {
 
               const localImage = {
                 id,
-                // base64: base64image,
+                base64: base64image,
               };
 
               // just add the original image
