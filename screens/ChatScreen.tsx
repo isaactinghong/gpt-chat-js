@@ -55,7 +55,7 @@ import { compressImage } from "../helpers/image-utils";
 import NewsAPI from '../services/NewsService';
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
-import { MyProfile, myProfileZod } from '../models/my-profile';
+// import { MyProfile, myProfileZod } from '../models/my-profile';
 import GoogleSearchAPI from '../services/GoogleSearchService';
 import CrawlAPI from '../services/CrawlService';
 
@@ -65,8 +65,8 @@ const MAX_INPUT_LINES = 15; // Maximum number of lines the input can have
 
 interface PostProcessingResponse {
   title: string;
-  is_user_profile_needed_to_be_updated: boolean;
-  new_profile?: MyProfile;
+  // is_user_profile_needed_to_be_updated: boolean;
+  // new_profile?: MyProfile;
 }
 
 
@@ -124,26 +124,26 @@ const ChatScreen = () => {
   const systemMessage = useSelector(
     (state: AppState) => state.settings.systemMessage
   );
-  const myProfile = useSelector((state: AppState) => state.settings.myProfileJson);
+  // const myProfile = useSelector((state: AppState) => state.settings.myProfileJson);
 
   // system message with profile, calculated from systemMessage and myProfile
   const systemMessageWithProfile = `${systemMessage}
 --------------------------------
 Today is ${new Date().toDateString()}.
 --------------------------------
-This is my profile, please take reference when generating responses:
-${JSON.stringify(myProfile)}`
+Please answer me with the awareness of the above date.
+`
+
+  // This is my profile, please take reference when generating responses:
+  // ${JSON.stringify(myProfile)}`
 
   // user_profile Structured Outpus JSON Schema for OpenAI API
   const postProcessingJSONSchema =
     z.object({
       title: z.string(),
-      new_profile: myProfileZod,
-      is_user_profile_needed_to_be_updated: z.boolean(),
+      // new_profile: myProfileZod,
+      // is_user_profile_needed_to_be_updated: z.boolean(),
     })
-
-
-
 
   const messages = conversations[currentConversationId]?.messages ?? [];
   // Sample data
@@ -412,30 +412,36 @@ ${JSON.stringify(myProfile)}`
       // prepare the post processing messages to get the new title and user_profile
       /////////////////////////////////////////////////////////////////////////////
       const titleLength = 40;
+
+      // existing user_profile:
+      // ${JSON.stringify(myProfile)}
       const postProcessingMessageInstruction = `
-existing user_profile:
-${JSON.stringify(myProfile)}
 --------------------------------
 [title], required
 Please give a new title, to this conversation. The title should be less than ${titleLength} characters.
 --------------------------------
-[is_user_profile_needed_to_be_updated], required
-if the user_profile is not needed to be updated, set this to false.
---------------------------------
-[new_profile], optional
-collect, fom the conversation, new information about my profile into the user_profile, merge with the existing user_profile.
-only keep useful information which is needed for future conversations.
-if the information is too detailed, summarize it before adding to the user_profile.
-create new keys if needed, and update existing keys if needed.
-refrain from removing any data, or only remove if the data is ABSOLUTELY not needed.
---------------------------------
 now, I expect you to give me a JSON with the following format:
 {
   title: string;
-  is_user_profile_needed_to_be_updated: boolean;
-  new_profile: json object;
 }
 `;
+      // [is_user_profile_needed_to_be_updated], required
+      // if the user_profile is not needed to be updated, set this to false.
+      // --------------------------------
+      // [new_profile], optional
+      // collect, fom the conversation, new information about my profile into the user_profile, merge with the existing user_profile.
+      // only keep useful information which is needed for future conversations.
+      // if the information is too detailed, summarize it before adding to the user_profile.
+      // create new keys if needed, and update existing keys if needed.
+      // refrain from removing any data, or only remove if the data is ABSOLUTELY not needed.
+      // --------------------------------
+      // now, I expect you to give me a JSON with the following format:
+      // {
+      //   title: string;
+      //   is_user_profile_needed_to_be_updated: boolean;
+      //   new_profile: json object;
+      // }
+      // `;
 
       // system message to ask openai to give a title
       const firstPostProcessingMessage: ChatCompletionMessageParam = {
@@ -495,7 +501,7 @@ now, I expect you to give me a JSON with the following format:
         // parse if the content is JSON
         let postProcessingContentJson: PostProcessingResponse | null = {
           title: "",
-          is_user_profile_needed_to_be_updated: false,
+          // is_user_profile_needed_to_be_updated: false,
         };
         try {
 
@@ -540,44 +546,44 @@ now, I expect you to give me a JSON with the following format:
           });
         }
 
-        // if user_profile is not null, update myProfile
-        if (postProcessingContentJson.new_profile) {
-          // log updating user profile now
-          console.log("Checking returned user profile now");
+        // // if user_profile is not null, update myProfile
+        // if (postProcessingContentJson.new_profile) {
+        //   // log updating user profile now
+        //   console.log("Checking returned user profile now");
 
-          // if the user_profile is object
-          // convert it to markdown string
-          if (typeof postProcessingContentJson.new_profile === "object") {
+        //   // if the user_profile is object
+        //   // convert it to markdown string
+        //   if (typeof postProcessingContentJson.new_profile === "object") {
 
-            // log user_profile is object
-            console.log("user_profile is object");
+        //     // log user_profile is object
+        //     console.log("user_profile is object");
 
-            // if postProcessingContentJson.is_user_profile_needed_to_be_changed is false, do not update myProfile
-            if (!postProcessingContentJson.is_user_profile_needed_to_be_updated) {
-              console.log("user_profile is not needed to be changed");
-              return;
-            }
+        //     // if postProcessingContentJson.is_user_profile_needed_to_be_changed is false, do not update myProfile
+        //     if (!postProcessingContentJson.is_user_profile_needed_to_be_updated) {
+        //       console.log("user_profile is not needed to be changed");
+        //       return;
+        //     }
 
-            // check if new_profile is not set
-            if (!postProcessingContentJson.new_profile) {
-              console.log("new_profile is not set");
-              return;
-            }
-          }
+        //     // check if new_profile is not set
+        //     if (!postProcessingContentJson.new_profile) {
+        //       console.log("new_profile is not set");
+        //       return;
+        //     }
+        //   }
 
-          dispatch(
-            saveSettings({
-              myProfileJson: postProcessingContentJson.new_profile!,
-            })
-          );
+        //   dispatch(
+        //     saveSettings({
+        //       myProfileJson: postProcessingContentJson.new_profile!,
+        //     })
+        //   );
 
 
-          // toast message
-          Toast.show({
-            type: "success",
-            text1: "Your profile updated",
-          });
-        }
+        //   // toast message
+        //   Toast.show({
+        //     type: "success",
+        //     text1: "Your profile updated",
+        //   });
+        // }
       } catch (error: any) {
         console.log("Error", error);
 

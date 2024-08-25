@@ -40,12 +40,13 @@ const SideMenu = ({ navigation }: {
   const systemMessage = useSelector(
     (state: AppState) => state.settings.systemMessage
   );
-  const myProfileJson = useSelector((state: AppState) => state.settings.myProfileJson);
 
   const [modelNameLocal, setModelNameLocal] = React.useState(modelName);
   const [systemMessageLocal, setSystemMessageLocal] =
     React.useState(systemMessage);
-  const [myProfileLocal, setMyProfileLocal] = React.useState("");
+
+  // const myProfileJson = useSelector((state: AppState) => state.settings.myProfileJson);
+  // const [myProfileLocal, setMyProfileLocal] = React.useState("");
   // const [myProfileText, setMyProfileText] = React.useState("");
 
   // modal visibility
@@ -53,19 +54,19 @@ const SideMenu = ({ navigation }: {
   // parse error
   const [parseError, setParseError] = React.useState("");
 
-  const handleMyProfileTextChange = (value: string) => {
+  // const handleMyProfileTextChange = (value: string) => {
 
-    // setMyProfileLocal
-    setMyProfileLocal(value);
+  //   // setMyProfileLocal
+  //   setMyProfileLocal(value);
 
-    // try to parse the value
-    try {
-      const myProfileJson = JSON.parse(value);
-      setParseError("");
-    } catch (error) {
-      setParseError("Invalid JSON");
-    }
-  }
+  //   // try to parse the value
+  //   try {
+  //     const myProfileJson = JSON.parse(value);
+  //     setParseError("");
+  //   } catch (error) {
+  //     setParseError("Invalid JSON");
+  //   }
+  // }
 
   const handleSave = (fieldName: string, newInput: any) => {
     // log
@@ -98,15 +99,15 @@ const SideMenu = ({ navigation }: {
     }
   }, [modelNameLocal]); // adding handleSave to dependencies as a best practice
 
-  // onMount, load myProfile from store
-  React.useEffect(() => {
+  // // onMount, load myProfile from store
+  // React.useEffect(() => {
 
-    // JSON stringify myProfile
-    const myProfileString = JSON.stringify(myProfileJson, null, 2);
+  //   // JSON stringify myProfile
+  //   const myProfileString = JSON.stringify(myProfileJson, null, 2);
 
-    // set myProfileLocal
-    setMyProfileLocal(myProfileString);
-  }, [myProfileJson]);
+  //   // set myProfileLocal
+  //   setMyProfileLocal(myProfileString);
+  // }, [myProfileJson]);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -174,7 +175,7 @@ const SideMenu = ({ navigation }: {
           />
         </View>
         {/* my profile button, click to open modal */}
-        <Pressable
+        {/* <Pressable
           style={GlobalStyles.primaryClearButton}
           onPress={() => {
             // set modal visibility to true
@@ -182,7 +183,7 @@ const SideMenu = ({ navigation }: {
           }}
         >
           <Text style={GlobalStyles.primaryClearButtonText}>My Profile</Text>
-        </Pressable>
+        </Pressable> */}
         <Pressable
           // color={"#000"}
           style={GlobalStyles.primaryButton}
@@ -195,69 +196,6 @@ const SideMenu = ({ navigation }: {
         </Pressable>
         <Text style={styles.versionText}>Version {version}</Text>
       </View>
-      {/* modal for my profile */}
-      <Modal animationType="slide" transparent={false} visible={modalVisible}>
-        <View style={styles.modalView}>
-          <Text>My Profile</Text>
-
-          {/* a flex grow input for my profile */}
-          <TextInput
-            style={{ flex: 1, borderColor: "gray", borderWidth: 1, fontSize: 16 }}
-            multiline={true}
-            numberOfLines={4}
-            value={myProfileLocal}
-            onChangeText={(value) => handleMyProfileTextChange(value)}
-          />
-
-          {/* show parse error if any */}
-          {parseError ? <Text style={{ color: "red" }}>{parseError}</Text> : null}
-
-          {/* a row of two buttons: Save and Close */}
-          <View style={styles.modalButtonsContainer}>
-            <Pressable
-              style={GlobalStyles.primaryButton}
-              onPress={() => {
-                // validate myProfileLocal
-                try {
-                  // log start
-                  console.log("myProfileLocal", myProfileLocal);
-
-                  // set modal visibility to false
-                  setModalVisible(false);
-
-                  // parse myProfileLocal into JSON
-                  const myProfileJson = JSON.parse(myProfileLocal);
-
-                  // save to store
-                  dispatch(saveSettings({ myProfileJson: myProfileJson }));
-
-                  // show success toast message
-                  Toast.show({
-                    type: "success",
-                    text1: "My Profile saved",
-                  });
-                } catch (error) {
-                  // log error
-                  console.error("error setting myProfile", error);
-
-                  return;
-                }
-              }}
-            >
-              <Text style={GlobalStyles.primaryButtonText}>Save</Text>
-            </Pressable>
-            <Pressable
-              style={GlobalStyles.primaryClearButton}
-              onPress={() => {
-                // set modal visibility to false
-                setModalVisible(false);
-              }}
-            >
-              <Text style={GlobalStyles.primaryClearButtonText}>Close</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
