@@ -1287,7 +1287,7 @@ now, I expect you to give me a JSON with the following format:
         inputElement.removeEventListener('paste', handlePaste);
       }
     };
-  }, [dispatch]);
+  }, [inputRef, currentConversationId]);
 
   return (
     <View style={styles.container}>
