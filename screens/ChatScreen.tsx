@@ -145,7 +145,10 @@ Please answer me with the awareness of the above date.
       // is_user_profile_needed_to_be_updated: z.boolean(),
     })
 
-  const messages = conversations[currentConversationId]?.messages ?? [];
+  // const messages = conversations[currentConversationId]?.messages ?? [];
+  const messages = useSelector(
+    (state: AppState) => state.chats.conversations[currentConversationId]?.messages
+  ) ?? [];
   // Sample data
   // const messages = [
   //   {
