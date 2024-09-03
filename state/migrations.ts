@@ -141,6 +141,31 @@ Any mermaid diagram can be rendered in the app when needed.`
       },
     } as unknown as PersistedState;
   },
+  // 13 to remove old conversations if they are more than 100
+  13: (state: PersistedState) => {
+    const appState = state as unknown as AppState;
+    const conversations = Object.values(appState.chats.conversations);
+    if (conversations.length > 100) {
+      const newConversations = conversations.slice(-100);
+      const conversationsObject = newConversations.reduce(
+        (acc, conversation) => {
+          acc[conversation.id] = conversation;
+          return acc;
+        },
+        {} as Record<string, any>,
+      );
+      return {
+        ...appState,
+        chats: {
+          ...appState.chats,
+          conversations: conversationsObject,
+        },
+      } as unknown as PersistedState;
+    }
+    return appState as unknown as PersistedState;
+  }
+
+
   // ...
   // you can keep adding migrations here for further versions
 };
