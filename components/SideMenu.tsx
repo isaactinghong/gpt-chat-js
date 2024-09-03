@@ -1,5 +1,5 @@
 // src/components/SideMenu.js
-import React from "react";
+import React, { useMemo } from "react";
 import {
   View,
   Text,
@@ -24,17 +24,36 @@ import { useDispatch } from "react-redux";
 import { saveSettings } from "../state/actions/settingsActions";
 import Toast from "react-native-toast-message";
 import GlobalStyles from "../theme/GlobalStyles";
+import ConversationItem from './ConversationItem';
+import { FixedSizeList as List } from 'react-window';
 
 const SideMenu = ({ navigation }: {
   navigation: any;
 }) => {
-  // load conversations from store
+  // // load conversations from store
+  // const conversationList: Conversation[] = useSelector((state: AppState) =>
+  //   state.chats.conversations
+  //     ? Object.values(state.chats.conversations).reverse()
+  //     : []
+  // );
+  const dispatch = useDispatch();
+
+
+  // Memoize the conversation list to avoid unnecessary recalculations
   const conversationList: Conversation[] = useSelector((state: AppState) =>
     state.chats.conversations
-      ? Object.values(state.chats.conversations).reverse()
+      ? Object.values(state.chats.conversations)
       : []
   );
-  const dispatch = useDispatch();
+
+  const memoizedConversationList = useMemo(() => conversationList.reverse(), [conversationList]);
+
+  const Row = ({ index, style }: { index: number; style: any }) => (
+    <div style={style}>
+      {/* Render your conversation item here */}
+      <ConversationItem conversation={memoizedConversationList[index]} navigation={navigation} />
+    </div>
+  );
 
   const modelName = useSelector((state: AppState) => state.settings.modelName);
   const systemMessage = useSelector(
@@ -127,24 +146,15 @@ const SideMenu = ({ navigation }: {
         </Pressable>
 
         {/* List of chat conversations, expanded and scrollable */}
-        <ScrollView style={styles.conversationList}>
-          {/* list the conversations */}
-          {conversationList.map((conversation) => (
-            <Text
-              key={conversation.id}
-              style={styles.conversationTitle}
-              onPress={() => {
-                // select the conversation
-                dispatch(selectConversation(conversation.id));
 
-                /* Navigate to conversation screen */
-                navigation.navigate("Chat");
-              }}
-            >
-              {conversation.title}
-            </Text>
-          ))}
-        </ScrollView>
+        <List style={styles.conversationList}
+          height={600} // Adjust height as needed
+          itemCount={memoizedConversationList.length}
+          itemSize={50} // Adjust item size as needed
+          width={'100%'}
+        >
+          {Row}
+        </List>
 
         {/* Bottom of the side menu */}
         <View style={styles.gptModelInputView}>

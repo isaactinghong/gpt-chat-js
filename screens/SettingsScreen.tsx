@@ -16,7 +16,11 @@ import { AppState } from "../state/states/app-state";
 import Toast from "react-native-toast-message";
 import GlobalStyles from "../theme/GlobalStyles";
 
-const SettingsScreen = () => {
+const SettingsScreen = ({
+  navigation,
+}: {
+  navigation: any;
+}) => {
   const dispatch = useDispatch();
 
   // openAiApiKey
@@ -137,6 +141,9 @@ const SettingsScreen = () => {
             type: "success",
             text1: "Settings saved",
           });
+
+          // navigate to Chat
+          navigation.navigate("Chat");
         }}
       >
         <Text style={GlobalStyles.primaryButtonText}>Save</Text>

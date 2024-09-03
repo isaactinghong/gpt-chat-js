@@ -146,9 +146,16 @@ Please answer me with the awareness of the above date.
     })
 
   // const messages = conversations[currentConversationId]?.messages ?? [];
-  const messages = useSelector(
-    (state: AppState) => state.chats.conversations[currentConversationId]?.messages
-  ) ?? [];
+  // Validate state structure
+  const messages = useSelector((state: AppState) => {
+    const conversation = state.chats.conversations[currentConversationId];
+    if (!conversation) {
+      console.error(`No conversation found for id: ${currentConversationId}`);
+      return [];
+    }
+    return conversation.messages ?? [];
+  });
+
   // Sample data
   // const messages = [
   //   {
