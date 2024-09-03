@@ -77,10 +77,23 @@ const chatReducer = (
       return {
         ...state,
         currentConversationId: conversation.id,
+        // only keep latest max 100 conversations
         conversations: {
-          ...state.conversations,
           [conversation.id]: conversation,
+          ...Object.entries(state.conversations)
+            .slice(-99)
+            .reduce(
+              (acc, [key, value]) => {
+                acc[key] = value;
+                return acc;
+              },
+              {} as Record<string, Conversation>,
+            ),
         },
+        // conversations: {
+        //   ...state.conversations,
+        //   [conversation.id]: conversation,
+        // },
       };
     }
     case SELECT_CONVERSATION: {
