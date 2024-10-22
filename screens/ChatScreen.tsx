@@ -390,7 +390,7 @@ Please answer me with the awareness of the above date.
           tools.push(GoogleSearchAPI.searchGoogleFunction);
         }
 
-        tools.push(CrawlAPI.crawlWebsiteFunction)
+        // tools.push(CrawlAPI.crawlWebsiteFunction)
 
         await callOpenAiApiToUpdateMessages({
           chatMessagesToOpenAI,
