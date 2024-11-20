@@ -1,6 +1,6 @@
 {
   "name": "gpt-chat-js",
-  "version": "1.5.11",
+  "version": "1.5.12",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "dev": "expo start --web",
