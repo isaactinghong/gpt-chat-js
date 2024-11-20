@@ -57,6 +57,10 @@ const SettingsScreen = ({
   );
   const [showMarkdownLocal, setShowMarkdownLocal] = React.useState(showMarkdown);
 
+  // baseUrl
+  const baseUrl = useSelector((state: AppState) => state.settings.baseUrl);
+  const [baseUrlLocal, setBaseUrlLocal] = React.useState(baseUrl);
+
   return (
     <View style={styles.container}>
       {/* OpenAI API Key */}
@@ -118,6 +122,18 @@ const SettingsScreen = ({
         />
       </View>
 
+      {/* Margin */}
+      <View style={{ height: 20 }}></View>
+
+      {/* Show Base URL */}
+      <Text style={styles.title}>Base URL</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Your Base URL here"
+        value={baseUrlLocal}
+        onChangeText={setBaseUrlLocal}
+      />
+
       {/* margin */}
       <View style={{ flexGrow: 1 }}></View>
 
@@ -133,6 +149,7 @@ const SettingsScreen = ({
               googleSearchCx: googleSearchCxLocal,
               newsApiKey: newsApiKeyLocal,
               showMarkdown: showMarkdownLocal,
+              baseUrl: baseUrlLocal,
             })
           );
 

@@ -164,6 +164,7 @@ Any mermaid diagram can be rendered in the app when needed.`,
   myProfile: "",
   myProfileJson: defaultMyProfile,
   showMarkdown: true,
+  baseUrl: "",
 };
 
 // reducer

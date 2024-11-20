@@ -14,7 +14,7 @@ const RecordVoiceButton: React.FC<{
   const [isRecording, setIsRecording] = useState(false);
   const [recordingUri, setRecordingUri] = useState("");
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [intervalId, setIntervalId] = useState(null);
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [soundObject, setSoundObject] = useState<Audio.Sound | undefined>();
@@ -24,7 +24,7 @@ const RecordVoiceButton: React.FC<{
     console.log("start recording");
     try {
       // clear recording and duration
-      setRecording(null);
+      setRecording(undefined);
       setRecordingDuration(0);
 
       const permission = await Audio.requestPermissionsAsync();
@@ -55,13 +55,15 @@ const RecordVoiceButton: React.FC<{
   const stopRecording = async () => {
     if (!recording) return;
     setIsRecording(false);
-    clearInterval(intervalId);
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+    }
     setIntervalId(null);
     await recording.stopAndUnloadAsync();
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
     });
-    const uri = recording.getURI();
+    const uri = recording.getURI() || "";
     setRecordingUri(uri);
 
     // log uri
@@ -75,12 +77,11 @@ const RecordVoiceButton: React.FC<{
   };
 
   // Format the duration as mm:ss
-  const formatDuration = (duration) => {
+  const formatDuration = (duration: number) => {
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
-    return `${minutes < 10 ? "0" : ""}${minutes}:${
-      seconds < 10 ? "0" : ""
-    }${seconds}`;
+    return `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""
+      }${seconds}`;
   };
 
   // delete recording, or stop recording if recording is in progress
@@ -90,7 +91,7 @@ const RecordVoiceButton: React.FC<{
       // log stoppped recording
       console.log("stopped recording");
     } else {
-      setRecording(null);
+      setRecording(undefined);
       setRecordingDuration(0);
       // log deleted recording
       console.log("deleted recording");
@@ -109,7 +110,7 @@ const RecordVoiceButton: React.FC<{
 
     // stop the recording if it is in progress
     if (isRecording) {
-      uri = await stopRecording();
+      uri = (await stopRecording()) || "";
     }
 
     // read from URI to blob to FileLike
@@ -123,7 +124,7 @@ const RecordVoiceButton: React.FC<{
     console.log("whisperResult:", whisperResult);
 
     // broadcast the whisper result
-    props.onWhisperResult(whisperResult.text);
+    props.onWhisperResult?.(whisperResult.text);
 
     // delete recording uri
     // deleteRecording();
@@ -228,7 +229,7 @@ const RecordVoiceButton: React.FC<{
     // Force download
     link.click();
     // Clean up and remove the link
-    link.parentNode.removeChild(link);
+    link.parentNode?.removeChild(link);
   };
 
   useEffect(() => {

@@ -3,6 +3,8 @@ import { OpenAI as OpenAIBase } from "openai";
 export default class OpenAI {
   private static _instance: OpenAI | null = null;
 
+  private static DEFAULT_BASE_URL: string = "https://walrus-app-zl2gh.ondigitalocean.app/api";
+
   _openai;
 
   /**
@@ -22,13 +24,12 @@ export default class OpenAI {
 
   constructor() {
     // const proxyUrl = process.env.PROXY_URL;
-    const proxyUrl = "https://walrus-app-zl2gh.ondigitalocean.app/api";
-    console.log("proxyUrl", proxyUrl);
+    // const proxyUrl = "https://walrus-app-zl2gh.ondigitalocean.app/api";
 
     this._openai = new OpenAIBase({
       apiKey: "123",
       // httpAgent: agent,
-      baseURL: proxyUrl,
+      baseURL: OpenAI.DEFAULT_BASE_URL,
       dangerouslyAllowBrowser: true,
     });
   }
@@ -38,6 +39,18 @@ export default class OpenAI {
       return;
     }
     this.api.apiKey = apiKey;
+  }
+
+  static setBaseUrl(baseUrl: string) {
+    if (!this.api) {
+      return;
+    }
+    if (!baseUrl) {
+      // log warn
+      console.warn("Base URL is not valid. Using default base URL.");
+      baseUrl = OpenAI.DEFAULT_BASE_URL;
+    }
+    this.api.baseURL = baseUrl;
   }
 
   static async suggestFileName(text: string) {

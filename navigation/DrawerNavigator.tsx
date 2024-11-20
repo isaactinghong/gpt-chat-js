@@ -58,6 +58,15 @@ const DrawerNavigator = () => {
     (state: AppState) => state.chats.isPostProcessing
   );
 
+  // baseUrl
+  const baseUrl = useSelector((state: AppState) => state.settings.baseUrl);
+
+  useEffect(() => {
+    // log entry
+    console.log("DrawerNavigator OpenAI.setBaseUrl -> baseUrl", baseUrl);
+    OpenAI.setBaseUrl(baseUrl);
+  }, [baseUrl]);
+
   useEffect(() => {
     const handleRedirectAudios = async () => {
       try {

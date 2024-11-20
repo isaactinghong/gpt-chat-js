@@ -24,4 +24,5 @@ export interface SettingsState {
   myProfile: string; // deprecated
   myProfileJson: MyProfile;
   showMarkdown: boolean;
+  baseUrl: string;
 }
