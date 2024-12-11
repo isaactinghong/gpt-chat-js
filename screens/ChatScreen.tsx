@@ -640,7 +640,7 @@ now, I expect you to give me a JSON with the following format:
     const stream = await OpenAI.api.chat.completions.create({
       messages: chatMessagesToOpenAI,
       model,
-      max_tokens: 4096,
+      max_tokens: 65536,
       stream: true,
       ...((tools && tools.length > 0) && { tools }),
     });
