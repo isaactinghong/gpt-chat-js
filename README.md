@@ -21,43 +21,32 @@ npx expo start --web
 
 ## What is gpt-chat-js
 
-This application creates the chat interface for users to chat with gpt (gpt-4)
+gpt-chat-js is a cross-platform chat application (React Native + PWA) that provides a modern interface for interacting with OpenAI's GPT models, including GPT-4o, Vision, Whisper, DALL·E, and Text-to-Speech. It is designed for both web and mobile, supporting advanced AI features and a user-friendly chat experience.
 
-- the interface consists of a side menu and a chat window
-- when user clicks top left menu icon, the side menu will slide in from the left
+**Key Features:**
+- **Multi-modal AI chat:** Supports text, image (Vision), voice (Whisper), and image generation (DALL·E) interactions with OpenAI models.
+- **Side menu navigation:** Slide-in menu for managing multiple chat conversations, switching models (default: 'gpt-4o-mini'), and accessing settings.
+- **API key & system message management:** Securely input and save your OpenAI API key and customize system prompts.
+- **Rich chat window:**
+  - Displays chat history with support for text and image messages.
+  - Images are shown as thumbnails; click to view full size.
+  - Top bar shows conversation title and provides actions: start new chat, export/copy/delete conversation, generate images (DALL·E), and text-to-speech.
+- **Message input:**
+  - Attach multiple images to a message (Vision support).
+  - Record and transcribe voice messages (Whisper integration).
+  - Send text, images, or voice in a single message.
+- **Export & copy:** Export or copy entire conversations for sharing or backup.
+- **PWA & mobile ready:** Works as a Progressive Web App and as a React Native app.
+- **Customizable:** Easily switch models, system messages, and manage settings.
 
-  - the side menu will display the list of chat conversations
-  - the bottom of side menu display the followings:
-    - input field for user to enter the gpt model name
-      - default is 'gpt-4o-mini'
-    - input field for user to enter system message
-    - settings button for user to click to open the settings window
-      - user can input the api key in the settings window and click the save button to save the api key
-    - version number of the application
+**Supported OpenAI Features:**
+- GPT-4o and other GPT models for chat
+- GPT Vision (image understanding)
+- Whisper (speech-to-text)
+- DALL·E 3 (image generation)
+- Text-to-Speech (voice generation)
 
-- the chat window will display the chat conversation selected from the side menu
-- the chat conversation is a list of chat messages
-- each chat message contains a text message, and may contain images
-  - images are displayed as thumbnails listed at the bottom of the chat message in a wrapped row
-  - user can click on the thumbnail to view the full image
-- top navigation bar will display the title of the chat conversation
-- at the right of the top navigation bar, there are action buttons:
-  - `+` button: user can click on this button to start a new chat conversation
-  - `...` button: user can click on this button to view the menu of the chat conversation
-    - `Export` menu item: user can click on this menu item to export the chat conversation
-- at the bottom of the chat window, there is a text input field for user to type text message
-  - user can click on the `Attach` icon button to add an image to the chat message
-    - when image is added, the image will be displayed as a thumbnail at the top of the text input field
-    - user can click on the thumbnail to highlight the image
-      - user can click on the `X` icon button to remove the image from the chat message
-    - multiple images can be added to a single chat message to be sent
-  - user can click on the `Send` icon button to send the chat message
-
-<!-- ## Workbox CLI to generate a complete service worker
-
-```shell
-npx workbox-cli generateSW workbox-config.js
-``` -->
+This project is ideal for users who want a full-featured, multi-modal AI chat experience with OpenAI, accessible from both web and mobile platforms.
 
 ## Deployment pwa to netlify with webpack export
 
